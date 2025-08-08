@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reinforcement Learning Maze Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>AI Car Challenge!</h1>
+            <p class="subtitle">Watch a smart car learn to navigate the track and avoid obstacles!</p>
+        </header>
+
+        <main class="main-content">
+            <div class="maze-section">
+                <div class="maze-container">
+                    <canvas id="mazeCanvas" width="360" height="360"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #607d8b;"></div>
+                        <span>Start</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color checkerboard" style="background-color: #ffffff;"></div>
+                        <span>Finish</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #9e9e9e;"></div>
+                        <span>Road</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #a1887f;"></div>
+                        <span>Obstacle</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #f44336;"></div>
+                        <span>Smart Car</span>
+                    </div>
+                </div>
+                <p class="edit-note">Click on the maze to add or remove obstacles.</p>
+            </div>
+
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Training Controls</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="button-group">
+                            <button id="stepBtn" class="btn btn--primary">Run Best Path</button>
+                            <button id="startBtn" class="btn btn--secondary">Start Training</button>
+                            <button id="stopBtn" class="btn btn--outline">Stop</button>
+                        </div>
+                        <div class="button-group mt-8">
+                            <!-- <button id="resetQBtn" class="btn btn--outline btn--sm">Reset Q-Table</button> -->
+                            <button id="resetEnvBtn" class="btn btn--outline btn--sm">Reset Environment</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Training Statistics</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="stat-item">
+                            <span class="stat-label">Episodes:</span>
+                            <span id="episodeCount" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Last Reward:</span>
+                            <span id="lastReward" class="stat-value">0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Last Steps:</span>
+                            <span id="lastSteps" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Success Rate:</span>
+                            <span id="successRate" class="stat-value">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Click "Run Best Path" to see the car follow the optimal path it has learned. "Start Training" will let the car learn continuously.
+            The car learns to find the shortest path from the start (blue-grey) to the finish (checkered) using Q-learning.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

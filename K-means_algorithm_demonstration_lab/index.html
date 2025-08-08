@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Means Clustering Lab - Interactive Learning</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>K-Means Clustering Lab</h1>
+            <p>An interactive tool for understanding the k-means algorithm.</p>
+        </header>
+
+        <!-- Main Application -->
+        <div id="main-app" class="main-app">
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <div class="canvas-container card">
+                    <canvas id="clustering-canvas" width="800" height="600"></canvas>
+                    <div class="canvas-instructions">
+                        <p>💡 Click on the canvas to add data points or select a preset example.</p>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Control Panel -->
+                <div class="control-panel card">
+                    <div class="card__body">
+                        <h3>Controls</h3>
+                        <div class="control-group">
+                            <label class="form-label">Preset Examples</label>
+                            <select id="preset-selector" class="form-control">
+                                <option value="">Custom Points</option>
+                                <option value="basketball">🏀 Basketball Teams</option>
+                                <option value="study">📚 Study Groups</option>
+                                <option value="music">🎵 Music Preferences</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label class="form-label">Number of Groups (K): <span id="k-value">3</span></label>
+                            <input type="range" id="k-slider" min="2" max="8" value="3" class="slider">
+                        </div>
+                        <div class="control-group">
+                            <button id="start-btn" class="btn btn--primary btn--full-width">Start Algorithm</button>
+                            <div class="button-row">
+                                <button id="step-btn" class="btn btn--secondary">Step</button>
+                                <button id="pause-btn" class="btn btn--secondary">Pause</button>
+                                <button id="reset-btn" class="btn btn--outline">Reset</button>
+                            </div>
+                        </div>
+                         <div class="control-group">
+                            <button id="random-data-btn" class="btn btn--secondary btn--full-width">Generate Random Data</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Information -->
+                <div class="step-info card">
+                    <div class="card__body">
+                        <div class="current-step">
+                            <h4 id="step-title">Ready to Start!</h4>
+                            <p id="step-description">Choose your data and click 'Start' to begin.</p>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div id="progress-fill" class="progress-fill"></div>
+                            </div>
+                            <span id="iteration-count">Iteration: 0</span>
+                        </div>
+                        <div class="algorithm-stats">
+                            <div class="stat-item stat-item--cost">
+                                <span class="stat-label">Total Cost</span>
+                                <span id="total-cost">-</span>
+                            </div>
+                            <div class="stat-item stat-item--points">
+                                <span class="stat-label">Points</span>
+                                <span id="point-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Educational Tabs -->
+                <div class="educational-tabs card">
+                    <div class="tab-header">
+                        <button class="tab-link active" data-tab="tab-1">Examples</button>
+                        <button class="tab-link" data-tab="tab-2">Fun Facts</button>
+                        <button class="tab-link" data-tab="tab-3">Help</button>
+                    </div>
+                    <div class="tab-content">
+                        <div id="tab-1" class="tab-pane active">
+                            <div class="example-item">
+                                <h4>Netflix Recommendations</h4>
+                                <p>Groups movies you might like based on what you've watched.</p>
+                            </div>
+                            <div class="example-item">
+                                <h4>Social Media Friends</h4>
+                                <p>Suggests friend groups based on common interests.</p>
+                            </div>
+                        </div>
+                        <div id="tab-2" class="tab-pane">
+                            <p>K-means was first proposed in 1957 for signal processing.</p>
+                            <p>It's one of the most popular algorithms in machine learning!</p>
+                        </div>
+                        <div id="tab-3" class="tab-pane">
+                            <div class="help-item"><strong>Centroid:</strong> The center point of a group.</div>
+                            <div class="help-item"><strong>Convergence:</strong> When the algorithm is finished.</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
