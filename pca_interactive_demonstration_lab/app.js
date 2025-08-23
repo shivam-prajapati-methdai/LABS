@@ -95,6 +95,61 @@ class PCALab {
         document.getElementById('dimensionSlider').addEventListener('input', (e) => this.updateProjection(e.target.value));
 
         document.getElementById('completeBtn').addEventListener('click', () => this.completeLab());
+        document.getElementById('startAgainBtn').addEventListener('click', () => this.resetLab());
+    }
+
+    resetLab() {
+        document.getElementById(`section${this.currentSection}`).classList.remove('active');
+        this.currentSection = 1;
+        document.getElementById(`section${this.currentSection}`).classList.add('active');
+        this.updateProgress();
+
+        // Reset specific lab states
+        this.userPoints = [];
+        this.pcaLine = null;
+        this.draggingLine = false;
+        this.userLine = { angle: 0, x: 250, y: 200 };
+        this.pcaShown = false;
+        this.currentDataset = 0;
+        this.angleIndex = 0;
+        this.isDrawing = false;
+        this.lastPointTime = 0;
+        this.threeJsInitialized = false; // Re-initialize 3D on next visit
+        this.isAnimating3D = false;
+
+        // Hide completion card
+        document.getElementById('completionCard').style.display = 'none';
+        document.getElementById('completeBtn').style.display = 'block'; // Show complete button again
+
+        // Redraw canvases to clear them
+        this.drawIntroDemo();
+        this.clearData(); // Clears data canvas
+        this.resetUserLine(); // Resets line canvas
+        this.initializeProjectionSection(); // Resets projection canvas
+
+        // Disable 3D step buttons
+        document.getElementById('vis_step_1').disabled = false;
+        document.getElementById('vis_step_2').disabled = true;
+        document.getElementById('vis_step_3').disabled = true;
+        document.getElementById('vis_step_4').disabled = true;
+        document.getElementById('pca_3d_explanation_card').style.display = 'none';
+
+        // Clear 3D scene if initialized
+        if (this.scene) {
+            this.scene.clear();
+            // Dispose of renderer and controls to prevent memory leaks if re-initializing
+            if (this.renderer) {
+                this.renderer.dispose();
+                this.renderer.domElement.remove();
+                this.renderer = null;
+            }
+            if (this.controls) {
+                this.controls.dispose();
+                this.controls = null;
+            }
+            this.threeJsInitialized = false;
+            this.isAnimating3D = false;
+        }
     }
 
     nextSection() {

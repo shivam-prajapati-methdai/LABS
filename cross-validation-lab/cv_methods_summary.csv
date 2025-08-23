@@ -1,0 +1,7 @@
+Method,Number of Splits,Avg Train Size,Avg Test Size,Train/Test Ratio
+Kfold,5,16.0,4.0,4.00
+Stratified,5,16.0,4.0,4.00
+Loocv,5,19.0,1.0,19.00
+Timeseries,4,10.0,4.0,2.50
+Group,3,13.3,6.7,2.00
+Shuffle,5,14.0,6.0,2.33

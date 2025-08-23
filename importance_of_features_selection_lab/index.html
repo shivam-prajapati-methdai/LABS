@@ -76,7 +76,7 @@
             </div>
             
             <div class="demo-actions">
-                <button class="btn btn--outline" onclick="prevSection()">Back</button>
+                <button class="btn btn--back" onclick="prevSection()">Back</button>
                 <button class="btn btn--primary" onclick="nextSection()">Now Let's Learn About Features!</button>
             </div>
         </section>
@@ -133,7 +133,7 @@
                 </div>
                 
                 <div class="nav-buttons">
-                    <button class="btn btn--outline" onclick="prevSection()">Back</button>
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
                     <button class="btn btn--primary" onclick="nextSection()">Next: Learn About Target</button>
                 </div>
         </section>
@@ -166,7 +166,7 @@
                 </div>
                 
                 <div class="nav-buttons">
-                    <button class="btn btn--outline" onclick="prevSection()">Back</button>
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
                     <button class="btn btn--primary" onclick="nextSection()">Next: Learn About Models</button>
                 </div>
         </section>
@@ -213,45 +213,9 @@
                 </div>
                 
                 <div class="nav-buttons">
-                    <button class="btn btn--outline" onclick="prevSection()">Back</button>
-                    <button class="btn btn--primary" onclick="nextSection()">Take the Quiz!</button>
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
+                    <button class="btn btn--primary" onclick="nextSection()">Continue to Summary</button>
                 </div>
-        </section>
-
-        <!-- Quiz Section -->
-        <section id="quiz" class="section">
-            <h2>🎯 Test Your Understanding</h2>
-            <div class="quiz-container">
-                <div id="quiz-question" class="quiz-question">
-                    <h3 id="question-text"></h3>
-                    <div id="quiz-options" class="quiz-options">
-                    </div>
-                    <div id="quiz-feedback" class="quiz-feedback hidden"></div>
-                    <div class="quiz-actions">
-                        <button id="quiz-next" class="btn btn--primary hidden" onclick="nextQuizQuestion()">Next Question</button>
-                    </div>
-                </div>
-                
-                <div class="quiz-progress">
-                    <span id="quiz-counter">Question 1 of 3</span>
-                </div>
-                <div class="nav-buttons">
-                    <button class="btn btn--outline" onclick="prevSection()">Back</button>
-                </div>
-            </div>
-
-            <div class="quiz-results hidden">
-                <h3>Quiz Results</h3>
-                <div class="score-display">
-                    <div class="score-circle">
-                        <span class="score-number" id="quiz-score-number">0</span>
-                        <span class="score-total" id="quiz-score-total">/3</span>
-                    </div>
-                    <p class="score-percentage" id="quiz-score-percentage">0%</p>
-                </div>
-                <p class="score-message" id="quiz-score-message">Your results message here.</p>
-                <button class="btn btn--primary btn--lg" onclick="nextSection()">Continue to Summary</button>
-            </div>
         </section>
 
         <!-- Summary Section -->
@@ -281,7 +245,7 @@
                 </div>
                 
                 <div class="nav-buttons">
-                    <button class="btn btn--outline" onclick="prevSection()">Back</button>
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
                     <button class="btn btn--primary btn--lg" onclick="restartLearning()">Start Over</button>
                 </div>
             </div>

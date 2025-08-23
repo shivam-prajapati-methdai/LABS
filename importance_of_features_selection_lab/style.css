@@ -1,24 +1,24 @@
 
 :root {
   /* Kid-Friendly Color Palette */
-  --color-background: #f0f8ff; /* AliceBlue */
-  --color-surface: #ffffff; /* White */
-  --color-text: #333333; /* Dark Gray */
-  --color-text-secondary: #555555; /* Medium Gray */
+  --color-background: #f0f8ff; /* AliceBlue - not used for main background anymore */
+  --color-surface: rgba(255, 255, 255, 0.95); /* White with transparency from style-ref.css */
+  --color-text: #000000; /* Changed to black for maximum visibility */
+  --color-text-secondary: #444444; /* Darker gray for better contrast */
   
-  --color-primary: #ff6347; /* Tomato */
-  --color-primary-hover: #ff4500; /* OrangeRed */
-  --color-primary-active: #e53e00;
+  --color-primary: #667eea; /* Blue from style-ref.css gradient */
+  --color-primary-hover: #764ba2; /* Purple from style-ref.css gradient */
+  --color-primary-active: #6a4291; /* Darker shade of primary-hover for consistency */
 
-  --color-secondary: #ffd700; /* Gold */
-  --color-secondary-hover: #ffc700;
-  --color-secondary-active: #ffb700;
+  --color-secondary: #e2e8f0; /* Light gray from style-ref.css slider background */
+  --color-secondary-hover: #c0c8d0; /* Darker shade of secondary */
+  --color-secondary-active: #a0a8b0; /* Even darker shade of secondary */
 
-  --color-border: #add8e6; /* LightBlue */
+  --color-border: #e2e8f0; /* Light blue/gray from style-ref.css */
   --color-btn-primary-text: #ffffff;
 
-  --color-card-border: #dddddd;
-  --color-card-border-inner: #eeeeee;
+  --color-card-border: #dddddd; /* Keep original for now */
+  --color-card-border-inner: #eeeeee; /* Keep original for now */
 
   --color-error: #dc143c; /* Crimson */
   --color-success: #32cd32; /* LimeGreen */
@@ -27,12 +27,12 @@
 
   --color-focus-ring: rgba(255, 99, 71, 0.5);
 
-  /* Fun Accent Colors */
-  --color-accent-1: #98fb98; /* PaleGreen */
-  --color-accent-2: #dda0dd; /* Plum */
-  --color-accent-3: #f0e68c; /* Khaki */
-  --color-accent-4: #87cefa; /* LightSkyBlue */
-  --color-accent-5: #ffa07a; /* LightSalmon */
+  /* Fun Accent Colors - Adjusted for blue/purple theme */
+  --color-accent-1: #a7c0e8; /* Light Blue */
+  --color-accent-2: #c2a7e8; /* Light Purple */
+  --color-accent-3: #a7e8e0; /* Light Aqua */
+  --color-accent-4: #e0a7e8; /* Light Magenta */
+  --color-accent-5: #e8c0a7; /* Light Peach */
 
 
   /* Common style patterns */
@@ -48,6 +48,7 @@
   --color-error-rgb: 220, 20, 60;
   --color-warning-rgb: 255, 165, 0;
   --color-info-rgb: 135, 206, 235;
+  --color-primary-rgb: 102, 126, 234; /* RGB for --color-primary */
 
   /* Typography */
   --font-family-base: "Comic Sans MS", "Chalkboard SE", "Marker Felt", sans-serif;
@@ -130,8 +131,8 @@ html {
   font-size: var(--font-size-base);
   font-family: var(--font-family-base);
   line-height: var(--line-height-normal);
-  color: var(--color-text);
-  background-color: var(--color-background);
+  color: var(--color-text); /* Reverted to default text color */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* From style-ref.css */
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
 }
@@ -238,7 +239,7 @@ pre code {
 }
 
 .btn--primary {
-  background: var(--color-primary);
+  background: linear-gradient(45deg, var(--color-primary), var(--color-primary-hover)); /* From style-ref.css */
   color: var(--color-btn-primary-text);
 }
 
@@ -265,12 +266,27 @@ pre code {
 
 .btn--outline {
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
+  border: 1px solid #a7c0e8; /* Lighter border for contrast on dark background */
+  color: white; /* White text for contrast on dark background */
 }
 
 .btn--outline:hover {
   background: var(--color-secondary);
+}
+
+.btn--back {
+  background: transparent;
+  border: 2px solid white; /* White border for visibility */
+  color: white; /* White text */
+}
+
+.btn--back:hover {
+  background: rgba(255, 255, 255, 0.1); /* Slight white overlay on hover */
+  border-color: white;
+}
+
+.btn--back:active {
+  background: rgba(255, 255, 255, 0.2); /* More white overlay on active */
 }
 
 .btn--sm {
@@ -361,9 +377,10 @@ select.form-control {
 /* Card component */
 .card {
   background-color: var(--color-surface);
+  backdrop-filter: blur(10px); /* Added from style-ref.css */
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-lg); /* Updated to use CSS variable */
   overflow: hidden;
   transition: box-shadow var(--duration-normal) var(--ease-standard);
 }
@@ -571,7 +588,7 @@ select.form-control {
     margin-top: var(--space-32);
 }
 
-/* Add smooth scrolling globally */
+
 html {
     scroll-behavior: smooth;
 }
@@ -621,13 +638,18 @@ html {
 .welcome-content h1 {
     font-size: var(--font-size-4xl);
     margin-bottom: var(--space-24);
-    color: var(--color-primary);
+    color: white; /* Changed for better visibility on dark background */
 }
 
 .welcome-content p {
     font-size: var(--font-size-lg);
     margin-bottom: var(--space-32);
-    color: var(--color-text-secondary);
+    color: white; /* Changed for visibility on dark background */
+}
+
+/* Section headers on dark background */
+.section h2 {
+    color: white; /* Changed for visibility on dark background */
 }
 
 .concept-preview {
@@ -716,10 +738,12 @@ html {
 
 .controls-panel {
     background: var(--color-surface);
+    backdrop-filter: blur(10px); /* Added from style-ref.css */
     border: 1px solid var(--color-card-border);
     border-radius: var(--radius-lg);
     padding: var(--space-24);
     min-height: 300px; /* Prevent layout shift */
+    box-shadow: var(--shadow-lg); /* Updated to use CSS variable */
 }
 
 .controls-panel h4 {
@@ -788,7 +812,7 @@ html {
     margin-top: var(--space-32);
 }
 
-/* Learning Content Sections */
+
 .learning-content {
     max-width: 900px;
     margin: 0 auto;
@@ -806,6 +830,7 @@ html {
     font-size: var(--font-size-lg);
     line-height: var(--line-height-normal);
     margin-bottom: var(--space-20); /* Increased spacing */
+    color: var(--color-text-secondary);
 }
 
 .explanation p:last-child {
@@ -888,6 +913,7 @@ html {
     border: 1px solid var(--color-border);
     flex: 1;
     max-width: 200px;
+    color: var(--color-text); /* Ensure dark text on light background */
 }
 
 .target-highlight {
@@ -1009,12 +1035,13 @@ html {
 
 .analogy-box h4 {
     margin-bottom: var(--space-16); /* Increased spacing */
-    color: var(--color-warning);
+    color: #cc8400; /* Darker orange for better contrast */
 }
 
 .analogy-box p {
     margin: 0;
     line-height: var(--line-height-normal);
+    color: var(--color-text-secondary);
 }
 
 .key-point {
@@ -1029,116 +1056,11 @@ html {
 .key-point p {
     margin: 0;
     font-weight: var(--font-weight-medium);
-    color: var(--color-primary);
+    color: var(--color-text); /* Changed for better contrast on light background */
     font-size: var(--font-size-lg); /* Increased font size */
 }
 
-/* Quiz Section - Improved visual feedback */
-.quiz-container {
-    max-width: 700px;
-    margin: 0 auto;
-}
 
-.quiz-question {
-    background: var(--color-surface);
-    border: 1px solid var(--color-card-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-32);
-    margin-bottom: var(--space-24);
-}
-
-#question-text {
-    margin-bottom: var(--space-24);
-    text-align: center;
-}
-
-.quiz-options {
-    display: grid;
-    gap: var(--space-12);
-    margin-bottom: var(--space-24);
-}
-
-.quiz-option {
-    background: var(--color-background);
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius-base);
-    padding: var(--space-16);
-    cursor: pointer;
-    transition: all var(--duration-fast) var(--ease-standard);
-    text-align: left;
-    position: relative;
-}
-
-.quiz-option:hover {
-    border-color: var(--color-primary);
-    background: rgba(var(--color-primary), 0.05);
-    transform: translateY(-1px);
-    will-change: transform, background-color, border-color;
-}
-
-.quiz-option.selected {
-    border-color: var(--color-primary);
-    background: rgba(var(--color-primary), 0.1);
-}
-
-.quiz-option.correct {
-    border-color: var(--color-success);
-    background: rgba(var(--color-success-rgb), 0.1);
-}
-
-.quiz-option.correct::after {
-    content: "✓";
-    position: absolute;
-    right: var(--space-16);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-success);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-lg);
-}
-
-.quiz-option.incorrect {
-    border-color: var(--color-error);
-    background: rgba(var(--color-error-rgb), 0.1);
-}
-
-.quiz-option.incorrect::after {
-    content: "✗";
-    position: absolute;
-    right: var(--space-16);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-error);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-lg);
-}
-
-.quiz-feedback {
-    background: rgba(var(--color-success-rgb), 0.1);
-    border: 1px solid var(--color-success);
-    border-radius: var(--radius-base);
-    padding: var(--space-20); /* Increased padding */
-    margin-bottom: var(--space-16);
-    font-size: var(--font-size-md);
-    line-height: var(--line-height-normal);
-    transition: all 0.3s ease;
-    will-change: opacity, transform;
-}
-
-.quiz-feedback.incorrect {
-    background: rgba(var(--color-error-rgb), 0.1);
-    border-color: var(--color-error);
-}
-
-.quiz-actions {
-    text-align: center;
-}
-
-.quiz-progress {
-    text-align: center;
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
-}
 
 /* Summary Section - Improved spacing and readability */
 .summary-content {
@@ -1179,6 +1101,7 @@ html {
     margin-bottom: var(--space-12); /* Added spacing */
     font-size: var(--font-size-md);
     line-height: var(--line-height-normal);
+    color: var(--color-text-secondary);
 }
 
 .concept-summary .concept-card small {
@@ -1205,6 +1128,7 @@ html {
     margin-bottom: var(--space-16); /* Added spacing */
     font-size: var(--font-size-md);
     line-height: var(--line-height-normal);
+    color: var(--color-text-secondary);
 }
 
 .next-steps ul {

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Confusion Matrix Interactive Lab</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+            <!-- Welcome Section -->
+            <section id="welcome" class="section">
+                <div class="card">
+                    <div class="card__body">
+                        <h1>🎯 Confusion Matrix Interactive Lab</h1>
+                        <p class="welcome-text">Welcome to an exciting journey into the world of machine learning! Today, you'll discover how confusion matrices help us understand how well our predictions work in real life.</p>
+                        
+                        <div class="learning-goals">
+                            <h3>🚀 What You'll Learn:</h3>
+                            <ul>
+                                <li>What a confusion matrix is and why it's important</li>
+                                <li>The four key components: TP, FP, TN, FN</li>
+                                <li>How to calculate accuracy, precision, recall, and F1-score</li>
+                                <li>Real-world applications in COVID testing, email filtering, and education</li>
+                            </ul>
+                        </div>
+                        
+                        <button class="btn btn--primary btn--lg" onclick="goToSection('basics')">Let's Get Started! 🎉</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Basics Section -->
+            <section id="basics" class="section hidden">
+                <div class="card">
+                    <div class="card__body">
+                        <h2>📊 What is a Confusion Matrix?</h2>
+                        <p>A confusion matrix is like a report card for predictions! It shows us exactly where our model gets "confused" and makes mistakes.</p>
+                        
+                        <div class="concept-grid">
+                            <div class="concept-card">
+                                <div class="concept-icon">🎯</div>
+                                <h4>Purpose</h4>
+                                <p>Shows how well predictions match reality</p>
+                            </div>
+                            <div class="concept-card">
+                                <div class="concept-icon">📈</div>
+                                <h4>Structure</h4>
+                                <p>A 2x2 table comparing predicted vs actual results</p>
+                            </div>
+                            <div class="concept-card">
+                                <div class="concept-icon">🔍</div>
+                                <h4>Insight</h4>
+                                <p>Reveals patterns in prediction errors</p>
+                            </div>
+                        </div>
+
+                        <div class="matrix-explanation">
+                            <img src="confusion_matrix_chart.png" alt="Confusion Matrix Components" class="explanation-image">
+                        </div>
+
+                        <div class="components-grid">
+                            <div class="component-card tp-card">
+                                <h4>True Positive (TP)</h4>
+                                <p>✅ Predicted YES, Actually YES</p>
+                                <div class="example">Example: Predicted "has COVID" and person actually has COVID</div>
+                            </div>
+                            <div class="component-card fp-card">
+                                <h4>False Positive (FP)</h4>
+                                <p>❌ Predicted YES, Actually NO</p>
+                                <div class="example">Example: Predicted "has COVID" but person is healthy</div>
+                            </div>
+                            <div class="component-card fn-card">
+                                <h4>False Negative (FN)</h4>
+                                <p>❌ Predicted NO, Actually YES</p>
+                                <div class="example">Example: Predicted "no COVID" but person has COVID</div>
+                            </div>
+                            <div class="component-card tn-card">
+                                <h4>True Negative (TN)</h4>
+                                <p>✅ Predicted NO, Actually NO</p>
+                                <div class="example">Example: Predicted "no COVID" and person is healthy</div>
+                            </div>
+                        </div>
+
+                        <div class="nav-buttons">
+                            <button class="btn btn--secondary" onclick="goToSection('welcome')">← Back</button>
+                            <button class="btn btn--primary" onclick="goToSection('scenarios')">Explore Real Examples →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scenarios Section -->
+            <section id="scenarios" class="section hidden">
+                <div class="card">
+                    <div class="card__body">
+                        <h2>🌟 Real-World Scenarios</h2>
+                        <p>Let's explore how confusion matrices work in three real situations you might encounter!</p>
+                        
+                        <div class="scenario-selector">
+                            <button class="btn btn--outline scenario-btn active" data-scenario="0">🦠 COVID Testing</button>
+                            <button class="btn btn--outline scenario-btn" data-scenario="1">📧 Spam Detection</button>
+                            <button class="btn btn--outline scenario-btn" data-scenario="2">📚 Exam Prediction</button>
+                        </div>
+
+                        <div class="scenario-content">
+                            <div class="scenario-description">
+                                <h3 id="scenario-title">COVID Test Results</h3>
+                                <p id="scenario-desc">A rapid COVID test administered to 100 people</p>
+                            </div>
+
+                            <div class="matrix-container">
+                                <div class="interactive-matrix">
+                                    <div class="matrix-title">Confusion Matrix</div>
+
+                                    <div class="predicted-label">Predicted</div>
+                                    <div class="actual-label">Actual</div>
+
+                                    <div class="predicted-positive" id="pred-pos-label">Has COVID</div>
+                                    <div class="predicted-negative" id="pred-neg-label">No COVID</div>
+
+                                    <div class="actual-positive" id="actual-pos-label">Has COVID</div>
+                                    <div class="matrix-cell tp-cell" id="tp-cell">
+                                        <div class="cell-label">TP</div>
+                                        <div class="cell-value" id="tp-value">18</div>
+                                        <input type="number" class="cell-input" id="tp-input" value="18" min="0" max="100">
+                                    </div>
+                                    <div class="matrix-cell fn-cell" id="fn-cell">
+                                        <div class="cell-label">FN</div>
+                                        <div class="cell-value" id="fn-value">2</div>
+                                        <input type="number" class="cell-input" id="fn-input" value="2" min="0" max="100">
+                                    </div>
+
+                                    <div class="actual-negative" id="actual-neg-label">No COVID</div>
+                                    <div class="matrix-cell fp-cell" id="fp-cell">
+                                        <div class="cell-label">FP</div>
+                                        <div class="cell-value" id="fp-value">3</div>
+                                        <input type="number" class="cell-input" id="fp-input" value="3" min="0" max="100">
+                                    </div>
+                                    <div class="matrix-cell tn-cell" id="tn-cell">
+                                        <div class="cell-label">TN</div>
+                                        <div class="cell-value" id="tn-value">77</div>
+                                        <input type="number" class="cell-input" id="tn-input" value="77" min="0" max="100">
+                                    </div>
+                                </div>
+                                
+                                <div class="matrix-controls">
+                                    <button class="btn btn--secondary" id="edit-btn" onclick="toggleEditMode()">✏️ Edit Values</button>
+                                    <button class="btn btn--primary" id="reset-btn" onclick="resetToScenario()">🔄 Reset</button>
+                                </div>
+                            </div>
+
+                            <div class="metrics-panel">
+                                <h4>📊 Performance Metrics</h4>
+                                <div class="metrics-grid">
+                                    <div class="metric-card accuracy-metric">
+                                        <div class="metric-name">Accuracy</div>
+                                        <div class="metric-value" id="accuracy-value">95.0%</div>
+                                        <div class="metric-formula">Correct predictions / Total</div>
+                                    </div>
+                                    <div class="metric-card precision-metric">
+                                        <div class="metric-name">Precision</div>
+                                        <div class="metric-value" id="precision-value">85.7%</div>
+                                        <div class="metric-formula">TP / (TP + FP)</div>
+                                    </div>
+                                    <div class="metric-card recall-metric">
+                                        <div class="metric-name">Recall</div>
+                                        <div class="metric-value" id="recall-value">90.0%</div>
+                                        <div class="metric-formula">TP / (TP + FN)</div>
+                                    </div>
+                                    <div class="metric-card f1-metric">
+                                        <div class="metric-name">F1-Score</div>
+                                        <div class="metric-value" id="f1-value">87.8%</div>
+                                        <div class="metric-formula">2 × (P × R) / (P + R)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="nav-buttons">
+                            <button class="btn btn--secondary" onclick="goToSection('basics')">← Back</button>
+                            <button class="btn btn--primary" onclick="goToSection('practice')">Practice Calculating →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Practice Section -->
+            <section id="practice" class="section hidden">
+                <div class="card">
+                    <div class="card__body">
+                        <h2>🧮 Practice Calculating Metrics</h2>
+                        <p>Now let's practice calculating the metrics step by step! Click on each metric to see how it's calculated.</p>
+                        
+                        <div class="practice-matrix">
+                            <h4>Current Matrix Values:</h4>
+                            <div class="values-display">
+                                <span>TP = <span id="practice-tp">18</span></span>
+                                <span>FP = <span id="practice-fp">3</span></span>
+                                <span>FN = <span id="practice-fn">2</span></span>
+                                <span>TN = <span id="practice-tn">77</span></span>
+                            </div>
+                        </div>
+
+                        <div class="formula-practice">
+                            <div class="formula-card" onclick="showFormula('accuracy')">
+                                <h4>🎯 Accuracy</h4>
+                                <p>How many predictions were correct overall?</p>
+                                <div class="formula-result" id="accuracy-formula">Click to see calculation</div>
+                            </div>
+                            
+                            <div class="formula-card" onclick="showFormula('precision')">
+                                <h4>🔍 Precision</h4>
+                                <p>Of positive predictions, how many were right?</p>
+                                <div class="formula-result" id="precision-formula">Click to see calculation</div>
+                            </div>
+                            
+                            <div class="formula-card" onclick="showFormula('recall')">
+                                <h4>📡 Recall</h4>
+                                <p>Of actual positives, how many did we catch?</p>
+                                <div class="formula-result" id="recall-formula">Click to see calculation</div>
+                            </div>
+                            
+                            <div class="formula-card" onclick="showFormula('f1')">
+                                <h4>⚖️ F1-Score</h4>
+                                <p>Balanced measure of precision and recall</p>
+                                <div class="formula-result" id="f1-formula">Click to see calculation</div>
+                            </div>
+                        </div>
+
+                        <div class="practice-tip">
+                            <h4>💡 Practice Tip</h4>
+                            <p>Try changing the matrix values in the previous section and come back here to practice with different numbers!</p>
+                        </div>
+
+                        <div class="nav-buttons">
+                            <button class="btn btn--secondary" onclick="goToSection('scenarios')">← Back to Scenarios</button>
+                            <button class="btn btn--primary" onclick="goToSection('summary')">See Summary →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary Section -->
+            <section id="summary" class="section hidden">
+                <div class="card">
+                    <div class="card__body">
+                        <h2>🎉 Congratulations! You've Mastered Confusion Matrices!</h2>
+                        
+                        <div class="summary-grid">
+                            <div class="summary-card">
+                                <div class="summary-icon">📊</div>
+                                <h4>What You Learned</h4>
+                                <ul>
+                                    <li>Confusion matrices compare predictions to reality</li>
+                                    <li>Four components: TP, FP, FN, TN</li>
+                                    <li>Different metrics measure different aspects</li>
+                                    <li>Real-world applications are everywhere!</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="summary-card">
+                                <div class="summary-icon">🔑</div>
+                                <h4>Key Takeaways</h4>
+                                <ul>
+                                    <li><strong>Accuracy:</strong> Overall correctness</li>
+                                    <li><strong>Precision:</strong> Quality of positive predictions</li>
+                                    <li><strong>Recall:</strong> How many positives we caught</li>
+                                    <li><strong>F1-Score:</strong> Balanced precision & recall</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="summary-card">
+                                <div class="summary-icon">🌟</div>
+                                <h4>Why It Matters</h4>
+                                <ul>
+                                    <li>Medical diagnosis accuracy saves lives</li>
+                                    <li>Spam detection keeps inboxes clean</li>
+                                    <li>Educational predictions help students</li>
+                                    <li>Foundation for advanced AI concepts</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="completion-badge">
+                            <div class="badge-icon">🏆</div>
+                            <h3>Confusion Matrix Expert!</h3>
+                            <p>You've successfully completed the interactive lab and can now understand and interpret confusion matrices like a pro!</p>
+                        </div>
+
+                        <div class="nav-buttons">
+                            <button class="btn btn--secondary" onclick="goToSection('practice')">← Review Practice</button>
+                            <button class="btn btn--primary" onclick="startOver()">Start Over 🔄</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Indicator -->
+            <div class="progress-indicator">
+                <div class="progress-step active" data-section="welcome">Welcome</div>
+                <div class="progress-step" data-section="basics">Basics</div>
+                <div class="progress-step" data-section="scenarios">Scenarios</div>
+                <div class="progress-step" data-section="practice">Practice</div>
+                <div class="progress-step" data-section="summary">Summary</div>
+            </div>
+        </div>
+
+        <script src="app.js"></script>
+    </body>
+    </html>

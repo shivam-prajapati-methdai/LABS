@@ -24,30 +24,8 @@ const priceModel = {
     lotMultiplier: 10
 };
 
-// Quiz questions
-const quizQuestions = [
-    {
-        question: "Which of these is a FEATURE in our house price example?",
-        options: ["House Price", "Number of Bedrooms", "The Prediction", "The Model"],
-        correct: 1,
-        explanation: "Number of Bedrooms is a feature - it's an input characteristic we use to predict the price!"
-    },
-    {
-        question: "What is the TARGET in our house price prediction?",
-        options: ["House Size", "Number of Bathrooms", "House Price", "House Age"],
-        correct: 2,
-        explanation: "House Price is the target - it's what we're trying to predict based on the features!"
-    },
-    {
-        question: "What does the MODEL do?",
-        options: ["Displays the house", "Controls the sliders", "Learns patterns and makes predictions", "Counts the bedrooms"],
-        correct: 2,
-        explanation: "The model learns from data to understand patterns between features and targets, then makes predictions!"
-    }
-];
-
 // Section names for navigation
-const sections = ['welcome', 'demo', 'features', 'target', 'model', 'quiz', 'summary'];
+const sections = ['welcome', 'demo', 'features', 'target', 'model', 'summary'];
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -83,11 +61,6 @@ function nextSection() {
     if (currentSection < sections.length - 1) {
         currentSection++;
         showSection(sections[currentSection]);
-        
-        // Special handling for quiz section
-        if (sections[currentSection] === 'quiz') {
-            startQuiz();
-        }
     }
 }
 
@@ -124,22 +97,6 @@ function restartLearning() {
     
     // Reset sliders to default values
     resetSliders();
-    
-    // Reset the quiz UI by restoring the original question container
-    const quizContainer = document.querySelector('.quiz-container');
-    const quizQuestionContainer = document.querySelector('.quiz-question');
-    const quizResultsContainer = document.querySelector('.quiz-results');
-
-    if (quizContainer && quizQuestionContainer && quizResultsContainer) {
-        quizResultsContainer.classList.add('hidden');
-        quizQuestionContainer.classList.remove('hidden');
-        
-        // Restore the question text and options area
-        document.getElementById('question-text').textContent = quizQuestions[0].question;
-        document.getElementById('quiz-options').innerHTML = '';
-        document.getElementById('quiz-feedback').classList.add('hidden');
-        document.getElementById('quiz-next').classList.add('hidden');
-    }
     
     // Smooth transition back to welcome
     showSection('welcome');
@@ -320,182 +277,7 @@ function animatePriceChange(element, start, end, duration) {
     requestAnimationFrame(updatePrice);
 }
 
-// Enhanced quiz functionality with immediate feedback
-function startQuiz() {
-    currentQuizQuestion = 0;
-    quizScore = 0;
-    displayQuizQuestion();
-}
 
-function displayQuizQuestion() {
-    const question = quizQuestions[currentQuizQuestion];
-    
-    // Update question text with fade effect
-    const questionText = document.getElementById('question-text');
-    questionText.style.opacity = '0';
-    
-    setTimeout(() => {
-        questionText.textContent = question.question;
-        questionText.style.opacity = '1';
-    }, 150);
-    
-    // Update counter
-    document.getElementById('quiz-counter').textContent = 
-        `Question ${currentQuizQuestion + 1} of ${quizQuestions.length}`;
-    
-    // Create option buttons with enhanced styling
-    const optionsContainer = document.getElementById('quiz-options');
-    optionsContainer.innerHTML = '';
-    
-    question.options.forEach((option, index) => {
-        const optionButton = document.createElement('div');
-        optionButton.className = 'quiz-option';
-        optionButton.textContent = option;
-        optionButton.setAttribute('data-index', index);
-        optionButton.onclick = () => selectQuizOption(index);
-        
-        // Add hover effects
-        optionButton.addEventListener('mouseenter', function() {
-            if (!this.classList.contains('selected')) {
-                this.style.borderColor = 'var(--color-primary)';
-                this.style.background = 'rgba(33, 128, 141, 0.05)';
-            }
-        });
-        
-        optionButton.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('selected')) {
-                this.style.borderColor = 'var(--color-border)';
-                this.style.background = 'var(--color-background)';
-            }
-        });
-        
-        optionsContainer.appendChild(optionButton);
-    });
-    
-    // Hide feedback and next button
-    document.getElementById('quiz-feedback').classList.add('hidden');
-    document.getElementById('quiz-next').classList.add('hidden');
-}
-
-function selectQuizOption(selectedIndex) {
-    const question = quizQuestions[currentQuizQuestion];
-    const options = document.querySelectorAll('.quiz-option');
-    const feedback = document.getElementById('quiz-feedback');
-    const nextButton = document.getElementById('quiz-next');
-    
-    // Disable all options immediately
-    options.forEach(option => {
-        option.style.pointerEvents = 'none';
-        option.style.cursor = 'default';
-    });
-    
-    // Add immediate visual feedback
-    options[selectedIndex].classList.add('selected');
-    options[selectedIndex].style.transform = 'scale(1.02)';
-    
-    // Delay to show selection, then reveal correct answers
-    setTimeout(() => {
-        // Mark correct and incorrect answers
-        options.forEach((option, index) => {
-            if (index === question.correct) {
-                option.classList.add('correct');
-                option.style.animation = 'correctAnswer 0.6s ease-in-out';
-            } else if (index === selectedIndex && index !== question.correct) {
-                option.classList.add('incorrect');
-                option.style.animation = 'incorrectAnswer 0.6s ease-in-out';
-            }
-        });
-        
-        // Show feedback with animation
-        feedback.textContent = question.explanation;
-        feedback.classList.remove('hidden');
-        feedback.style.opacity = '0';
-        feedback.style.transform = 'translateY(10px)';
-        
-        setTimeout(() => {
-            feedback.style.opacity = '1';
-            feedback.style.transform = 'translateY(0)';
-        }, 100);
-        
-        if (selectedIndex === question.correct) {
-            feedback.classList.remove('incorrect');
-            quizScore++;
-        } else {
-            feedback.classList.add('incorrect');
-        }
-        
-        // Show next button with animation
-        setTimeout(() => {
-            if (currentQuizQuestion < quizQuestions.length - 1) {
-                nextButton.textContent = 'Next Question';
-            } else {
-                nextButton.textContent = 'See Results';
-            }
-            nextButton.classList.remove('hidden');
-            nextButton.style.opacity = '0';
-            nextButton.style.transform = 'translateY(10px)';
-            
-            setTimeout(() => {
-                nextButton.style.opacity = '1';
-                nextButton.style.transform = 'translateY(0)';
-            }, 100);
-        }, 500);
-        
-    }, 300);
-}
-
-function nextQuizQuestion() {
-    if (currentQuizQuestion < quizQuestions.length - 1) {
-        currentQuizQuestion++;
-        displayQuizQuestion();
-    } else {
-        // Quiz completed, show summary
-        showQuizResults();
-    }
-}
-
-function showQuizResults() {
-    const percentage = Math.round((quizScore / quizQuestions.length) * 100);
-    let message = '';
-    let emoji = '';
-
-    if (percentage === 100) {
-        message = 'Perfect! You understand all the concepts!';
-        emoji = '🎉';
-    } else if (percentage >= 66) {
-        message = 'Great job! You have a good understanding!';
-        emoji = '👍';
-    } else {
-        message = 'Good try! You might want to review the concepts.';
-        emoji = '📚';
-    }
-
-    // Hide the question container and show the results
-    document.querySelector('.quiz-question').classList.add('hidden');
-    document.querySelector('.quiz-results').classList.remove('hidden');
-
-    // Update the result fields
-    document.getElementById('quiz-score-number').textContent = quizScore;
-    document.getElementById('quiz-score-total').textContent = `/${quizQuestions.length}`;
-    document.getElementById('quiz-score-percentage').textContent = `${percentage}%`;
-    document.getElementById('quiz-score-message').textContent = `${emoji} ${message}`;
-
-    // Animate results display
-    const resultsElement = document.querySelector('.quiz-results');
-    resultsElement.style.opacity = '0';
-    resultsElement.style.transform = 'translateY(20px)';
-    
-    setTimeout(() => {
-        resultsElement.style.opacity = '1';
-        resultsElement.style.transform = 'translateY(0)';
-    }, 100);
-    
-    // Animate score circle
-    setTimeout(() => {
-        const scoreCircle = document.querySelector('.score-circle');
-        scoreCircle.style.animation = 'bounceIn 0.8s ease-out';
-    }, 300);
-}
 
 // Add CSS animations
 const style = document.createElement('style');
