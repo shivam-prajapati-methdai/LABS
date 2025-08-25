@@ -1,7 +1,9 @@
 // Global variables
 let canvas, ctx;
 let mode = 'linear'; // 'linear' or 'logistic'
-let points = [];
+let linearPoints = [];
+let logisticPoints = [];
+let points = linearPoints; // Initially, points will refer to linearPoints
 let isDragging = false;
 let dragIndex = -1;
 let currentClass = 0; // For logistic regression
@@ -76,9 +78,13 @@ function setupEventListeners() {
 
 function switchMode(newMode) {
     if (mode === newMode) return;
-    
+
     mode = newMode;
-    points = []; // Clear points when switching modes
+    if (mode === 'linear') {
+        points = linearPoints;
+    } else {
+        points = logisticPoints;
+    }
     updateMode();
     loadExampleDatasets();
     updateDisplay();
@@ -177,6 +183,7 @@ function updateMode() {
             </div>
         `;
     }
+    setupTooltips();
 }
 
 function loadExampleDatasets() {
@@ -206,19 +213,19 @@ function loadSelectedDataset() {
     
     if (!value) return;
     
-    points = []; // Clear existing points
-    
     if (value.startsWith('linear-')) {
         const index = parseInt(value.split('-')[1]);
         const example = data.linearExamples[index];
-        points = example.points.map(p => ({x: p[0], y: p[1], class: 0}));
+        linearPoints = example.points.map(p => ({x: p[0], y: p[1], class: 0}));
+        points = linearPoints;
     } else if (value.startsWith('logistic-')) {
         const index = parseInt(value.split('-')[1]);
         const example = data.logisticExamples[index];
-        points = [
+        logisticPoints = [
             ...example.class0.map(p => ({x: p[0], y: p[1], class: 0})),
             ...example.class1.map(p => ({x: p[0], y: p[1], class: 1}))
         ];
+        points = logisticPoints;
     }
     
     updateDisplay();
@@ -636,7 +643,34 @@ function calculateLogisticRegression() {
     });
     const accuracy = correct / points.length;
     
-    return {slope, intercept, accuracy, logLikelihood: 0};
+    const logLikelihood = calculateLogLikelihood(points, slope, intercept);
+    
+    return {slope, intercept, accuracy, logLikelihood};
+}
+
+function calculateLogLikelihood(points, slope, intercept) {
+    if (points.length === 0) {
+        return 0;
+    }
+    let logLikelihood = 0;
+    for (const point of points) {
+        const z = intercept + slope * point.x;
+        const sigmoid = 1 / (1 + Math.exp(-z));
+        if (point.class === 1) {
+            if (sigmoid > 1e-15) {
+                logLikelihood += Math.log(sigmoid);
+            } else {
+                logLikelihood += -34.538776394910684;
+            }
+        } else {
+            if (sigmoid < 1 - 1e-15) {
+                logLikelihood += Math.log(1 - sigmoid);
+            } else {
+                logLikelihood += -34.538776394910684;
+            }
+        }
+    }
+    return logLikelihood;
 }
 
 function updateDisplay() {
@@ -668,12 +702,18 @@ function updateDisplay() {
         slopeValue.textContent = logistic.slope.toFixed(3);
         interceptValue.textContent = logistic.intercept.toFixed(3);
         r2Value.textContent = logistic.accuracy.toFixed(3);
-        correlationValue.textContent = '--';
+        correlationValue.textContent = logistic.logLikelihood.toFixed(3);
     }
 }
 
 function clearPoints() {
-    points = [];
+    if (mode === 'linear') {
+        linearPoints = [];
+        points = linearPoints;
+    } else {
+        logisticPoints = [];
+        points = logisticPoints;
+    }
     document.getElementById('dataset-select').value = '';
     updateDisplay();
     drawCanvas();
