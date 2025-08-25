@@ -41,7 +41,7 @@
         // Simple polynomial regression using least squares
         function trainPolynomialModel(X_train, y_train, degree) {
             const n = X_train.length;
-            
+
             // Create design matrix
             const A = [];
             for (let i = 0; i < n; i++) {
@@ -53,33 +53,13 @@
             }
 
             // Solve normal equations: (A^T * A) * coeffs = A^T * y
-            const AtA = [];
-            const Aty = [];
+            const At = math.transpose(A);
+            const AtA = math.multiply(At, A);
+            const Aty = math.multiply(At, y_train);
 
-            // Compute A^T * A
-            for (let i = 0; i <= degree; i++) {
-                AtA[i] = [];
-                for (let j = 0; j <= degree; j++) {
-                    let sum = 0;
-                    for (let k = 0; k < n; k++) {
-                        sum += A[k][i] * A[k][j];
-                    }
-                    AtA[i][j] = sum;
-                }
-            }
-
-            // Compute A^T * y
-            for (let i = 0; i <= degree; i++) {
-                let sum = 0;
-                for (let k = 0; k < n; k++) {
-                    sum += A[k][i] * y_train[k];
-                }
-                Aty[i] = sum;
-            }
-
-            // Solve using Gaussian elimination (simplified for demo)
+            // Solve using math.js
             const coefficients = solveLinearSystem(AtA, Aty);
-            
+
             return {
                 coefficients: coefficients,
                 degree: degree,
@@ -95,47 +75,18 @@
             };
         }
 
-        // Simple Gaussian elimination solver
+        // Solve linear system using math.js
         function solveLinearSystem(A, b) {
-            const n = A.length;
-            const augmented = A.map((row, i) => [...row, b[i]]);
-
-            // Forward elimination
-            for (let i = 0; i < n; i++) {
-                // Find pivot
-                let maxRow = i;
-                for (let k = i + 1; k < n; k++) {
-                    if (Math.abs(augmented[k][i]) > Math.abs(augmented[maxRow][i])) {
-                        maxRow = k;
-                    }
-                }
-                [augmented[i], augmented[maxRow]] = [augmented[maxRow], augmented[i]];
-
-                // Make all rows below this one 0 in current column
-                for (let k = i + 1; k < n; k++) {
-                    if (Math.abs(augmented[i][i]) < 1e-10) continue;
-                    const c = augmented[k][i] / augmented[i][i];
-                    for (let j = i; j <= n; j++) {
-                        augmented[k][j] -= c * augmented[i][j];
-                    }
-                }
+            try {
+                // Use LU decomposition with partial pivoting
+                const lu = math.lup(A);
+                const x = math.lusolve(lu, b);
+                return x.toArray().flat();
+            } catch (e) {
+                // If matrix is singular or other error, return zeros
+                console.warn(`Could not solve linear system for degree. Returning zeros. Error: ${e}`);
+                return new Array(A.length).fill(0);
             }
-
-            // Back substitution
-            const solution = new Array(n);
-            for (let i = n - 1; i >= 0; i--) {
-                solution[i] = augmented[i][n];
-                for (let j = i + 1; j < n; j++) {
-                    solution[i] -= augmented[i][j] * solution[j];
-                }
-                if (Math.abs(augmented[i][i]) > 1e-10) {
-                    solution[i] /= augmented[i][i];
-                } else {
-                    solution[i] = 0;
-                }
-            }
-
-            return solution;
         }
 
         // Simulate errors for bias-variance decomposition
@@ -328,49 +279,80 @@
             };
 
             // Find optimal complexity
-            const minErrorIndex = totalError.indexOf(Math.min(...totalError.filter(x => !isNaN(x))));
-            const optimalDegree = degrees[minErrorIndex];
+            let minError = Infinity;
+            let minErrorIndex = -1;
 
-            const layout = {
-                title: {
-                    text: 'Bias-Variance Decomposition',
-                    font: { size: 16, color: '#2d3748' }
-                },
-                xaxis: { 
-                    title: 'Polynomial Degree (Model Complexity)',
-                    gridcolor: '#e2e8f0',
-                    zerolinecolor: '#cbd5e0'
-                },
-                yaxis: { 
-                    title: 'Error',
-                    gridcolor: '#e2e8f0',
-                    zerolinecolor: '#cbd5e0'
-                },
-                plot_bgcolor: '#f7fafc',
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                hovermode: 'x unified',
-                showlegend: true,
-                legend: {
-                    x: 0.02,
-                    y: 0.98,
-                    bgcolor: 'rgba(255,255,255,0.8)',
-                    bordercolor: '#e2e8f0',
-                    borderwidth: 1
-                },
-                annotations: [{
-                    x: optimalDegree,
-                    y: totalError[minErrorIndex],
-                    text: `Optimal<br>Degree: ${optimalDegree}`,
-                    showarrow: true,
-                    arrowhead: 2,
-                    arrowcolor: '#e74c3c',
-                    bgcolor: 'rgba(231, 76, 60, 0.1)',
-                    bordercolor: '#e74c3c',
-                    borderwidth: 1
-                }]
-            };
+            totalError.forEach((error, index) => {
+                if (!isNaN(error) && error < minError) {
+                    minError = error;
+                    minErrorIndex = index;
+                }
+            });
 
-            Plotly.newPlot('errorDecompositionChart', [traceBias, traceVariance, traceIrreducible, traceTotalError], layout, {responsive: true});
+            if (minErrorIndex !== -1) {
+                const optimalDegree = degrees[minErrorIndex];
+                const layout = {
+                    title: {
+                        text: 'Bias-Variance Decomposition',
+                        font: { size: 16, color: '#2d3748' }
+                    },
+                    xaxis: { 
+                        title: 'Polynomial Degree (Model Complexity)',
+                        gridcolor: '#e2e8f0',
+                        zerolinecolor: '#cbd5e0'
+                    },
+                    yaxis: { 
+                        title: 'Error',
+                        gridcolor: '#e2e8f0',
+                        zerolinecolor: '#cbd5e0'
+                    },
+                    plot_bgcolor: '#f7fafc',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    hovermode: 'x unified',
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255,255,255,0.8)',
+                        bordercolor: '#e2e8f0',
+                        borderwidth: 1
+                    },
+                    annotations: [{
+                        x: optimalDegree,
+                        y: totalError[minErrorIndex],
+                        text: `Optimal<br>Degree: ${optimalDegree}`,
+                        showarrow: true,
+                        arrowhead: 2,
+                        arrowcolor: '#e74c3c',
+                        bgcolor: 'rgba(231, 76, 60, 0.1)',
+                        bordercolor: '#e74c3c',
+                        borderwidth: 1
+                    }]
+                };
+                Plotly.newPlot('errorDecompositionChart', [traceBias, traceVariance, traceIrreducible, traceTotalError], layout, {responsive: true});
+            } else {
+                const layout = {
+                    title: {
+                        text: 'Bias-Variance Decomposition',
+                        font: { size: 16, color: '#2d3748' }
+                    },
+                    xaxis: { 
+                        title: 'Polynomial Degree (Model Complexity)',
+                    },
+                    yaxis: { 
+                        title: 'Error',
+                    },
+                    annotations: [{
+                        text: 'Could not compute errors for any complexity.',
+                        x: 0.5,
+                        y: 0.5,
+                        xref: 'paper',
+                        yref: 'paper',
+                        showarrow: false
+                    }]
+                };
+                Plotly.newPlot('errorDecompositionChart', [traceBias, traceVariance, traceIrreducible, traceTotalError], layout, {responsive: true});
+            }
             
             // Update current error display
             updateCurrentErrorDisplay(errorData, currentParams.polynomialDegree, irreducibleError);
@@ -418,7 +400,7 @@
                     numSimulations,
                     sampleSize,
                     noiseLevel,
-                    10 // Max degree for decomposition chart
+                    15 // Max degree for decomposition chart
                 );
                 updateErrorDecompositionChart(errorResults, irreducibleError);
 
