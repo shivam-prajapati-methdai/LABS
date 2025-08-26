@@ -399,8 +399,15 @@ function getDataRange() {
     // Add padding to ranges
     const xRange = xMax - xMin || 1;
     const yRange = yMax - yMin || 1;
-    const xPadding = xRange * 0.1;
-    const yPadding = yRange * 0.1;
+    const xPadding = xRange * 0.15;
+    let yPadding = yRange * 0.15;
+
+    // Special handling for logistic regression to ensure y-axis covers 0 to 1
+    if (mode === 'logistic') {
+        yMin = Math.min(yMin, 0);
+        yMax = Math.max(yMax, 1);
+        yPadding = (yMax - yMin) * 0.1; // Adjust yPadding based on the new 0-1 range
+    }
     
     xMin = Math.max(0, xMin - xPadding);
     xMax += xPadding;
@@ -740,10 +747,12 @@ function addRandomPoints() {
     } else {
         // Add binary classification points
         for (let i = 0; i < numPoints; i++) {
-            const x = Math.random() * 10;
+            const x = 0.5 + Math.random() * 9; // Generate x in a slightly smaller range
             const baseProb = 1 / (1 + Math.exp(-(x - 5))); // Sigmoid centered at x=5
             const classValue = Math.random() < baseProb ? 1 : 0;
-            const y = classValue + (Math.random() - 0.5) * 0.3 * (1 + noise * 2); // Add some noise
+            // Adjust y to be within [0, 1] and add noise
+            let y = classValue + (Math.random() - 0.5) * 0.3 * (1 + noise * 2);
+            y = Math.max(0, Math.min(1, y)); // Clamp y between 0 and 1
             points.push({x, y, class: classValue});
         }
     }
