@@ -47,8 +47,13 @@ function initCanvas() {
     ctx = canvas.getContext('2d');
     
     // Set canvas size
-    canvas.width = 600;
-    canvas.height = 400;
+    const controlPanel = document.querySelector('.control-panel');
+    const plotPanel = document.querySelector('.plot-panel');
+    const plotContainer = document.querySelector('.plot-container');
+    const availableWidth = plotPanel.offsetWidth - 40;
+    canvas.width = availableWidth;
+    canvas.height = controlPanel.offsetHeight;
+    plotContainer.style.height = `${controlPanel.offsetHeight}px`;
     
     drawCanvas();
 }
@@ -123,22 +128,23 @@ function updateMode() {
         // Update educational content
         educationContent.innerHTML = `
             <div class="education-section">
-                <h4>What is Linear Regression?</h4>
-                <p>Linear regression finds the best-fit straight line through data points to predict continuous values.</p>
-                
-                <h4>When to Use It</h4>
-                <p>Used for predicting numerical outcomes like prices, temperatures, or scores.</p>
-
-                <h4>Why it's cool</h4>
-                <p>Predict the future! Well, sort of. You can estimate house prices, grades, or even how much ice cream you'll sell based on the temperature.</p>
-                
-                <h4>Key Concepts</h4>
-                <ul>
-                    <li><strong>Slope (m):</strong> Rate of change</li>
-                    <li><strong>Intercept (b):</strong> Y-value when X=0</li>
-                    <li><strong>R²:</strong> How well the line fits (0-1)</li>
-                    <li><strong>Correlation:</strong> Strength of relationship (-1 to 1)</li>
-                </ul>
+                <div class="education-col">
+                    <h4>What is Linear Regression?</h4>
+                    <p>Linear regression finds the best-fit straight line through data points to predict continuous values.</p>
+                    <h4>When to Use It</h4>
+                    <p>Used for predicting numerical outcomes like prices, temperatures, or scores.</p>
+                </div>
+                <div class="education-col">
+                    <h4>Why it's cool</h4>
+                    <p>Predict the future! Well, sort of. You can estimate house prices, grades, or even how much ice cream you'll sell based on the temperature.</p>
+                    <h4>Key Concepts</h4>
+                    <ul>
+                        <li><strong>Slope (m):</strong> Rate of change</li>
+                        <li><strong>Intercept (b):</strong> Y-value when X=0</li>
+                        <li><strong>R²:</strong> How well the line fits (0-1)</li>
+                        <li><strong>Correlation:</strong> Strength of relationship (-1 to 1)</li>
+                    </ul>
+                </div>
             </div>
         `;
     } else {
@@ -164,22 +170,23 @@ function updateMode() {
         // Update educational content
         educationContent.innerHTML = `
             <div class="education-section">
-                <h4>What is Logistic Regression?</h4>
-                <p>Logistic regression predicts the probability of binary outcomes using the sigmoid function.</p>
-                
-                <h4>When to Use It</h4>
-                <p>Used for classification problems like pass/fail, spam/not spam, or disease/no disease.</p>
-
-                <h4>Why it's cool</h4>
-                <p>It's like a crystal ball for yes/no questions. Will a student pass? Is this email spam? Should I take an umbrella? Logistic regression can help you decide.</p>
-                
-                <h4>Key Concepts</h4>
-                <ul>
-                    <li><strong>Sigmoid:</strong> S-shaped curve (0 to 1)</li>
-                    <li><strong>Probability:</strong> Likelihood of class 1</li>
-                    <li><strong>Decision Boundary:</strong> Threshold (usually 0.5)</li>
-                    <li><strong>Odds:</strong> p/(1-p) ratio</li>
-                </ul>
+                <div class="education-col">
+                    <h4>What is Logistic Regression?</h4>
+                    <p>Logistic regression predicts the probability of binary outcomes using the sigmoid function.</p>
+                    <h4>When to Use It</h4>
+                    <p>Used for classification problems like pass/fail, spam/not spam, or disease/no disease.</p>
+                </div>
+                <div class="education-col">
+                    <h4>Why it's cool</h4>
+                    <p>It's like a crystal ball for yes/no questions. Will a student pass? Is this email spam? Should I take an umbrella? Logistic regression can help you decide.</p>
+                    <h4>Key Concepts</h4>
+                    <ul>
+                        <li><strong>Sigmoid:</strong> S-shaped curve (0 to 1)</li>
+                        <li><strong>Probability:</strong> Likelihood of class 1</li>
+                        <li><strong>Decision Boundary:</strong> Threshold (usually 0.5)</li>
+                        <li><strong>Odds:</strong> p/(1-p) ratio</li>
+                    </ul>
+                </div>
             </div>
         `;
     }

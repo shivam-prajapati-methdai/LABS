@@ -965,8 +965,61 @@ input[type="range"]::-moz-range-thumb {
   border-bottom: 1px solid var(--color-card-border-inner);
 }
 
+.education-container {
+  margin-top: var(--space-24);
+}
+
 .education-card .card__body {
   background: var(--color-bg-3);
+}
+
+.education-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-24);
+}
+
+.education-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.control-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-24);
+}
+
+.equation-card, .stats-card, .controls-card {
+  grid-column: span 1;
+}
+
+.education-container {
+  grid-column: span 2;
+  margin-top: var(--space-24);
+}
+
+@media (max-width: 1024px) {
+  .lab-content {
+    grid-template-columns: 1fr;
+    gap: var(--space-16);
+  }
+  
+  .control-panel {
+    order: -1;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .education-container {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .control-panel {
+    grid-template-columns: 1fr;
+  }
 }
 
 .controls-card .card__body {
