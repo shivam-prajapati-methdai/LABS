@@ -388,7 +388,6 @@ select.form-control {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
   transition: box-shadow var(--duration-normal) var(--ease-standard);
 }
 
@@ -1059,20 +1058,20 @@ input[type="range"]::-moz-range-thumb {
 
 .tooltip {
   position: absolute;
-  background: var(--color-text);
-  color: var(--color-surface);
+  background: #333;
+  color: #fff;
   padding: var(--space-4) var(--space-8);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-xs);
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
   white-space: nowrap;
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-standard);
-  bottom: 100%;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 4px;
+  margin-top: 8px;
 }
 
 .tooltip-icon:hover .tooltip {
