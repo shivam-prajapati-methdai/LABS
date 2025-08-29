@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regression Metrics Interactive Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Regression Metrics Interactive Lab</h1>
+            <p class="header__subtitle">Learn MSE, RMSE, and R² through interactive visualization</p>
+        </header>
+
+        <!-- Introduction Section -->
+        <section class="intro-section">
+            <div class="card">
+                <div class="card__body">
+                    <h2>Understanding Regression Metrics</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>MSE (Mean Squared Error)</h3>
+                            <div class="formula">MSE = (1/n) × Σ(y - ŷ)²</div>
+                            <p>Measures average squared error. Lower values indicate better fit. Units are squared target units.</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>RMSE (Root Mean Squared Error)</h3>
+                            <div class="formula">RMSE = √MSE</div>
+                            <p>Measures average error in original units. Lower values indicate better fit. Same units as target variable.</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>R² (R-squared)</h3>
+                            <div class="formula">R² = 1 - (SS_res / SS_tot)</div>
+                            <p>Proportion of variance explained by the model. Values closer to 1 indicate better fit. Range: 0 to 1.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dataset Selector -->
+        <section class="dataset-section">
+            <div class="card">
+                <div class="card__body">
+                    <div class="dataset-controls">
+                        <div class="form-group">
+                            <label class="form-label" for="dataset-select">Select Dataset:</label>
+                            <select id="dataset-select" class="form-control">
+                                <option value="good_fit">Good Fit (R² ≈ 0.91)</option>
+                                <option value="perfect_fit">Perfect Fit (R² = 1.0)</option>
+                                <option value="poor_fit">Poor Fit (R² ≈ 0.3)</option>
+                            </select>
+                        </div>
+                        <div class="visualization-controls">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="show-regression" checked>
+                                Show Regression Line
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="show-errors" checked>
+                                Show Error Lines
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics Display -->
+        <section class="metrics-display">
+            <div class="metrics-cards">
+                <div class="metric-result-card">
+                    <div class="metric-value" id="mse-value">0</div>
+                    <div class="metric-label">MSE</div>
+                    <div class="metric-interpretation" id="mse-interpretation"></div>
+                </div>
+                <div class="metric-result-card">
+                    <div class="metric-value" id="rmse-value">0</div>
+                    <div class="metric-label">RMSE</div>
+                    <div class="metric-interpretation" id="rmse-interpretation"></div>
+                </div>
+                <div class="metric-result-card">
+                    <div class="metric-value" id="r2-value">0</div>
+                    <div class="metric-label">R²</div>
+                    <div class="metric-interpretation" id="r2-interpretation"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visualization Section -->
+        <section class="visualization-section">
+            <div class="card">
+                <div class="card__header">
+                    <h3>Interactive Visualization</h3>
+                    <p>Click on data points to see individual error contributions</p>
+                </div>
+                <div class="card__body">
+                    <div class="chart-container">
+                        <canvas id="regression-chart" width="800" height="500"></canvas>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color actual"></span>
+                                <span>Actual Values</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color predicted"></span>
+                                <span>Predicted Values</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color regression"></span>
+                                <span>Regression Line</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="point-info" id="point-info">
+                        <h4>Point Information</h4>
+                        <p>Click on a data point to see details</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calculator Section -->
+        <section class="calculator-section">
+            <div class="card">
+                <div class="card__header">
+                    <h3>Step-by-Step Calculations</h3>
+                </div>
+                <div class="card__body">
+                    <div class="calculation-table-container">
+                        <table class="calculation-table" id="calculation-table">
+                            <thead>
+                                <tr>
+                                    <th>Point</th>
+                                    <th>Area</th>
+                                    <th>Actual (y)</th>
+                                    <th>Predicted (ŷ)</th>
+                                    <th>Error (y - ŷ)</th>
+                                    <th>Squared Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="totals-row">
+                                    <td colspan="5"><strong>Total:</strong></td>
+                                    <td id="total-squared-error"><strong>0</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="calculation-steps">
+                        <div class="step">
+                            <h4>Step 1: Calculate MSE</h4>
+                            <div class="step-formula" id="mse-calculation">MSE = Total Squared Error / n</div>
+                        </div>
+                        <div class="step">
+                            <h4>Step 2: Calculate RMSE</h4>
+                            <div class="step-formula" id="rmse-calculation">RMSE = √MSE</div>
+                        </div>
+                        <div class="step">
+                            <h4>Step 3: Calculate R²</h4>
+                            <div class="step-formula" id="r2-calculation">R² = 1 - (SS_res / SS_tot)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Section -->
+        <section class="comparison-section">
+            <div class="card">
+                <div class="card__header">
+                    <h3>Dataset Comparison</h3>
+                </div>
+                <div class="card__body">
+                    <div class="comparison-chart-container">
+                        <canvas id="comparison-chart" width="600" height="300"></canvas>
+                    </div>
+                    <div class="comparison-explanation">
+                        <h4>Understanding the Differences</h4>
+                        <ul>
+                            <li><strong>Perfect Fit:</strong> All predictions exactly match actual values (R² = 1.0)</li>
+                            <li><strong>Good Fit:</strong> Predictions are close to actual values with some variation</li>
+                            <li><strong>Poor Fit:</strong> High variability between predictions and actual values</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
