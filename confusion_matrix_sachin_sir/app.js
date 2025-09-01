@@ -139,24 +139,30 @@ matrixCells.forEach(cell => {
   });
 });
 
-// Add click handler for matrix cells to show additional info
+// Tooltip logic for matrix cells
 matrixCells.forEach(cell => {
-  cell.addEventListener('click', function() {
-    const cellType = this.classList.contains('tp-cell') ? 'True Positives' :
-                     this.classList.contains('fp-cell') ? 'False Positives' :
-                     this.classList.contains('tn-cell') ? 'True Negatives' :
-                     'False Negatives';
-    
-    const explanations = {
-      'True Positives': 'Patients who actually have the disease and were correctly identified by the model.',
-      'False Positives': 'Healthy patients who were incorrectly flagged as having the disease.',
-      'True Negatives': 'Healthy patients who were correctly identified as healthy by the model.',
-      'False Negatives': 'Patients who actually have the disease but were missed by the model.'
-    };
-    
-    alert(`${cellType}: ${explanations[cellType]}`);
+  const tooltip = cell.querySelector('.tooltip');
+  if (!tooltip) return;
+
+  const showTooltip = () => {
+    tooltip.style.display = 'block';
+    tooltip.style.opacity = 1;
+  };
+
+  const hideTooltip = () => {
+    tooltip.style.opacity = 0;
+    setTimeout(() => {
+      tooltip.style.display = 'none';
+    }, 200); // Match this with tooltip transition duration
+  };
+
+  cell.addEventListener('mouseenter', showTooltip);
+  cell.addEventListener('mouseleave', hideTooltip);
+  cell.addEventListener('click', () => {
+    // You can add more interactive features on click if needed
   });
 });
+
 
 // Add threshold change suggestions based on context
 function getThresholdSuggestion(threshold) {
@@ -201,46 +207,75 @@ thresholdSlider.addEventListener('input', function(e) {
   suggestionElement.style.opacity = '1';
 });
 
-function formatPercentage(value) {
-  return (value * 100).toFixed(1) + '%';
-}
-
 
   const formulas = {
-      accuracy: '(TP + TN) / (TP + TN + FP + FN)',
-      precision: 'TP / (TP + FP)',
-      recall: 'TP / (TP + FN)',
-      f1: '2 * (Precision * Recall) / (Precision + Recall)',
-      fpr: 'FP / (FP + TN)',
-      fnr: 'FN / (TP + FN)'
-  };
+  accuracy: '(TP + TN) / (TP + TN + FP + FN)',
+  precision: 'TP / (TP + FP)',
+  recall: 'TP / (TP + FN)',
+  f1: '2 * (Precision * Recall) / (Precision + Recall)',
+  fpr: 'FP / (FP + TN)',
+  fnr: 'FN / (TP + FN)',
+};
 
-  const metricItems = document.querySelectorAll('.metric-item');
+const metricItems = document.querySelectorAll('.metric-item');
+let activeMetric = null;
 
-  metricItems.forEach(item => {
-      item.addEventListener('click', function() {
-          const metric = this.dataset.metric;
-          const formula = formulas[metric];
-          
-          // Remove any existing formula
-          const existingFormula = this.querySelector('.metric-formula');
-          if (existingFormula) {
-              existingFormula.remove();
-              return;
-          }
+metricItems.forEach(item => {
+  item.addEventListener('click', function () {
+    if (this.classList.contains('show-formula')) {
+      this.classList.remove('show-formula');
+      activeMetric = null;
+    } else {
+      if (activeMetric) {
+        activeMetric.classList.remove('show-formula');
+      }
+      this.classList.add('show-formula');
+      activeMetric = this;
 
-          const formulaDiv = document.createElement('div');
-          formulaDiv.className = 'metric-formula';
-          formulaDiv.textContent = formula;
-          this.appendChild(formulaDiv);
-      });
+      const metric = this.dataset.metric;
+      const formula = formulas[metric];
+      let formulaEl = this.querySelector('.metric-formula');
+
+      if (!formulaEl) {
+        formulaEl = document.createElement('div');
+        formulaEl.className = 'metric-formula';
+        this.appendChild(formulaEl);
+      }
+
+      const tp = parseInt(document.getElementById('tp-value').textContent) || 0;
+      const fp = parseInt(document.getElementById('fp-value').textContent) || 0;
+      const tn = parseInt(document.getElementById('tn-value').textContent) || 0;
+      const fn = parseInt(document.getElementById('fn-value').textContent) || 0;
+
+      let calculation = formula;
+      calculation = calculation.replace(/TP/g, tp).replace(/TN/g, tn).replace(/FP/g, fp).replace(/FN/g, fn);
+
+      if (metric === 'f1') {
+        const precision = (tp + fp) > 0 ? tp / (tp + fp) : 0;
+        const recall = (tp + fn) > 0 ? tp / (tp + fn) : 0;
+        calculation = `2 * (${precision.toFixed(2)} * ${recall.toFixed(2)}) / (${precision.toFixed(2)} + ${recall.toFixed(2)})`;
+      }
+
+      formulaEl.innerHTML = `
+        <div class="formula-title">${metric.toUpperCase()} Formula</div>
+        <div class="formula-text">${formula}</div>
+        <div class="calculation-text">= ${calculation}</div>
+      `;
+    }
   });
+});
 
   const cellValues = document.querySelectorAll('.cell-value');
 
   cellValues.forEach(cell => {
       cell.addEventListener('input', function() {
           updateMetricsFromInput();
+      });
+      cell.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+              e.preventDefault(); // Prevent newline
+              this.blur(); // Finish editing
+          }
       });
   });
 
@@ -265,6 +300,24 @@ function formatPercentage(value) {
       document.getElementById('f1-value').textContent = formatPercentage(f1);
       document.getElementById('fpr-value').textContent = formatPercentage(fpr);
       document.getElementById('fnr-value').textContent = formatPercentage(fnr);
+
+      if (activeMetric) {
+        const metric = activeMetric.dataset.metric;
+        const formula = formulas[metric];
+        const formulaEl = activeMetric.querySelector('.metric-formula');
+        let calculation = formula;
+        calculation = calculation.replace(/TP/g, tp).replace(/TN/g, tn).replace(/FP/g, fp).replace(/FN/g, fn);
+
+        if (metric === 'f1') {
+          calculation = `2 * (${precision.toFixed(2)} * ${recall.toFixed(2)}) / (${precision.toFixed(2)} + ${recall.toFixed(2)})`;
+        }
+
+        formulaEl.innerHTML = `
+        <div class="formula-title">${metric.toUpperCase()} Formula</div>
+        <div class="formula-text">${formula}</div>
+        <div class="calculation-text">= ${calculation}</div>
+      `;
+      }
   }
 
   const defaultThreshold = 0.25;

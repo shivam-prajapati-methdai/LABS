@@ -75,25 +75,33 @@
                             
                             <div class="matrix-row">
                                 <div class="row-label">Disease</div>
-                                <div class="matrix-cell tp-cell" title="True Positives: Correctly identified sick patients">
+                                <div class="matrix-cell tp-cell">
                                     <div class="cell-label">TP</div>
                                     <div class="cell-value" id="tp-value" contenteditable="true">18</div>
+                                    
+                                    <div class="tooltip">True Positives: Patients who actually have the disease and were correctly identified by the model.</div>
                                 </div>
-                                <div class="matrix-cell fn-cell" title="False Negatives: Sick patients missed by the model">
+                                <div class="matrix-cell fn-cell">
                                     <div class="cell-label">FN</div>
                                     <div class="cell-value" id="fn-value" contenteditable="true">30</div>
+                                    
+                                    <div class="tooltip">False Negatives: Patients who actually have the disease but were missed by the model.</div>
                                 </div>
                             </div>
                             
                             <div class="matrix-row">
                                 <div class="row-label">Healthy</div>
-                                <div class="matrix-cell fp-cell" title="False Positives: Healthy patients incorrectly flagged as sick">
+                                <div class="matrix-cell fp-cell">
                                     <div class="cell-label">FP</div>
                                     <div class="cell-value" id="fp-value" contenteditable="true">27</div>
+                                    
+                                    <div class="tooltip">False Positives: Healthy patients who were incorrectly flagged as having the disease.</div>
                                 </div>
-                                <div class="matrix-cell tn-cell" title="True Negatives: Correctly identified healthy patients">
+                                <div class="matrix-cell tn-cell">
                                     <div class="cell-label">TN</div>
                                     <div class="cell-value" id="tn-value" contenteditable="true">225</div>
+                                    
+                                    <div class="tooltip">True Negatives: Healthy patients who were correctly identified as healthy by the model.</div>
                                 </div>
                             </div>
                         </div>
