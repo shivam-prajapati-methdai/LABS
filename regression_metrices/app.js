@@ -57,20 +57,35 @@ let showErrors = true;
 
 // Chart colors
 const colors = {
-    actual: '#667EEA',
-    predicted: '#F39C12', 
-    regression: '#E74C3C',
-    error: '#4A5568',
+    actual: '#4A90E2',      // A brighter, more distinct blue
+    predicted: '#F5A623',  // A vibrant orange
+    regression: '#D0021B',  // A strong red
+    error: '#7F8C8D',      // A slightly lighter grey for better contrast
     background: '#F7FAFC'
 };
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
+    handleResize(); // Initial resize
+    window.addEventListener('resize', handleResize);
+});
+
+function handleResize() {
+    resizeCanvas('regression-chart', 1.6);
+    resizeCanvas('comparison-chart', 2);
     updateVisualization();
     updateCalculations();
     drawComparisonChart();
-});
+}
+
+function resizeCanvas(canvasId, aspectRatio) {
+    const canvas = document.getElementById(canvasId);
+    const container = canvas.parentElement;
+    const width = container.offsetWidth;
+    canvas.width = width;
+    canvas.height = width / aspectRatio;
+}
 
 function initializeEventListeners() {
     // Dataset selector
@@ -520,11 +535,13 @@ function drawComparisonChart() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Chart settings
-    const padding = 60;
-    const chartWidth = canvas.width - 2 * padding;
-    const chartHeight = canvas.height - 2 * padding;
-    const barWidth = chartWidth / 9; // 3 datasets × 3 metrics
-    const groupSpacing = barWidth * 0.5;
+    const padding = { top: 50, right: 20, bottom: 40, left: 50 };
+    const chartWidth = canvas.width - padding.left - padding.right;
+    const chartHeight = canvas.height - padding.top - padding.bottom;
+    const numGroups = Object.keys(datasets).length;
+    const numBarsPerGroup = 3;
+    const groupWidth = chartWidth / numGroups;
+    const barWidth = groupWidth / (numBarsPerGroup + 1); // Add spacing between bars
 
     // Colors for each metric
     const metricColors = ['#1FB8CD', '#FFC185', '#B4413C'];
@@ -534,13 +551,13 @@ function drawComparisonChart() {
     ctx.strokeStyle = '#626C71';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, canvas.height - padding);
-    ctx.lineTo(canvas.width - padding, canvas.height - padding);
+    ctx.moveTo(padding.left, padding.top);
+    ctx.lineTo(padding.left, canvas.height - padding.bottom);
+    ctx.lineTo(canvas.width - padding.right, canvas.height - padding.bottom);
     ctx.stroke();
 
     // Draw bars
-    let x = padding + groupSpacing;
+    let groupX = padding.left;
     Object.keys(allMetrics).forEach((datasetKey, datasetIndex) => {
         const metrics = allMetrics[datasetKey];
         const values = [
@@ -550,49 +567,54 @@ function drawComparisonChart() {
         ];
 
         values.forEach((value, metricIndex) => {
-            const barHeight = (value * chartHeight) / 1.2; // Max scale
-            const barX = x + metricIndex * barWidth;
-            const barY = canvas.height - padding - barHeight;
+            const barHeight = Math.max(0, (value * chartHeight) / 1.2); // Max scale, ensure non-negative
+            const barX = groupX + (metricIndex + 0.5) * barWidth;
+            const barY = canvas.height - padding.bottom - barHeight;
 
             ctx.fillStyle = metricColors[metricIndex];
             ctx.fillRect(barX, barY, barWidth * 0.8, barHeight);
 
             // Add value labels
             ctx.fillStyle = '#134252';
-            ctx.font = '10px var(--font-family-base)';
+            ctx.font = '14px var(--font-family-base)'; // Increased font size
             ctx.textAlign = 'center';
             
             let displayValue;
             if (metricIndex === 0) displayValue = (metrics.mse / 1000).toFixed(1) + 'k';
             else if (metricIndex === 1) displayValue = metrics.rmse.toFixed(1);
             else displayValue = metrics.rSquared.toFixed(2);
-            
-            ctx.fillText(displayValue, barX + barWidth * 0.4, barY - 5);
+
+            // Adjust text position based on bar height
+            const textY = barHeight > 20 ? barY + 16 : barY - 8; // Adjusted for new font size
+            if (barHeight > 20) {
+                ctx.fillStyle = 'white';
+            }
+            ctx.fillText(displayValue, barX + barWidth * 0.4, textY);
         });
 
         // Dataset labels
         ctx.fillStyle = '#134252';
-        ctx.font = '12px var(--font-family-base)';
+        ctx.font = '16px var(--font-family-base)'; // Increased font size
         ctx.textAlign = 'center';
-        ctx.fillText(datasetLabels[datasetKey], x + barWidth * 1.5, canvas.height - padding + 20);
+        ctx.fillText(datasetLabels[datasetKey], groupX + groupWidth / 2, canvas.height - padding.bottom + 30); // Adjusted for new font size
 
-        x += barWidth * 3 + groupSpacing;
+        groupX += groupWidth;
     });
 
     // Legend
-    const legendY = padding - 30;
+    const legendY = padding.top - 35;
     const legendItems = ['MSE (÷1000)', 'RMSE', 'R²'];
-    let legendX = padding;
+    let legendX = padding.left;
 
     legendItems.forEach((item, index) => {
         ctx.fillStyle = metricColors[index];
-        ctx.fillRect(legendX, legendY, 15, 15);
+        ctx.fillRect(legendX, legendY, 18, 18);
         
         ctx.fillStyle = '#134252';
-        ctx.font = '12px var(--font-family-base)';
+        ctx.font = '16px var(--font-family-base)'; // Increased font size
         ctx.textAlign = 'left';
-        ctx.fillText(item, legendX + 20, legendY + 12);
+        ctx.fillText(item, legendX + 25, legendY + 15);
         
-        legendX += ctx.measureText(item).width + 50;
+        legendX += ctx.measureText(item).width + 50; // Adjust spacing
     });
 }

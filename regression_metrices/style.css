@@ -730,15 +730,15 @@ select.form-control {
 
 /* Good/Poor indicators */
 .metric-result-card.good .metric-value {
-  color: var(--color-success);
+  color: #2ECC71; /* A vibrant green for success */
 }
 
 .metric-result-card.poor .metric-value {
-  color: var(--color-error);
+  color: #D0021B; /* A strong red for errors */
 }
 
 .metric-result-card.average .metric-value {
-  color: var(--color-warning);
+  color: #F5A623; /* A vibrant orange for average */
 }
 
 /* Visualization Section */
@@ -754,7 +754,7 @@ select.form-control {
 
 #regression-chart {
   max-width: 100%;
-  height: auto;
+  height: auto; /* Let JS handle aspect ratio */
   border: 1px solid var(--color-border);
   border-radius: var(--radius-base);
   cursor: crosshair;
@@ -784,15 +784,15 @@ select.form-control {
 }
 
 .legend-color.actual {
-  background-color: #1FB8CD;
+  background-color: #4A90E2; /* Updated to match JS */
 }
 
 .legend-color.predicted {
-  background-color: #FFC185;
+  background-color: #F5A623; /* Updated to match JS */
 }
 
 .legend-color.regression {
-  background-color: #B4413C;
+  background-color: #D0021B; /* Updated to match JS */
   border-radius: 2px;
   height: 3px;
 }
@@ -902,7 +902,7 @@ select.form-control {
 
 #comparison-chart {
   max-width: 100%;
-  height: auto;
+  height: 300px; /* Set a fixed height */
   border: 1px solid var(--color-border);
   border-radius: var(--radius-base);
   display: block;
