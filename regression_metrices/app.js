@@ -57,11 +57,11 @@ let showErrors = true;
 
 // Chart colors
 const colors = {
-    actual: '#1FB8CD',
-    predicted: '#FFC185', 
-    regression: '#B4413C',
-    error: '#5D878F',
-    background: '#FCFCF9'
+    actual: '#667EEA',
+    predicted: '#F39C12', 
+    regression: '#E74C3C',
+    error: '#4A5568',
+    background: '#F7FAFC'
 };
 
 // Initialize the application
