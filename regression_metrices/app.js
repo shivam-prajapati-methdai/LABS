@@ -535,13 +535,11 @@ function drawComparisonChart() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Chart settings
-    const padding = { top: 50, right: 20, bottom: 40, left: 50 };
+    const padding = { top: 60, right: 40, bottom: 60, left: 60 };
     const chartWidth = canvas.width - padding.left - padding.right;
     const chartHeight = canvas.height - padding.top - padding.bottom;
     const numGroups = Object.keys(datasets).length;
-    const numBarsPerGroup = 3;
     const groupWidth = chartWidth / numGroups;
-    const barWidth = groupWidth / (numBarsPerGroup + 1); // Add spacing between bars
 
     // Colors for each metric
     const metricColors = ['#1FB8CD', '#FFC185', '#B4413C'];
@@ -556,7 +554,7 @@ function drawComparisonChart() {
     ctx.lineTo(canvas.width - padding.right, canvas.height - padding.bottom);
     ctx.stroke();
 
-    // Draw bars
+    // Draw bars and labels
     let groupX = padding.left;
     Object.keys(allMetrics).forEach((datasetKey, datasetIndex) => {
         const metrics = allMetrics[datasetKey];
@@ -566,8 +564,10 @@ function drawComparisonChart() {
             metrics.rSquared     // R² is already 0-1
         ];
 
+        const barWidth = groupWidth / (values.length + 1);
+
         values.forEach((value, metricIndex) => {
-            const barHeight = Math.max(0, (value * chartHeight) / 1.2); // Max scale, ensure non-negative
+            const barHeight = Math.max(0, (value * chartHeight) / 1.2);
             const barX = groupX + (metricIndex + 0.5) * barWidth;
             const barY = canvas.height - padding.bottom - barHeight;
 
@@ -576,7 +576,7 @@ function drawComparisonChart() {
 
             // Add value labels
             ctx.fillStyle = '#134252';
-            ctx.font = '14px var(--font-family-base)'; // Increased font size
+            ctx.font = '18px var(--font-family-base)';
             ctx.textAlign = 'center';
             
             let displayValue;
@@ -584,37 +584,32 @@ function drawComparisonChart() {
             else if (metricIndex === 1) displayValue = metrics.rmse.toFixed(1);
             else displayValue = metrics.rSquared.toFixed(2);
 
-            // Adjust text position based on bar height
-            const textY = barHeight > 20 ? barY + 16 : barY - 8; // Adjusted for new font size
-            if (barHeight > 20) {
-                ctx.fillStyle = 'white';
-            }
-            ctx.fillText(displayValue, barX + barWidth * 0.4, textY);
+            ctx.fillText(displayValue, barX + barWidth * 0.4, barY - 10);
         });
 
         // Dataset labels
         ctx.fillStyle = '#134252';
-        ctx.font = '16px var(--font-family-base)'; // Increased font size
+        ctx.font = '22px var(--font-family-base)';
         ctx.textAlign = 'center';
-        ctx.fillText(datasetLabels[datasetKey], groupX + groupWidth / 2, canvas.height - padding.bottom + 30); // Adjusted for new font size
+        ctx.fillText(datasetLabels[datasetKey], groupX + groupWidth / 2, canvas.height - padding.bottom + 30);
 
         groupX += groupWidth;
     });
 
     // Legend
-    const legendY = padding.top - 35;
+    const legendY = padding.top - 40;
     const legendItems = ['MSE (÷1000)', 'RMSE', 'R²'];
     let legendX = padding.left;
 
     legendItems.forEach((item, index) => {
         ctx.fillStyle = metricColors[index];
-        ctx.fillRect(legendX, legendY, 18, 18);
+        ctx.fillRect(legendX, legendY, 20, 20);
         
         ctx.fillStyle = '#134252';
-        ctx.font = '16px var(--font-family-base)'; // Increased font size
+        ctx.font = '22px var(--font-family-base)';
         ctx.textAlign = 'left';
-        ctx.fillText(item, legendX + 25, legendY + 15);
+        ctx.fillText(item, legendX + 25, legendY + 18);
         
-        legendX += ctx.measureText(item).width + 50; // Adjust spacing
+        legendX += ctx.measureText(item).width + 50;
     });
 }

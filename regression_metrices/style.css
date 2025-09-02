@@ -902,7 +902,7 @@ select.form-control {
 
 #comparison-chart {
   max-width: 100%;
-  height: 300px; /* Set a fixed height */
+  height: auto; /* Let JS handle aspect ratio */
   border: 1px solid var(--color-border);
   border-radius: var(--radius-base);
   display: block;
@@ -969,6 +969,24 @@ select.form-control {
   #comparison-chart {
     width: 100%;
     height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  h2 {
+    font-size: var(--font-size-2xl);
+  }
+
+  h3 {
+    font-size: var(--font-size-xl);
+  }
+
+  .metric-value {
+    font-size: var(--font-size-3xl);
   }
 }
 
