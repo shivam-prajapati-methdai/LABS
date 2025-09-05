@@ -17,6 +17,8 @@ class RegressionMetricsLab {
             error: false,
             outlier: false
         };
+        this.editMode = false;
+        this.highlightedPointIndex = -1; // Add this line
         
         // Application data
         this.challengeData = [
@@ -107,6 +109,7 @@ class RegressionMetricsLab {
         // UI events
         document.getElementById('reset-btn').addEventListener('click', () => this.resetData());
         document.getElementById('add-noise-btn').addEventListener('click', () => this.addNoise());
+        document.getElementById('edit-btn').addEventListener('click', () => this.toggleEditMode());
         
         // Challenge cards
         document.querySelectorAll('.challenge-card').forEach((card, index) => {
@@ -201,21 +204,40 @@ class RegressionMetricsLab {
     onMouseDown(e) {
         const pos = this.getMousePos(e);
         const nearestIndex = this.findNearestPoint(pos);
-        
-        if (nearestIndex >= 0) {
-            this.isDragging = true;
-            this.dragIndex = nearestIndex;
-            this.updateCursor(nearestIndex);
-            e.preventDefault();
+
+        if (this.editMode) {
+            // Existing edit mode logic
+            if (nearestIndex >= 0) {
+                this.isDragging = true;
+                this.dragIndex = nearestIndex;
+                this.updateCursor(nearestIndex);
+                e.preventDefault();
+            } else {
+                const dataPoint = this.canvasToData(pos);
+                this.points.push(dataPoint);
+                this.update();
+            }
         } else {
-            // Add new point
-            const dataPoint = this.canvasToData(pos);
-            this.points.push(dataPoint);
-            this.update();
+            // New non-edit mode logic
+            if (nearestIndex >= 0) {
+                this.highlightedPointIndex = nearestIndex;
+                this.update(); // Redraw to highlight
+                // Call a method to show point details tooltip
+                this.showPointDetailsTooltip(nearestIndex);
+            } else {
+                // Clicked outside a point in non-edit mode, hide tooltip
+                this.highlightedPointIndex = -1;
+                this.hidePointDetailsTooltip();
+                this.update(); // Redraw to remove highlight
+            }
         }
     }
     
     onMouseMove(e) {
+        if (!this.editMode) {
+            this.canvas.classList.remove('hovering-point');
+            return;
+        }
         if (this.isDragging && this.dragIndex >= 0) {
             return; // Handle in global mouse move
         }
@@ -226,6 +248,7 @@ class RegressionMetricsLab {
     }
     
     onGlobalMouseMove(e) {
+        if (!this.editMode) return;
         if (this.isDragging && this.dragIndex >= 0) {
             const pos = this.getMousePos(e);
             const dataPoint = this.canvasToData(pos);
@@ -252,6 +275,7 @@ class RegressionMetricsLab {
     }
     
     onRightClick(e) {
+        if (!this.editMode) return;
         e.preventDefault();
         const pos = this.getMousePos(e);
         const nearestIndex = this.findNearestPoint(pos);
@@ -442,7 +466,7 @@ class RegressionMetricsLab {
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]);
         
-        this.points.forEach(point => {
+        this.points.forEach((point, index) => {
             const predicted = slope * point.x + intercept;
             const actualCanvas = this.dataToCanvas(point);
             const predictedCanvas = this.dataToCanvas({ x: point.x, y: predicted });
@@ -450,6 +474,15 @@ class RegressionMetricsLab {
             ctx.beginPath();
             ctx.moveTo(actualCanvas.x, actualCanvas.y);
             ctx.lineTo(predictedCanvas.x, predictedCanvas.y);
+            
+            // Highlight residual for selected point
+            if (index === this.highlightedPointIndex) {
+                ctx.strokeStyle = '#4CAF50'; // Green color for highlighted residual
+                ctx.lineWidth = 3; // Thicker line
+            } else {
+                ctx.strokeStyle = '#FF6B6B';
+                ctx.lineWidth = 2;
+            }
             ctx.stroke();
         });
         
@@ -470,13 +503,23 @@ class RegressionMetricsLab {
             
             // Point
             ctx.fillStyle = index === this.dragIndex ? '#FFC185' : '#B4413C';
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            
-            ctx.beginPath();
-            ctx.arc(canvasPoint.x, canvasPoint.y, 8, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.stroke();
+            // Add highlight for selected point
+            if (index === this.highlightedPointIndex) {
+                ctx.fillStyle = '#4CAF50'; // Green color for highlighted point
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3; // Thicker border
+                ctx.beginPath();
+                ctx.arc(canvasPoint.x, canvasPoint.y, 10, 0, 2 * Math.PI); // Slightly larger
+                ctx.fill();
+                ctx.stroke();
+            } else {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(canvasPoint.x, canvasPoint.y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            }
         });
     }
     
@@ -516,6 +559,23 @@ class RegressionMetricsLab {
         
         fill.style.width = `${percentage}%`;
         card.className = `metric-card ${quality}`;
+    }
+
+    // New helper function to update individual metric card contributions
+    updateMetricCardContribution(metricId, value, calculationText) {
+        const card = document.getElementById(`${metricId}-card`);
+        let contributionDiv = card.querySelector('.metric-contribution');
+
+        if (!contributionDiv) {
+            contributionDiv = document.createElement('div');
+            contributionDiv.classList.add('metric-contribution');
+            card.appendChild(contributionDiv);
+        }
+        contributionDiv.textContent = calculationText;
+        contributionDiv.style.display = 'block'; // Ensure it's visible
+        contributionDiv.style.fontSize = 'var(--font-size-sm)';
+        contributionDiv.style.color = 'var(--color-text-secondary)';
+        contributionDiv.style.marginTop = 'var(--space-8)';
     }
     
     calculateScore() {
@@ -611,6 +671,47 @@ class RegressionMetricsLab {
     hideTooltip() {
         document.getElementById('tooltip-modal').classList.add('hidden');
     }
+
+    showPointDetailsTooltip(pointIndex) {
+        const point = this.points[pointIndex];
+        if (!point || !this.regressionLine) {
+            this.hidePointDetailsTooltip();
+            return;
+        }
+
+        const { slope, intercept } = this.regressionLine;
+        const predicted = slope * point.x + intercept;
+        const residual = point.y - predicted;
+        const squaredError = residual * residual;
+        const absoluteError = Math.abs(residual);
+
+        const modal = document.getElementById('tooltip-modal');
+        document.getElementById('tooltip-title').textContent = `Data Point Details (x: ${point.x.toFixed(2)}, y: ${point.y.toFixed(2)})`;
+        document.getElementById('tooltip-formula').innerHTML = `Predicted ŷ: ${predicted.toFixed(2)}`;
+        document.getElementById('tooltip-explanation').textContent = `Residual (y - ŷ): ${residual.toFixed(2)}`;
+
+        // Reuse tooltip-details for more info
+        const detailsDiv = document.getElementById('tooltip-details');
+        detailsDiv.innerHTML = `
+            <div><strong>Squared Error:</strong> ${squaredError.toFixed(2)}</div>
+            <div><strong>Absolute Error:</strong> ${absoluteError.toFixed(2)}</div>
+        `;
+        
+        modal.classList.remove('hidden');
+
+        // --- New: Update Metric Cards with individual point contribution ---
+        this.updateMetricCardContribution('mse', squaredError, `(y - ŷ)² = ${squaredError.toFixed(2)}`);
+        this.updateMetricCardContribution('rmse', Math.sqrt(squaredError), `√((y - ŷ)²) = ${Math.sqrt(squaredError).toFixed(2)}`);
+        this.updateMetricCardContribution('mae', absoluteError, `|y - ŷ| = ${absoluteError.toFixed(2)}`);
+    }
+
+    hidePointDetailsTooltip() {
+        document.getElementById('tooltip-modal').classList.add('hidden');
+        // --- New: Hide Metric Card Contributions ---
+        document.querySelectorAll('.metric-contribution').forEach(div => {
+            div.style.display = 'none';
+        });
+    }
     
     resetData() {
         this.loadChallenge(this.currentChallenge);
@@ -631,6 +732,27 @@ class RegressionMetricsLab {
         this.updateMetricsDisplay();
         this.calculateScore();
         this.checkChallenges();
+    }
+
+    toggleEditMode() {
+        this.editMode = !this.editMode;
+        const editBtn = document.getElementById('edit-btn');
+        if (this.editMode) {
+            editBtn.textContent = '✅ Editing';
+            editBtn.classList.remove('btn--primary');
+            editBtn.classList.add('btn--success');
+            this.canvas.classList.add('editing-active');
+            // When entering edit mode, clear any highlighted point and hide tooltip
+            this.highlightedPointIndex = -1;
+            this.hidePointDetailsTooltip();
+            this.update(); // Redraw to remove highlight
+        } else {
+            editBtn.textContent = '✏️ Edit Mode';
+            editBtn.classList.remove('btn--success');
+            editBtn.classList.add('btn--primary');
+            this.canvas.classList.remove('editing-active');
+        }
+        this.updateCursor(-1);
     }
 }
 
