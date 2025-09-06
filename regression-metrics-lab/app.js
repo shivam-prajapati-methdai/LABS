@@ -174,7 +174,7 @@ class RegressionMetricsLab {
             }
         });
         
-        this.checkAchievements();
+        this.checkAchievements(index);
         this.update();
     }
 
@@ -663,29 +663,34 @@ class RegressionMetricsLab {
             statusElement.textContent = '✅ Completed!';
             statusElement.classList.add('completed');
             this.showCelebration(`Great job! You completed the ${challenge.name} challenge!`);
-            this.checkAchievements();
+            this.checkAchievements(this.currentChallenge);
         } else if (!completed && statusElement && statusElement.textContent !== 'Not Started' && !statusElement.classList.contains('completed')) { 
             statusElement.textContent = 'In Progress...';
         }
     }
 
-    checkAchievements() {
-        // Perfect Fit Achievement
-        if (this.metrics.r2 > 0.95 && !this.achievements.perfect) {
-            this.achievements.perfect = true;
-            const element = document.getElementById('achievement-perfect');
-            element.classList.remove('locked');
-            element.classList.add('unlocked');
-            this.showCelebration('🏅 Achievement Unlocked: Perfect Fit Master!');
-        }
-        
-        // Error Minimizer Achievement
-        if (this.metrics.mse < 2.0 && !this.achievements.error) {
-            this.achievements.error = true;
-            const element = document.getElementById('achievement-error');
-            element.classList.remove('locked');
-            element.classList.add('unlocked');
-            this.showCelebration('🏅 Achievement Unlocked: Error Minimizer!');
+    checkAchievements(challengeIndex) {
+        if (challengeIndex === undefined) return;
+
+        switch (challengeIndex) {
+            case 0: // Perfect Linear Relationship
+                if (this.metrics.r2 > 0.95 && !this.achievements.perfect) {
+                    this.achievements.perfect = true;
+                    const element = document.getElementById('achievement-perfect');
+                    element.classList.remove('locked');
+                    element.classList.add('unlocked');
+                    this.showCelebration('🏅 Achievement Unlocked: Perfect Fit Master!');
+                }
+                break;
+            case 1: // Minimize Error Challenge
+                if (this.metrics.mse < 2.0 && !this.achievements.error) {
+                    this.achievements.error = true;
+                    const element = document.getElementById('achievement-error');
+                    element.classList.remove('locked');
+                    element.classList.add('unlocked');
+                    this.showCelebration('🏅 Achievement Unlocked: Error Minimizer!');
+                }
+                break;
         }
     }
     
