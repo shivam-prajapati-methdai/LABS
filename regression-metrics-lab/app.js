@@ -10,7 +10,7 @@ class RegressionMetricsLab {
         this.metrics = { mse: 0, rmse: 0, mae: 0, r2: 0 };
         this.isDragging = false;
         this.dragIndex = -1;
-        this.currentChallenge = 0;
+        this.currentChallenge = -1; // No challenge active initially
         this.achievements = {
             perfect: false,
             error: false,
@@ -84,7 +84,7 @@ class RegressionMetricsLab {
     init() {
         this.setupCanvas();
         this.setupEventListeners();
-        this.loadInitialData();
+        this.loadInitialData(); // Now loads empty data
         this.update();
     }
     
@@ -111,9 +111,24 @@ class RegressionMetricsLab {
         document.getElementById('add-noise-btn').addEventListener('click', () => this.addNoise());
         document.getElementById('edit-btn').addEventListener('click', () => this.toggleEditMode());
         
-        // Challenge cards
-        document.querySelectorAll('.challenge-card').forEach((card, index) => {
-            card.addEventListener('click', () => this.loadChallenge(index));
+        // New: Dataset selection buttons
+        document.querySelectorAll('.dataset-buttons .btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (e.target.id === 'clear-data-btn') {
+                    this.clearAllPoints();
+                } else {
+                    const datasetIndex = parseInt(e.target.dataset.datasetIndex);
+                    this.loadDataset(datasetIndex);
+                }
+            });
+        });
+
+        // New: Start Challenge buttons
+        document.querySelectorAll('.start-challenge-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const challengeIndex = parseInt(e.target.dataset.challengeIndex);
+                this.loadChallenge(challengeIndex);
+            });
         });
         
         // Info buttons (for general metric info, not point-specific)
@@ -132,22 +147,52 @@ class RegressionMetricsLab {
     }
     
     loadInitialData() {
-        this.points = [
-            {x: 2, y: 3}, {x: 4, y: 5}, {x: 6, y: 7}, {x: 8, y: 9}, {x: 10, y: 11}
-        ];
-        this.loadChallenge(0);
+        this.points = []; // Start with an empty canvas
+        this.currentChallenge = -1; // Ensure no challenge is active
+        this.resetChallengeStatuses(); // Reset all challenge statuses
     }
     
     loadChallenge(index) {
         this.currentChallenge = index;
         this.points = [...this.challengeData[index].initial_points];
         
-        // Update UI
+        // Update UI for challenges
+        this.resetChallengeStatuses(); // Reset all first
         document.querySelectorAll('.challenge-card').forEach((card, i) => {
-            card.classList.toggle('active', i === index);
+            const statusElement = card.querySelector('.challenge-status');
+            if (i === index) {
+                card.classList.add('active');
+                statusElement.textContent = 'In Progress...';
+                statusElement.classList.remove('completed');
+            } else {
+                card.classList.remove('active');
+            }
         });
         
         this.update();
+    }
+
+    loadDataset(index) {
+        this.points = [...this.challengeData[index].initial_points];
+        this.currentChallenge = -1; // No challenge active when loading a dataset
+        this.resetChallengeStatuses(); // Reset all challenge statuses
+        this.update();
+    }
+
+    clearAllPoints() {
+        this.points = [];
+        this.currentChallenge = -1; // No challenge active
+        this.resetChallengeStatuses(); // Reset all challenge statuses
+        this.update();
+    }
+
+    resetChallengeStatuses() {
+        document.querySelectorAll('.challenge-card').forEach(card => {
+            card.classList.remove('active');
+            const statusElement = card.querySelector('.challenge-status');
+            statusElement.textContent = 'Not Started';
+            statusElement.classList.remove('completed');
+        });
     }
     
     getMousePos(e) {
@@ -563,8 +608,11 @@ class RegressionMetricsLab {
     }
 
     checkChallenges() {
+        // Only check if a challenge is currently active
+        if (this.currentChallenge === -1) return; 
+
         const challenge = this.challengeData[this.currentChallenge];
-        const status = document.getElementById(`challenge-${this.currentChallenge}-status`);
+        const statusElement = document.getElementById(`challenge-${this.currentChallenge}-status`);
         
         let completed = false;
         
@@ -574,14 +622,15 @@ class RegressionMetricsLab {
             completed = true;
         }
         
-        if (completed && !status.classList.contains('completed')) {
-            status.textContent = '✅ Completed!';
-            status.classList.add('completed');
+        if (completed && !statusElement.classList.contains('completed')) {
+            statusElement.textContent = '✅ Completed!';
+            statusElement.classList.add('completed');
             this.showCelebration(`Great job! You completed the ${challenge.name} challenge!`);
             this.checkAchievements();
-        } else if (!completed) {
-            status.textContent = 'In Progress...';
-            status.classList.remove('completed');
+        } else if (!completed && statusElement.textContent !== 'In Progress...') {
+            // Only update if not already 'In Progress...' to avoid flickering
+            statusElement.textContent = 'In Progress...';
+            statusElement.classList.remove('completed');
         }
     }
     
