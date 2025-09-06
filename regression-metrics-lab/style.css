@@ -803,7 +803,7 @@ select.form-control {
 
   /* New: 3D flip container styles */
   perspective: 1000px; /* Gives the 3D perspective */
-  height: 150px; /* Fixed height for consistent flip */
+  height: 160px; /* Adjusted height for consistent flip */
 }
 
 .metric-card:hover {
@@ -833,9 +833,10 @@ select.form-control {
   border-radius: var(--radius-base);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: var(--space-16);
+  /* Changed for indicator visibility */
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-16) var(--space-16) var(--space-8) var(--space-16); /* Adjusted padding */
   background: var(--color-bg-2); /* Match parent background */
   border: 2px solid transparent; /* Match parent border */
 }

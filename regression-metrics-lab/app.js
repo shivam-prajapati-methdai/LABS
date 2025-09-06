@@ -11,7 +11,6 @@ class RegressionMetricsLab {
         this.isDragging = false;
         this.dragIndex = -1;
         this.currentChallenge = 0;
-        this.score = 0;
         this.achievements = {
             perfect: false,
             error: false,
@@ -50,31 +49,31 @@ class RegressionMetricsLab {
         this.metricExplanations = {
             mse: {
                 title: "Mean Squared Error (MSE)",
-                formula: "(yᵢ - ŷᵢ)²", // Simplified for individual point
-                explanation: "Squared difference between actual and predicted value for this point.",
+                formula: "MSE = (1/n) × Σ(yᵢ - ŷᵢ)²",
+                explanation: "Measures average squared differences between actual and predicted values. Larger errors are penalized more heavily due to squaring.",
                 good_range: "Lower is better - values close to 0 indicate perfect fit",
-                when_to_use: "Heavily penalizes large errors"
+                when_to_use: "Use when you want to heavily penalize large errors"
             },
             rmse: {
                 title: "Root Mean Squared Error (RMSE)",
-                formula: "√((yᵢ - ŷᵢ)²)", // Simplified for individual point
-                explanation: "Square root of the squared difference for this point.",
+                formula: "RMSE = √MSE",
+                explanation: "Square root of MSE, giving errors in same units as the target variable. Easier to interpret than MSE.",
                 good_range: "Lower is better - represents typical prediction error magnitude",
-                when_to_use: "Interpretable error measurement in original units"
+                when_to_use: "Use for interpretable error measurement in original units"
             },
             mae: {
                 title: "Mean Absolute Error (MAE)",
-                formula: "|yᵢ - ŷᵢ|", // Simplified for individual point
-                explanation: "Absolute difference between actual and predicted value for this point.",
+                formula: "MAE = (1/n) × Σ|yᵢ - ŷᵢ|",
+                explanation: "Average absolute difference between actual and predicted values. Less sensitive to outliers than MSE/RMSE.",
                 good_range: "Lower is better - represents average absolute deviation",
-                when_to_use: "Less sensitive to outliers"
+                when_to_use: "Use when outliers shouldn't dominate the error measurement"
             },
             r2: {
                 title: "R-squared (R²)",
-                formula: "(yᵢ - ŷᵢ)² / Σ(yᵢ - ȳ)²", // Contribution to 1 - (SSR/SST)
-                explanation: "Proportion of total variance explained by this point's error.",
-                good_range: "Higher is better - closer to 1 means more variance explained",
-                when_to_use: "Understand how well model explains data variability"
+                formula: "R² = 1 - (SSR/SST)",
+                explanation: "Proportion of variance in target variable explained by the model. Measures goodness of fit.",
+                good_range: "0 to 1, where 1 = perfect fit, 0.7+ = good fit",
+                when_to_use: "Use to understand how well your model explains the data variability"
             }
         };
         
@@ -561,21 +560,6 @@ class RegressionMetricsLab {
         card.className = `metric-card ${quality}`;
     }
 
-    calculateScore() {
-        const { mse, rmse, mae, r2 } = this.metrics;
-        let score = 0;
-        
-        // R-squared contributes most to score
-        score += r2 * 50;
-        
-        // Low error contributes to score
-        score += Math.max(0, 30 - mse * 2);
-        score += Math.max(0, 20 - mae * 2);
-        
-        this.score = Math.round(Math.max(0, score));
-        document.getElementById('current-score').textContent = this.score;
-    }
-    
     checkChallenges() {
         const challenge = this.challengeData[this.currentChallenge];
         const status = document.getElementById(`challenge-${this.currentChallenge}-status`);
@@ -737,7 +721,6 @@ class RegressionMetricsLab {
         this.calculateMetrics();
         this.drawCanvas();
         this.updateMetricsDisplay();
-        this.calculateScore();
         this.checkChallenges();
     }
 
