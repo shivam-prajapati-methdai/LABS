@@ -238,7 +238,7 @@ class RegressionMetricsLab {
             const distance = Math.sqrt(
                 Math.pow(pos.x - canvasPoint.x, 2) + Math.pow(pos.y - canvasPoint.y, 2)
             );
-            if (distance < 15 && distance < minDistance) {
+            if (distance < 20 && distance < minDistance) { // Increased sensitivity from 15 to 20
                 minDistance = distance;
                 nearestIndex = index;
             }
@@ -832,7 +832,8 @@ class RegressionMetricsLab {
         }
         this.updateCursor(-1);
     }
-}
+}
+
 // Initialize the application when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new RegressionMetricsLab();
