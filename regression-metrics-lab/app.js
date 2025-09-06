@@ -174,6 +174,7 @@ class RegressionMetricsLab {
             }
         });
         
+        this.checkAchievements();
         this.update();
     }
 
@@ -657,37 +658,34 @@ class RegressionMetricsLab {
             completed = true;
         }
         
-        // Only mark as completed if it was 'In Progress...' and now meets criteria
-        if (completed && statusElement && statusElement.textContent === 'In Progress...') {
+        // Only mark as completed if it's not already completed
+        if (completed && statusElement && !statusElement.classList.contains('completed')) {
             statusElement.textContent = '✅ Completed!';
             statusElement.classList.add('completed');
             this.showCelebration(`Great job! You completed the ${challenge.name} challenge!`);
-            
-            // Perfect Fit Achievement
-            if (this.metrics.r2 > 0.95 && !this.achievements.perfect) {
-                this.achievements.perfect = true;
-                const element = document.getElementById('achievement-perfect');
-                element.classList.remove('locked');
-                element.classList.add('unlocked');
-                this.showCelebration('🏅 Achievement Unlocked: Perfect Fit Master!');
-            }
-            
-            // Error Minimizer Achievement
-            if (this.metrics.mse < 2.0 && !this.achievements.error) {
-                this.achievements.error = true;
-                const element = document.getElementById('achievement-error');
-                element.classList.remove('locked');
-                element.classList.add('unlocked');
-                this.showCelebration('🏅 Achievement Unlocked: Error Minimizer!');
-            }
-        } else if (!completed && statusElement && statusElement.textContent !== 'Not Started') { 
-            // If it was 'Completed' and no longer meets criteria, it should remain 'Completed'
-            // If it was 'In Progress...' and no longer meets criteria, it should remain 'In Progress...'
-            // This prevents flickering between 'In Progress...' and 'Not Started'
-            if (statusElement.textContent !== 'In Progress...' && !statusElement.classList.contains('completed')) {
-                statusElement.textContent = 'In Progress...';
-                statusElement.classList.remove('completed');
-            }
+            this.checkAchievements();
+        } else if (!completed && statusElement && statusElement.textContent !== 'Not Started' && !statusElement.classList.contains('completed')) { 
+            statusElement.textContent = 'In Progress...';
+        }
+    }
+
+    checkAchievements() {
+        // Perfect Fit Achievement
+        if (this.metrics.r2 > 0.95 && !this.achievements.perfect) {
+            this.achievements.perfect = true;
+            const element = document.getElementById('achievement-perfect');
+            element.classList.remove('locked');
+            element.classList.add('unlocked');
+            this.showCelebration('🏅 Achievement Unlocked: Perfect Fit Master!');
+        }
+        
+        // Error Minimizer Achievement
+        if (this.metrics.mse < 2.0 && !this.achievements.error) {
+            this.achievements.error = true;
+            const element = document.getElementById('achievement-error');
+            element.classList.remove('locked');
+            element.classList.add('unlocked');
+            this.showCelebration('🏅 Achievement Unlocked: Error Minimizer!');
         }
     }
     
