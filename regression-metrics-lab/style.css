@@ -590,15 +590,21 @@ select.form-control {
 .app-header {
   text-align: center;
   margin-bottom: var(--space-32);
+  position: relative;
+  z-index: 100; /* Ensure it's above the background pattern */
 }
 
 .app-header h1 {
   font-size: var(--font-size-4xl);
+  background-clip: text;
+  margin-bottom: var(--space-8);
+}
+
+.app-header h1 span {
   background: linear-gradient(45deg, var(--color-primary), #93c5fd);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: var(--space-8);
 }
 
 .app-header p {
