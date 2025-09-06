@@ -800,12 +800,79 @@ select.form-control {
   transition: all var(--duration-normal) var(--ease-standard);
   position: relative; /* Fix for overlay issues */
   z-index: 1;
+
+  /* New: 3D flip container styles */
+  perspective: 1000px; /* Gives the 3D perspective */
+  height: 150px; /* Fixed height for consistent flip */
 }
 
 .metric-card:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
   z-index: 2; /* Elevate on hover */
+}
+
+/* New: Inner container for the flip effect */
+.metric-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s; /* Flip animation duration */
+  transform-style: preserve-3d; /* Crucial for 3D effect */
+}
+
+/* New: Front and back faces of the card */
+.metric-card-front,
+.metric-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Hide back of the element when facing away */
+  backface-visibility: hidden;
+  border-radius: var(--radius-base);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-16);
+  background: var(--color-bg-2); /* Match parent background */
+  border: 2px solid transparent; /* Match parent border */
+}
+
+.metric-card-back {
+  transform: rotateY(180deg); /* Initially rotated to be hidden */
+  background: var(--color-surface); /* Different background for back */
+  border-color: var(--color-primary); /* Highlight border for back */
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: auto; /* Allow scrolling if content is too long */
+}
+
+.metric-card-back .formula {
+  font-family: var(--font-family-mono);
+  background: var(--color-bg-8);
+  padding: var(--space-8);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-8);
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  width: 100%;
+  text-align: center;
+}
+
+.metric-card-back .calculation {
+  margin-top: var(--space-8);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* New: Flipped state */
+.metric-card.flipped .metric-card-inner {
+  transform: rotateY(180deg);
 }
 
 .metric-header {

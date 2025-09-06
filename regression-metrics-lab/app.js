@@ -2,7 +2,7 @@
 class RegressionMetricsLab {
     constructor() {
         this.canvas = document.getElementById('regression-canvas');
-                this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext('2d');
         
         // Data and state
         this.points = [];
@@ -18,7 +18,7 @@ class RegressionMetricsLab {
             outlier: false
         };
         this.editMode = false;
-        this.highlightedPointIndex = -1; // Add this line
+        this.highlightedPointIndex = -1;
         
         // Application data
         this.challengeData = [
@@ -50,31 +50,31 @@ class RegressionMetricsLab {
         this.metricExplanations = {
             mse: {
                 title: "Mean Squared Error (MSE)",
-                formula: "MSE = (1/n) × Σ(yᵢ - ŷᵢ)²",
-                explanation: "Measures average squared differences between actual and predicted values. Larger errors are penalized more heavily due to squaring.",
+                formula: "(yᵢ - ŷᵢ)²", // Simplified for individual point
+                explanation: "Squared difference between actual and predicted value for this point.",
                 good_range: "Lower is better - values close to 0 indicate perfect fit",
-                when_to_use: "Use when you want to heavily penalize large errors"
+                when_to_use: "Heavily penalizes large errors"
             },
             rmse: {
                 title: "Root Mean Squared Error (RMSE)",
-                formula: "RMSE = √MSE",
-                explanation: "Square root of MSE, giving errors in same units as the target variable. Easier to interpret than MSE.",
+                formula: "√((yᵢ - ŷᵢ)²)", // Simplified for individual point
+                explanation: "Square root of the squared difference for this point.",
                 good_range: "Lower is better - represents typical prediction error magnitude",
-                when_to_use: "Use for interpretable error measurement in original units"
+                when_to_use: "Interpretable error measurement in original units"
             },
             mae: {
                 title: "Mean Absolute Error (MAE)",
-                formula: "MAE = (1/n) × Σ|yᵢ - ŷᵢ|",
-                explanation: "Average absolute difference between actual and predicted values. Less sensitive to outliers than MSE/RMSE.",
+                formula: "|yᵢ - ŷᵢ|", // Simplified for individual point
+                explanation: "Absolute difference between actual and predicted value for this point.",
                 good_range: "Lower is better - represents average absolute deviation",
-                when_to_use: "Use when outliers shouldn't dominate the error measurement"
+                when_to_use: "Less sensitive to outliers"
             },
-            r_squared: {
+            r2: {
                 title: "R-squared (R²)",
-                formula: "R² = 1 - (SSR/SST)",
-                explanation: "Proportion of variance in target variable explained by the model. Measures goodness of fit.",
-                good_range: "0 to 1, where 1 = perfect fit, 0.7+ = good fit",
-                when_to_use: "Use to understand how well your model explains the data variability"
+                formula: "(yᵢ - ŷᵢ)² / Σ(yᵢ - ȳ)²", // Contribution to 1 - (SSR/SST)
+                explanation: "Proportion of total variance explained by this point's error.",
+                good_range: "Higher is better - closer to 1 means more variance explained",
+                when_to_use: "Understand how well model explains data variability"
             }
         };
         
@@ -116,18 +116,18 @@ class RegressionMetricsLab {
             card.addEventListener('click', () => this.loadChallenge(index));
         });
         
-        // Info buttons
+        // Info buttons (for general metric info, not point-specific)
         document.querySelectorAll('.info-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const metric = e.target.dataset.metric;
-                this.showTooltip(metric);
+                this.showMetricInfoTooltip(metric);
             });
         });
         
         // Modal events
-        document.getElementById('tooltip-close').addEventListener('click', () => this.hideTooltip());
+        document.getElementById('tooltip-close').addEventListener('click', () => this.hideMetricInfoTooltip());
         document.getElementById('tooltip-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'tooltip-modal') this.hideTooltip();
+            if (e.target.id === 'tooltip-modal') this.hideMetricInfoTooltip();
         });
     }
     
@@ -217,17 +217,17 @@ class RegressionMetricsLab {
                 this.points.push(dataPoint);
                 this.update();
             }
+            this.hideMetricCardDetails(); // Hide flipped cards when in edit mode
         } else {
             // New non-edit mode logic
             if (nearestIndex >= 0) {
                 this.highlightedPointIndex = nearestIndex;
                 this.update(); // Redraw to highlight
-                // Call a method to show point details tooltip
-                this.showPointDetailsTooltip(nearestIndex);
+                this.showPointDetailsOnCards(nearestIndex); // Show point details on cards
             } else {
-                // Clicked outside a point in non-edit mode, hide tooltip
+                // Clicked outside a point in non-edit mode, hide details
                 this.highlightedPointIndex = -1;
-                this.hidePointDetailsTooltip();
+                this.hideMetricCardDetails();
                 this.update(); // Redraw to remove highlight
             }
         }
@@ -561,23 +561,6 @@ class RegressionMetricsLab {
         card.className = `metric-card ${quality}`;
     }
 
-    // New helper function to update individual metric card contributions
-    updateMetricCardContribution(metricId, value, calculationText) {
-        const card = document.getElementById(`${metricId}-card`);
-        let contributionDiv = card.querySelector('.metric-contribution');
-
-        if (!contributionDiv) {
-            contributionDiv = document.createElement('div');
-            contributionDiv.classList.add('metric-contribution');
-            card.appendChild(contributionDiv);
-        }
-        contributionDiv.textContent = calculationText;
-        contributionDiv.style.display = 'block'; // Ensure it's visible
-        contributionDiv.style.fontSize = 'var(--font-size-sm)';
-        contributionDiv.style.color = 'var(--color-text-secondary)';
-        contributionDiv.style.marginTop = 'var(--space-8)';
-    }
-    
     calculateScore() {
         const { mse, rmse, mae, r2 } = this.metrics;
         let score = 0;
@@ -655,7 +638,7 @@ class RegressionMetricsLab {
         }, 2000);
     }
     
-    showTooltip(metric) {
+    showMetricInfoTooltip(metric) {
         const modal = document.getElementById('tooltip-modal');
         const data = this.metricExplanations[metric];
         
@@ -668,53 +651,76 @@ class RegressionMetricsLab {
         modal.classList.remove('hidden');
     }
     
-    hideTooltip() {
+    hideMetricInfoTooltip() {
         document.getElementById('tooltip-modal').classList.add('hidden');
     }
 
-    showPointDetailsTooltip(pointIndex) {
+    // New: Show point details on metric cards (flipping them)
+    showPointDetailsOnCards(pointIndex) {
         const point = this.points[pointIndex];
         if (!point || !this.regressionLine) {
-            this.hidePointDetailsTooltip();
+            this.hideMetricCardDetails();
             return;
         }
 
         const { slope, intercept } = this.regressionLine;
         const predicted = slope * point.x + intercept;
         const residual = point.y - predicted;
-        const squaredError = residual * residual;
-        const absoluteError = Math.abs(residual);
 
-        const modal = document.getElementById('tooltip-modal');
-        document.getElementById('tooltip-title').textContent = `Data Point Details (x: ${point.x.toFixed(2)}, y: ${point.y.toFixed(2)})`;
-        document.getElementById('tooltip-formula').innerHTML = `Predicted ŷ: ${predicted.toFixed(2)}`;
-        document.getElementById('tooltip-explanation').textContent = `Residual (y - ŷ): ${residual.toFixed(2)}`;
+        // Calculate individual contributions
+        const mseContribution = residual * residual;
+        const rmseContribution = Math.sqrt(mseContribution);
+        const maeContribution = Math.abs(residual);
 
-        // Reuse tooltip-details for more info
-        const detailsDiv = document.getElementById('tooltip-details');
-        detailsDiv.innerHTML = `
-            <div><strong>Squared Error:</strong> ${squaredError.toFixed(2)}</div>
-            <div><strong>Absolute Error:</strong> ${absoluteError.toFixed(2)}</div>
-        `;
-        
-        modal.classList.remove('hidden');
+        let r2Contribution = 0;
+        if (this.points.length > 1) {
+            const sumY = this.points.reduce((sum, p) => sum + p.y, 0);
+            const meanY = sumY / this.points.length;
+            const totalSquaredDifference = Math.pow(point.y - meanY, 2);
+            if (totalSquaredDifference !== 0) {
+                r2Contribution = mseContribution / totalSquaredDifference; // This is the proportion of *this point's* total variance explained by its error
+            }
+        }
 
-        // --- New: Update Metric Cards with individual point contribution ---
-        this.updateMetricCardContribution('mse', squaredError, `(y - ŷ)² = ${squaredError.toFixed(2)}`);
-        this.updateMetricCardContribution('rmse', Math.sqrt(squaredError), `√((y - ŷ)²) = ${Math.sqrt(squaredError).toFixed(2)}`);
-        this.updateMetricCardContribution('mae', absoluteError, `|y - ŷ| = ${absoluteError.toFixed(2)}`);
+        const metricCards = [
+            { id: 'mse', value: mseContribution, formula: this.metricExplanations.mse.formula, explanation: `(y - ŷ)² = (${point.y.toFixed(2)} - ${predicted.toFixed(2)})² = ${mseContribution.toFixed(2)}` },
+            { id: 'rmse', value: rmseContribution, formula: this.metricExplanations.rmse.formula, explanation: `√((y - ŷ)²) = √(${mseContribution.toFixed(2)}) = ${rmseContribution.toFixed(2)}` },
+            { id: 'mae', value: maeContribution, formula: this.metricExplanations.mae.formula, explanation: `|y - ŷ| = |${point.y.toFixed(2)} - ${predicted.toFixed(2)}| = ${maeContribution.toFixed(2)}` },
+            { id: 'r2', value: r2Contribution, formula: this.metricExplanations.r2.formula, explanation: `Error contribution to R²: ${r2Contribution.toFixed(4)}` }
+        ];
+
+        // Sequentially flip cards and update content
+        metricCards.forEach((metric, index) => {
+            setTimeout(() => {
+                const cardElement = document.getElementById(`${metric.id}-card`);
+                const formulaElement = cardElement.querySelector('.metric-card-back .formula');
+                const calculationElement = cardElement.querySelector('.metric-card-back .calculation');
+
+                if (formulaElement) formulaElement.textContent = metric.formula;
+                if (calculationElement) calculationElement.textContent = metric.explanation;
+
+                cardElement.classList.add('flipped');
+            }, index * 150); // Stagger the flip animation
+        });
     }
 
-    hidePointDetailsTooltip() {
-        document.getElementById('tooltip-modal').classList.add('hidden');
-        // --- New: Hide Metric Card Contributions ---
-        document.querySelectorAll('.metric-contribution').forEach(div => {
-            div.style.display = 'none';
+    // New: Hide point details on metric cards (flipping them back)
+    hideMetricCardDetails() {
+        document.querySelectorAll('.metric-card').forEach(cardElement => {
+            cardElement.classList.remove('flipped');
+            // Optionally clear content after flip back animation completes
+            setTimeout(() => {
+                const formulaElement = cardElement.querySelector('.metric-card-back .formula');
+                const calculationElement = cardElement.querySelector('.metric-card-back .calculation');
+                if (formulaElement) formulaElement.textContent = '';
+                if (calculationElement) calculationElement.textContent = '';
+            }, 600); // Match flip animation duration
         });
     }
     
     resetData() {
         this.loadChallenge(this.currentChallenge);
+        this.hideMetricCardDetails(); // Ensure cards are unflipped on reset
     }
     
     addNoise() {
@@ -723,6 +729,7 @@ class RegressionMetricsLab {
             point.y = Math.max(0, Math.min(40, point.y));
         });
         this.update();
+        this.hideMetricCardDetails(); // Ensure cards are unflipped on add noise
     }
     
     update() {
@@ -744,7 +751,8 @@ class RegressionMetricsLab {
             this.canvas.classList.add('editing-active');
             // When entering edit mode, clear any highlighted point and hide tooltip
             this.highlightedPointIndex = -1;
-            this.hidePointDetailsTooltip();
+            this.hideMetricCardDetails(); // Hide flipped cards when entering edit mode
+            this.hideMetricInfoTooltip(); // Also hide general info tooltip
             this.update(); // Redraw to remove highlight
         } else {
             editBtn.textContent = '✏️ Edit Mode';
