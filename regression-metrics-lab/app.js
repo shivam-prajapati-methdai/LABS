@@ -207,11 +207,11 @@ class RegressionMetricsLab {
         });
     }
     
-    getMousePos(e) {
-        const rect = this.canvas.getBoundingClientRect();
+    getMousePos(canvas, evt) {
+        const rect = canvas.getBoundingClientRect();
         return {
-            x: (e.clientX - rect.left),
-            y: (e.clientY - rect.top)
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
         };
     }
     
@@ -259,7 +259,7 @@ class RegressionMetricsLab {
     }
     
     onMouseDown(e) {
-        const pos = this.getMousePos(e);
+        const pos = this.getMousePos(this.canvas, e);
         const nearestIndex = this.findNearestPoint(pos);
 
         if (this.editMode) {
@@ -299,7 +299,7 @@ class RegressionMetricsLab {
             return; // Handle in global mouse move
         }
         
-        const pos = this.getMousePos(e);
+        const pos = this.getMousePos(this.canvas, e);
         const nearestIndex = this.findNearestPoint(pos);
         this.updateCursor(nearestIndex);
     }
@@ -307,7 +307,7 @@ class RegressionMetricsLab {
     onGlobalMouseMove(e) {
         if (!this.editMode) return;
         if (this.isDragging && this.dragIndex >= 0) {
-            const pos = this.getMousePos(e);
+            const pos = this.getMousePos(this.canvas, e);
             const dataPoint = this.canvasToData(pos);
             this.points[this.dragIndex] = dataPoint;
             this.update();
@@ -332,7 +332,7 @@ class RegressionMetricsLab {
     onRightClick(e) {
         if (!this.editMode) return;
         e.preventDefault();
-        const pos = this.getMousePos(e);
+        const pos = this.getMousePos(this.canvas, e);
         const nearestIndex = this.findNearestPoint(pos);
         
         if (nearestIndex >= 0) {
