@@ -14,7 +14,6 @@ class RegressionMetricsLab {
         this.achievements = {
             perfect: false,
             error: false,
-            outlier: false
         };
         this.editMode = false;
         this.highlightedPointIndex = -1;
@@ -127,7 +126,7 @@ class RegressionMetricsLab {
         document.querySelectorAll('.start-challenge-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const challengeIndex = parseInt(e.target.dataset.challengeIndex);
-                this.loadChallenge(challengeIndex);
+                this.startChallenge(challengeIndex); // Changed to startChallenge
             });
         });
         
@@ -152,20 +151,27 @@ class RegressionMetricsLab {
         this.resetChallengeStatuses(); // Reset all challenge statuses
     }
     
-    loadChallenge(index) {
+    startChallenge(index) { // Renamed from loadChallenge
         this.currentChallenge = index;
-        this.points = [...this.challengeData[index].initial_points];
+        // Do NOT load initial_points here. Preserve current data.
         
         // Update UI for challenges
-        this.resetChallengeStatuses(); // Reset all first
+        // First, reset all challenges, but preserve 'completed' status
         document.querySelectorAll('.challenge-card').forEach((card, i) => {
             const statusElement = card.querySelector('.challenge-status');
             if (i === index) {
                 card.classList.add('active');
-                statusElement.textContent = 'In Progress...';
-                statusElement.classList.remove('completed');
+                // Only update status if it's not already completed
+                if (statusElement && !statusElement.classList.contains('completed')) {
+                    statusElement.textContent = 'In Progress...';
+                    statusElement.classList.remove('completed'); 
+                }
             } else {
                 card.classList.remove('active');
+                // Only reset to 'Not Started' if it's not already 'Completed'
+                if (statusElement && !statusElement.classList.contains('completed')) {
+                    statusElement.textContent = 'Not Started';
+                }
             }
         });
         
@@ -175,14 +181,14 @@ class RegressionMetricsLab {
     loadDataset(index) {
         this.points = [...this.challengeData[index].initial_points];
         this.currentChallenge = -1; // No challenge active when loading a dataset
-        this.resetChallengeStatuses(); // Reset all challenge statuses
+        this.resetChallengeStatuses(); // Reset all challenge statuses, preserving completed ones
         this.update();
     }
 
     clearAllPoints() {
         this.points = [];
         this.currentChallenge = -1; // No challenge active
-        this.resetChallengeStatuses(); // Reset all challenge statuses
+        this.resetChallengeStatuses(); // Reset all challenge statuses, preserving completed ones
         this.update();
     }
 
@@ -190,8 +196,14 @@ class RegressionMetricsLab {
         document.querySelectorAll('.challenge-card').forEach(card => {
             card.classList.remove('active');
             const statusElement = card.querySelector('.challenge-status');
-            statusElement.textContent = 'Not Started';
-            statusElement.classList.remove('completed');
+            // Add a check here to ensure statusElement is not null
+            if (statusElement) {
+                // Only reset to 'Not Started' if it's not already 'Completed'
+                if (!statusElement.classList.contains('completed')) {
+                    statusElement.textContent = 'Not Started';
+                    statusElement.classList.remove('completed');
+                }
+            }
         });
     }
     
@@ -622,15 +634,20 @@ class RegressionMetricsLab {
             completed = true;
         }
         
-        if (completed && !statusElement.classList.contains('completed')) {
+        // Only mark as completed if it was 'In Progress...' and now meets criteria
+        if (completed && statusElement && statusElement.textContent === 'In Progress...') {
             statusElement.textContent = '✅ Completed!';
             statusElement.classList.add('completed');
             this.showCelebration(`Great job! You completed the ${challenge.name} challenge!`);
             this.checkAchievements();
-        } else if (!completed && statusElement.textContent !== 'In Progress...') {
-            // Only update if not already 'In Progress...' to avoid flickering
-            statusElement.textContent = 'In Progress...';
-            statusElement.classList.remove('completed');
+        } else if (!completed && statusElement && statusElement.textContent !== 'Not Started') { 
+            // If it was 'Completed' and no longer meets criteria, it should remain 'Completed'
+            // If it was 'In Progress...' and no longer meets criteria, it should remain 'In Progress...'
+            // This prevents flickering between 'In Progress...' and 'Not Started'
+            if (statusElement.textContent !== 'In Progress...' && !statusElement.classList.contains('completed')) {
+                statusElement.textContent = 'In Progress...';
+                statusElement.classList.remove('completed');
+            }
         }
     }
     
@@ -645,12 +662,6 @@ class RegressionMetricsLab {
         if (this.metrics.mse < 2.0 && !this.achievements.error) {
             this.achievements.error = true;
             this.unlockAchievement('achievement-error', 'Error Minimizer');
-        }
-        
-        // Outlier Detective Achievement
-        if (this.currentChallenge === 2 && !this.achievements.outlier) {
-            this.achievements.outlier = true;
-            this.unlockAchievement('achievement-outlier', 'Outlier Detective');
         }
     }
     
@@ -775,8 +786,12 @@ class RegressionMetricsLab {
     }
     
     resetData() {
-        this.loadChallenge(this.currentChallenge);
+        // When resetting data, also reset current challenge and its status
+        this.currentChallenge = -1;
+        this.resetChallengeStatuses();
+        this.points = []; // Clear points on reset
         this.hideMetricCardDetails(); // Ensure cards are unflipped on reset
+        this.update();
     }
     
     addNoise() {
@@ -817,8 +832,7 @@ class RegressionMetricsLab {
         }
         this.updateCursor(-1);
     }
-}
-
+}
 // Initialize the application when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new RegressionMetricsLab();
