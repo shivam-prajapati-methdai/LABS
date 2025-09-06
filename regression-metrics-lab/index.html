@@ -80,7 +80,7 @@
                         <div class="metric-card-front">
                             <div class="metric-header">
                                 <span class="metric-name">R²</span>
-                                <button class="info-btn" data-metric="r_squared">ℹ️</button>
+                                <button class="info-btn" data-metric="r2">ℹ️</button>
                             </div>
                             <div class="metric-value" id="r2-value">0.00</div>
                             <div class="metric-bar">
@@ -121,41 +121,44 @@
                 <div class="plot-instructions">
                     <p>🖱️ <strong>Click</strong> to add points • <strong>Drag</strong> to move points • <strong>Right-click</strong> to delete</p>
                 </div>
+                <div class="model-quality-indicator" id="model-quality-indicator">
+                    <p>Model Quality: <span id="model-quality-text">N/A</span></p>
+                </div>
             </div>
 
             <!-- Challenge Panel -->
             <div class="challenge-panel">
                 <h3>🎮 Challenges</h3>
                 
-                <div class="challenge-card" data-challenge="0">
+                <div class="challenge-card">
                     <div class="challenge-name">Perfect Linear Relationship</div>
                     <div class="challenge-description">Try to achieve R² > 0.95</div>
                     <div class="challenge-target">🎯 Target: R² > 0.95</div>
-                    <div class="challenge-status" id="challenge-0-status">Not Started</div>
-                    <button class="btn btn--sm btn--primary start-challenge-btn" data-challenge-index="0">Start Challenge</button>
+                    <div class="challenge-status">Not Started</div>
+                    <button class="btn btn--sm btn--primary start-challenge-btn">Start Challenge</button>
                 </div>
 
-                <div class="challenge-card" data-challenge="1">
+                <div class="challenge-card">
                     <div class="challenge-name">Minimize Error Challenge</div>
                     <div class="challenge-description">Get MSE below 2.0</div>
                     <div class="challenge-target">🎯 Target: MSE < 2.0</div>
-                    <div class="challenge-status" id="challenge-1-status">Not Started</div>
-                    <button class="btn btn--sm btn--primary start-challenge-btn" data-challenge-index="1">Start Challenge</button>
+                    <div class="challenge-status">Not Started</div>
+                    <button class="btn btn--sm btn--primary start-challenge-btn">Start Challenge</button>
                 </div>
 
-                <div class="challenge-card" data-challenge="2">
+                <div class="challenge-card">
                     <div class="challenge-name">Outlier Impact</div>
                     <div class="challenge-description">See how outliers affect metrics</div>
                     <div class="challenge-target">🔍 Explore outlier effects</div>
-                    <!-- Removed Start Challenge button for exploration challenge -->
+                    <button class="btn btn--sm btn--primary start-challenge-btn">Start Challenge</button>
                 </div>
 
                 <div class="achievement-display">
                     <h4>🏅 Achievements</h4>
-                    <div class="achievements" id="achievements-list">
+                    <div class="achievements">
                         <div class="achievement locked" id="achievement-perfect">Perfect Fit Master</div>
                         <div class="achievement locked" id="achievement-error">Error Minimizer</div>
-                        <!-- Removed Outlier Detective achievement -->
+                        
                     </div>
                 </div>
             </div>

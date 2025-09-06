@@ -97,7 +97,7 @@ class RegressionMetricsLab {
         // Canvas events
         this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
         this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
-        this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
+        this.canvas.addEventListener('mouseup', (e) => this.onGlobalMouseUp(e));
         this.canvas.addEventListener('mouseleave', (e) => this.onMouseLeave(e));
         this.canvas.addEventListener('contextmenu', (e) => this.onRightClick(e));
         
@@ -123,10 +123,9 @@ class RegressionMetricsLab {
         });
 
         // New: Start Challenge buttons
-        document.querySelectorAll('.start-challenge-btn').forEach(btn => {
+        document.querySelectorAll('.start-challenge-btn').forEach((btn, index) => {
             btn.addEventListener('click', (e) => {
-                const challengeIndex = parseInt(e.target.dataset.challengeIndex);
-                this.startChallenge(challengeIndex); // Changed to startChallenge
+                this.startChallenge(index);
             });
         });
         
@@ -314,9 +313,7 @@ class RegressionMetricsLab {
         }
     }
     
-    onMouseUp(e) {
-        this.onGlobalMouseUp(e);
-    }
+    
     
     onGlobalMouseUp(e) {
         if (this.isDragging) {
@@ -593,6 +590,32 @@ class RegressionMetricsLab {
         this.updateMetricCard('rmse', this.metrics.rmse, 10, true);
         this.updateMetricCard('mae', this.metrics.mae, 10, true);
         this.updateMetricCard('r2', this.metrics.r2, 1, false);
+
+        // Update Model Quality Indicator
+        const r2Value = this.metrics.r2;
+        let qualityText = "N/A";
+        let qualityClass = "quality-na";
+
+        if (this.points.length < 2) {
+            qualityText = "Add more points!";
+            qualityClass = "quality-na";
+        } else if (r2Value > 0.9) {
+            qualityText = "Excellent Model! 🎉";
+            qualityClass = "quality-excellent";
+        } else if (r2Value > 0.7) {
+            qualityText = "Good Model! 👍";
+            qualityClass = "quality-good";
+        } else if (r2Value > 0.4) {
+            qualityText = "Fair Model. 🤔";
+            qualityClass = "quality-fair";
+        } else {
+            qualityText = "Poor Model. 👎";
+            qualityClass = "quality-poor";
+        }
+
+        document.getElementById('model-quality-text').textContent = qualityText;
+        const indicatorDiv = document.getElementById('model-quality-indicator');
+        indicatorDiv.className = `model-quality-indicator ${qualityClass}`;
     }
     
     updateMetricCard(metric, value, maxValue, lowerIsBetter) {
@@ -624,7 +647,7 @@ class RegressionMetricsLab {
         if (this.currentChallenge === -1) return; 
 
         const challenge = this.challengeData[this.currentChallenge];
-        const statusElement = document.getElementById(`challenge-${this.currentChallenge}-status`);
+        const statusElement = document.querySelectorAll('.challenge-status')[this.currentChallenge];
         
         let completed = false;
         
@@ -639,7 +662,24 @@ class RegressionMetricsLab {
             statusElement.textContent = '✅ Completed!';
             statusElement.classList.add('completed');
             this.showCelebration(`Great job! You completed the ${challenge.name} challenge!`);
-            this.checkAchievements();
+            
+            // Perfect Fit Achievement
+            if (this.metrics.r2 > 0.95 && !this.achievements.perfect) {
+                this.achievements.perfect = true;
+                const element = document.getElementById('achievement-perfect');
+                element.classList.remove('locked');
+                element.classList.add('unlocked');
+                this.showCelebration('🏅 Achievement Unlocked: Perfect Fit Master!');
+            }
+            
+            // Error Minimizer Achievement
+            if (this.metrics.mse < 2.0 && !this.achievements.error) {
+                this.achievements.error = true;
+                const element = document.getElementById('achievement-error');
+                element.classList.remove('locked');
+                element.classList.add('unlocked');
+                this.showCelebration('🏅 Achievement Unlocked: Error Minimizer!');
+            }
         } else if (!completed && statusElement && statusElement.textContent !== 'Not Started') { 
             // If it was 'Completed' and no longer meets criteria, it should remain 'Completed'
             // If it was 'In Progress...' and no longer meets criteria, it should remain 'In Progress...'
@@ -651,26 +691,7 @@ class RegressionMetricsLab {
         }
     }
     
-    checkAchievements() {
-        // Perfect Fit Achievement
-        if (this.metrics.r2 > 0.95 && !this.achievements.perfect) {
-            this.achievements.perfect = true;
-            this.unlockAchievement('achievement-perfect', 'Perfect Fit Master');
-        }
-        
-        // Error Minimizer Achievement
-        if (this.metrics.mse < 2.0 && !this.achievements.error) {
-            this.achievements.error = true;
-            this.unlockAchievement('achievement-error', 'Error Minimizer');
-        }
-    }
     
-    unlockAchievement(id, name) {
-        const element = document.getElementById(id);
-        element.classList.remove('locked');
-        element.classList.add('unlocked');
-        this.showCelebration(`🏅 Achievement Unlocked: ${name}!`);
-    }
     
     showCelebration(text) {
         const celebration = document.getElementById('celebration');
