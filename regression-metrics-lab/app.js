@@ -18,6 +18,7 @@ class RegressionMetricsLab {
         };
         this.editMode = false;
         this.highlightedPointIndex = -1;
+        this.flipTimeouts = []; // New: To store setTimeout IDs for flip animations
         
         // Application data
         this.challengeData = [
@@ -512,6 +513,7 @@ class RegressionMetricsLab {
                 ctx.fill();
                 ctx.stroke();
             } else {
+                // Fix: Added fill and stroke for non-highlighted points
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
@@ -673,9 +675,25 @@ class RegressionMetricsLab {
             { id: 'r2', value: r2Contribution, formula: this.metricExplanations.r2.formula, explanation: `Error contribution to R²: ${r2Contribution.toFixed(4)}` }
         ];
 
-        // Sequentially flip cards and update content
+        // Clear any existing flip timeouts
+        this.flipTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+        this.flipTimeouts = []; // Clear the array
+
+        // Immediately unflip all cards before starting the new sequence
+        document.querySelectorAll('.metric-card').forEach(cardElement => {
+            cardElement.classList.remove('flipped');
+            // Clear content immediately to prevent old data from flashing
+            const formulaElement = cardElement.querySelector('.metric-card-back .formula');
+            const calculationElement = cardElement.querySelector('.metric-card-back .calculation');
+            if (formulaElement) formulaElement.textContent = '';
+            if (calculationElement) calculationElement.textContent = '';
+        });
+
+        // Add a small delay before starting the new flip sequence
+        // to allow the unflip animation to start (if any)
+        const initialDelay = 600; // Increased delay to match hideMetricCardDetails animation duration
         metricCards.forEach((metric, index) => {
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 const cardElement = document.getElementById(`${metric.id}-card`);
                 const formulaElement = cardElement.querySelector('.metric-card-back .formula');
                 const calculationElement = cardElement.querySelector('.metric-card-back .calculation');
@@ -684,12 +702,17 @@ class RegressionMetricsLab {
                 if (calculationElement) calculationElement.textContent = metric.explanation;
 
                 cardElement.classList.add('flipped');
-            }, index * 150); // Stagger the flip animation
+            }, initialDelay + index * 150); // Stagger the flip animation after initial delay
+            this.flipTimeouts.push(timeoutId);
         });
     }
 
     // New: Hide point details on metric cards (flipping them back)
     hideMetricCardDetails() {
+        // Clear any existing flip timeouts
+        this.flipTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+        this.flipTimeouts = [];
+
         document.querySelectorAll('.metric-card').forEach(cardElement => {
             cardElement.classList.remove('flipped');
             // Optionally clear content after flip back animation completes
