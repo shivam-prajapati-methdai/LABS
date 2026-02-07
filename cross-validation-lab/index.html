@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Validation Methods Laboratory</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>CV Methods</h2>
+                <p>Select a cross-validation technique</p>
+            </div>
+            
+            <div class="method-selection">
+                <div class="method-option" data-method="kfold">
+                    <input type="radio" id="kfold" name="cv-method" value="kfold" checked>
+                    <label for="kfold">K-Fold CV</label>
+                </div>
+                <div class="method-option" data-method="stratified">
+                    <input type="radio" id="stratified" name="cv-method" value="stratified">
+                    <label for="stratified">Stratified K-Fold</label>
+                </div>
+                <div class="method-option" data-method="loocv">
+                    <input type="radio" id="loocv" name="cv-method" value="loocv">
+                    <label for="loocv">Leave-One-Out CV</label>
+                </div>
+                <div class="method-option" data-method="timeseries">
+                    <input type="radio" id="timeseries" name="cv-method" value="timeseries">
+                    <label for="timeseries">Time Series Split</label>
+                </div>
+                <div class="method-option" data-method="group">
+                    <input type="radio" id="group" name="cv-method" value="group">
+                    <label for="group">Group K-Fold</label>
+                </div>
+                <div class="method-option" data-method="shuffle">
+                    <input type="radio" id="shuffle" name="cv-method" value="shuffle">
+                    <label for="shuffle">Monte Carlo Split</label>
+                </div>
+            </div>
+            
+            <div class="method-description">
+                <h4>Description</h4>
+                <p id="method-desc">Splits dataset into k folds, uses k-1 for training and 1 for testing</p>
+            </div>
+
+            <div class="method-takeaway">
+                <h4>Key Takeaway</h4>
+                <p id="method-takeaway">A good, general-purpose method for most situations.</p>
+            </div>
+            
+            <div class="parameters-section">
+                <h4>Parameters</h4>
+                <div class="parameter-controls">
+                    <div class="form-group">
+                        <label for="n-splits" class="form-label">Number of Splits:</label>
+                        <input type="range" id="n-splits" class="form-control" min="2" max="10" value="5">
+                        <span id="n-splits-value">5</span>
+                    </div>
+                    <div class="form-group" id="test-size-group" style="display: none;">
+                        <label for="test-size" class="form-label">Test Size:</label>
+                        <input type="range" id="test-size" class="form-control" min="0.1" max="0.5" step="0.05" value="0.2">
+                        <span id="test-size-value">0.2</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="shuffle-toggle" checked> Shuffle Data
+                        </label>
+                    </div>
+                    <p id="loocv-note" class="placeholder-text" style="display: none; font-size: 12px;">For performance reasons, only the first 15 splits are shown for LOOCV.</p>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Cross-Validation Methods Laboratory</h1>
+                <p>Learn and Compare Different Cross-Validation Techniques</p>
+            </header>
+            
+            <div class="controls-section">
+                <div class="dataset-selection">
+                    <label for="dataset-type" class="form-label">Dataset Type:</label>
+                    <select id="dataset-type" class="form-control">
+                        <option value="balanced">Balanced Classification</option>
+                        <option value="imbalanced">Imbalanced Classification</option>
+                        <option value="small">Small Dataset</option>
+                        <option value="timeseries">Time Series Data</option>
+                        <option value="grouped">Grouped Data</option>
+                    </select>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="run-cv" class="btn btn--primary">Run Cross-Validation</button>
+                    <button id="compare-methods" class="btn btn--secondary">Compare Methods</button>
+                    <button id="generate-data" class="btn btn--outline">Generate New Dataset</button>
+                    <button id="reset" class="btn btn--outline">Reset</button>
+                </div>
+            </div>
+            
+            <div class="dataset-info">
+                <div class="info-card">
+                    <h4>Dataset Information</h4>
+                    <div id="dataset-details">
+                        <p><strong>Samples:</strong> <span id="samples-count">100</span></p>
+                        <p><strong>Features:</strong> <span id="features-count">5</span></p>
+                        <p><strong>Classes:</strong> <span id="classes-count">2</span></p>
+                        <p><strong>Distribution:</strong> <span id="class-distribution">[50, 50]</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="comparison-container" style="display: none;">
+                <h3>Comparison of Methods</h3>
+                <div class="metrics-table-container">
+                    <table id="comparison-table" class="metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Mean Score</th>
+                                <th>Std Deviation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="placeholder-text">Run cross-validation for different methods to compare them.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="visualization-container">
+                <div class="split-visualization">
+                    <h3>Cross-Validation Splits</h3>
+                    <div id="splits-display" class="splits-grid">
+                        <p class="placeholder-text">Click "Run Cross-Validation" to see splits visualization</p>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color train-color"></div>
+                            <span>Training Set</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color test-color"></div>
+                            <span>Test Set</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="performance-visualization">
+                    <h3>Performance Comparison</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="performance-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="information-panels">
+                <div class="method-details">
+                    <h3>Method Details</h3>
+                    <div class="detail-sections">
+                        <div class="detail-section">
+                            <h4>When to Use</h4>
+                            <ul id="best-for-list">
+                                <li>General purpose</li>
+                                <li>Balanced datasets</li>
+                                <li>Independent samples</li>
+                            </ul>
+                        </div>
+                        <div class="detail-section">
+                            <h4>Advantages</h4>
+                            <ul id="advantages-list">
+                                <li>Uses all data for training and testing</li>
+                                <li>Reliable performance estimate</li>
+                                <li>Well-established technique</li>
+                            </ul>
+                        </div>
+                        <div class="detail-section">
+                            <h4>Disadvantages</h4>
+                            <ul id="disadvantages-list">
+                                <li>May be biased with temporal data</li>
+                                <li>Can be computationally expensive</li>
+                                <li>May not preserve class balance</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="code-snippet">
+                        <h4>Implementation</h4>
+                        <pre><code id="code-example">from sklearn.model_selection import KFold
+cv = KFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(model, X, y, cv=cv)</code></pre>
+                    </div>
+                </div>
+                
+                <div class="performance-metrics">
+                    <h3>Performance Metrics</h3>
+                    <div class="metrics-table-container">
+                        <table id="metrics-table" class="metrics-table">
+                            <thead>
+                                <tr>
+                                    <th>Fold</th>
+                                    <th>Train Size</th>
+                                    <th>Test Size</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="placeholder-text">Run cross-validation to see metrics</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="summary-stats" id="summary-stats" style="display: none;">
+                        <div class="stat-item">
+                            <label>Mean Score:</label>
+                            <span id="mean-score">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <label>Std Deviation:</label>
+                            <span id="std-score">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <label>Avg Time/Fold:</label>
+                            <span id="avg-time">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glossary">
+                <h3>Glossary</h3>
+                <dl id="glossary-list"></dl>
+            </div>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+{
+  "scenarios": [
+    {
+      "name": "COVID Test Results",
+      "description": "A rapid COVID test administered to 100 people",
+      "positive_label": "Has COVID",
+      "negative_label": "No COVID",
+      "total_samples": 100,
+      "actual_positive": 20,
+      "actual_negative": 80,
+      "tp": 18,
+      "tn": 77,
+      "fp": 3,
+      "fn": 2
+    },
+    {
+      "name": "Email Spam Detection",
+      "description": "Automated spam filter checking 200 emails",
+      "positive_label": "Spam Email",
+      "negative_label": "Normal Email",
+      "total_samples": 200,
+      "actual_positive": 40,
+      "actual_negative": 160,
+      "tp": 35,
+      "tn": 150,
+      "fp": 10,
+      "fn": 5
+    },
+    {
+      "name": "Student Exam Results",
+      "description": "Predicting whether students will pass based on study hours",
+      "positive_label": "Pass",
+      "negative_label": "Fail",
+      "total_samples": 100,
+      "actual_positive": 70,
+      "actual_negative": 30,
+      "tp": 65,
+      "tn": 22,
+      "fp": 8,
+      "fn": 5
+    }
+  ],
+  "summary": [
+    {
+      "Scenario": "COVID Test Results",
+      "Total Samples": 100,
+      "True Positives": 18,
+      "True Negatives": 77,
+      "False Positives": 3,
+      "False Negatives": 2
+    },
+    {
+      "Scenario": "Email Spam Detection",
+      "Total Samples": 200,
+      "True Positives": 35,
+      "True Negatives": 150,
+      "False Positives": 10,
+      "False Negatives": 5
+    },
+    {
+      "Scenario": "Student Exam Results",
+      "Total Samples": 100,
+      "True Positives": 65,
+      "True Negatives": 22,
+      "False Positives": 8,
+      "False Negatives": 5
+    }
+  ],
+  "explanations": {
+    "confusion_matrix": {
+      "definition": "A confusion matrix is a table that shows how well a classification model performs by comparing predicted results with actual results.",
+      "purpose": "It helps us see where our model gets \"confused\" - meaning where it makes mistakes in its predictions.",
+      "components": {
+        "true_positive": "Correct predictions of the positive class (we predicted YES and it was actually YES)",
+        "true_negative": "Correct predictions of the negative class (we predicted NO and it was actually NO)",
+        "false_positive": "Wrong predictions of positive class (we predicted YES but it was actually NO) - Type I Error",
+        "false_negative": "Wrong predictions of negative class (we predicted NO but it was actually YES) - Type II Error"
+      }
+    },
+    "metrics": {
+      "accuracy": {
+        "definition": "The percentage of all predictions that were correct",
+        "formula": "(True Positives + True Negatives) \u00f7 Total Predictions",
+        "when_to_use": "Good when classes are balanced, but can be misleading with imbalanced data"
+      },
+      "precision": {
+        "definition": "Of all the positive predictions, how many were actually correct?",
+        "formula": "True Positives \u00f7 (True Positives + False Positives)",
+        "when_to_use": "Important when false positives are costly (e.g., spam detection)"
+      },
+      "recall": {
+        "definition": "Of all the actual positive cases, how many did we correctly identify?",
+        "formula": "True Positives \u00f7 (True Positives + False Negatives)",
+        "when_to_use": "Important when false negatives are costly (e.g., medical diagnosis)"
+      },
+      "f1_score": {
+        "definition": "A balanced measure that considers both precision and recall",
+        "formula": "2 \u00d7 (Precision \u00d7 Recall) \u00f7 (Precision + Recall)",
+        "when_to_use": "When you need a single score that balances precision and recall"
+      }
+    }
+  }
+}

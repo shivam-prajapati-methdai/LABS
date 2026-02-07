@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn About Machine Learning Features!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Section -->
+        <section id="welcome" class="section is-active">
+            <div class="welcome-content">
+                <h1>🏠 What are Features?</h1>
+                <p>Welcome! Let's learn how a computer uses <strong>features</strong> (clues) to make smart guesses. We'll use a house price predictor to see how it works!</p>
+                <div class="concept-preview">
+                    <div class="concept-card">
+                        <h3>🎯 Features</h3>
+                        <p>Input characteristics (size, bedrooms, etc.)</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🎪 Target</h3>
+                        <p>What we want to predict (house price)</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🧠 Model</h3>
+                        <p>Smart algorithm that makes predictions</p>
+                    </div>
+                </div>
+                <button class="btn btn--primary btn--lg" onclick="nextSection()">Start Learning!</button>
+            </div>
+        </section>
+
+        <!-- Interactive Demo Section -->
+        <section id="demo" class="section">
+            <h2>🏠 Interactive House Price Predictor</h2>
+            <p>Try adjusting the sliders below and watch how the predicted price changes!</p>
+            
+            <div class="demo-container">
+                <div class="house-visual">
+                    <div class="house-icon">🏠</div>
+                    <div class="price-display">
+                        <h3>Predicted Price</h3>
+                        <div class="price-value">$<span id="predicted-price">350000</span></div>
+                    </div>
+                </div>
+                
+                <div class="controls-panel">
+                    <h4>Adjust House Features:</h4>
+                    
+                    <div class="control-group">
+                        <label for="size">🏠 House Size: <span id="size-value">2000</span> sq ft</label>
+                        <input type="range" id="size" min="500" max="5000" value="2000" class="slider">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="bedrooms">🛏️ Bedrooms: <span id="bedrooms-value">3</span></label>
+                        <input type="range" id="bedrooms" min="1" max="6" value="3" class="slider">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="bathrooms">🚿 Bathrooms: <span id="bathrooms-value">2</span></label>
+                        <input type="range" id="bathrooms" min="1" max="4" value="2" class="slider">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="age">📅 House Age: <span id="age-value">10</span> years</label>
+                        <input type="range" id="age" min="0" max="50" value="10" class="slider">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="lot-size">🌿 Lot Size: <span id="lot-size-value">5000</span> sq ft</label>
+                        <input type="range" id="lot-size" min="1000" max="10000" value="5000" class="slider">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-actions">
+                <button class="btn btn--back" onclick="prevSection()">Back</button>
+                <button class="btn btn--primary" onclick="nextSection()">Now Let's Learn About Features!</button>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="section">
+            <h2>🎯 What are Features?</h2>
+            <div class="learning-content">
+                <div class="explanation">
+                    <p><strong>Features</strong> are the clues we give the computer to help it make a good guess.</p>
+                    <p>For our house, the features are the things we can change with the sliders. The more clues we give, the better the guess!</p>
+                </div>
+                
+                <div class="feature-examples">
+                    <div class="feature-item" id="feature-size">
+                        <span class="feature-icon">🏠</span>
+                        <div>
+                            <strong>House Size</strong>
+                            <p>Square footage is a feature</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" id="feature-bedrooms">
+                        <span class="feature-icon">🛏️</span>
+                        <div>
+                            <strong>Number of Bedrooms</strong>
+                            <p>Room count is a feature</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" id="feature-bathrooms">
+                        <span class="feature-icon">🚿</span>
+                        <div>
+                            <strong>Number of Bathrooms</strong>
+                            <p>Bathroom count is a feature</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" id="feature-age">
+                        <span class="feature-icon">📅</span>
+                        <div>
+                            <strong>House Age</strong>
+                            <p>Age in years is a feature</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" id="feature-lot">
+                        <span class="feature-icon">🌿</span>
+                        <div>
+                            <strong>Lot Size</strong>
+                            <p>Land area is a feature</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="key-point">
+                    <p><strong>Key Point:</strong> Features are the "inputs" - the information we know about something that helps us make a prediction.</p>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
+                    <button class="btn btn--primary" onclick="nextSection()">Next: Learn About Target</button>
+                </div>
+        </section>
+
+        <!-- Target Section -->
+        <section id="target" class="section">
+            <h2>🎪 What is the Target?</h2>
+            <div class="learning-content">
+                <div class="explanation">
+                    <p><strong>Target</strong> is what we want to predict or estimate.</p>
+                    <p>In our house example, the target is the <strong>house price</strong> - that's what we're trying to figure out!</p>
+                </div>
+                
+                <div class="target-visualization">
+                    <div class="flow-diagram">
+                        <div class="flow-item">
+                            <span class="flow-icon">🎯</span>
+                            <p><strong>Features</strong><br>Size, Bedrooms, etc.</p>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="flow-item target-highlight">
+                            <span class="flow-icon">💰</span>
+                            <p><strong>Target</strong><br>House Price</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="key-point">
+                    <p><strong>Key Point:</strong> The target is the "output" - what we're trying to predict using our features.</p>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
+                    <button class="btn btn--primary" onclick="nextSection()">Next: Learn About Models</button>
+                </div>
+        </section>
+
+        <!-- Model Section -->
+        <section id="model" class="section">
+            <h2>🧠 What is a Model?</h2>
+            <div class="learning-content">
+                <div class="explanation">
+                    <p><strong>Model</strong> is like a smart calculator that learned from many examples to understand patterns.</p>
+                    <p>Our model learned from thousands of house sales to understand how features affect price!</p>
+                </div>
+                
+                <div class="model-visualization">
+                    <div class="model-diagram">
+                        <div class="model-input">
+                            <h4>Features Go In</h4>
+                            <div class="feature-list">
+                                <span>Size: 2000 sq ft</span>
+                                <span>Bedrooms: 3</span>
+                                <span>Bathrooms: 2</span>
+                                <span>Age: 10 years</span>
+                                <span>Lot: 5000 sq ft</span>
+                            </div>
+                        </div>
+                        
+                        <div class="model-brain">
+                            <span class="brain-icon">🧠</span>
+                            <p><strong>MODEL</strong><br>Smart Calculator</p>
+                        </div>
+                        
+                        <div class="model-output">
+                            <h4>Prediction Comes Out</h4>
+                            <div class="prediction-result">
+                                <span class="price-icon">💰</span>
+                                <span>$350,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="key-point">
+                    <p><strong>Key Point:</strong> The Model learns how the features are connected to the target price.</p>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
+                    <button class="btn btn--primary" onclick="nextSection()">Continue to Summary</button>
+                </div>
+        </section>
+
+        <!-- Summary Section -->
+        <section id="summary" class="section">
+            <h2>🎉 Congratulations!</h2>
+            <div class="summary-content">
+                <p>You've learned the three fundamental concepts of Machine Learning!</p>
+                
+                <div class="concept-summary">
+                    <div class="concept-card">
+                        <h3>🎯 Features</h3>
+                        <p>Input characteristics we use to make predictions</p>
+                        <small>Example: House size, bedrooms, bathrooms, age, lot size</small>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h3>🎪 Target</h3>
+                        <p>What we want to predict or estimate</p>
+                        <small>Example: House price in our prediction</small>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <h3>🧠 Model</h3>
+                        <p>Algorithm that learns patterns to make predictions</p>
+                        <small>Example: Smart calculator that learned from thousands of house sales</small>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn--back" onclick="prevSection()">Back</button>
+                    <button class="btn btn--primary btn--lg" onclick="restartLearning()">Start Over</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

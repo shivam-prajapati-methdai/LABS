@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bias-Variance Tradeoff Demonstrator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Bias-Variance Tradeoff Demonstrator</h1>
+            <p>Explore the fundamental tradeoff in machine learning through interactive visualizations</p>
+        </div>
+
+        <div class="education-panel">
+            <button class="education-toggle" onclick="toggleEducation()">
+                📚 Learn About Bias-Variance Tradeoff
+            </button>
+            <div class="education-content" id="educationContent">
+                <div class="concept-box">
+                    <h4>🎯 What is Bias?</h4>
+                    <p>Bias measures how far off our model's average predictions are from the true values. High bias means the model is too simple and misses important patterns (underfitting).</p>
+                </div>
+                <div class="concept-box">
+                    <h4>📊 What is Variance?</h4>
+                    <p>Variance measures how much our model's predictions change when trained on different datasets. High variance means the model is too sensitive to training data (overfitting).</p>
+                </div>
+                <div class="concept-box">
+                    <h4>🔢 What is Irreducible Error?</h4>
+                    <p>This is the noise inherent in the data that no model can eliminate. It represents the fundamental uncertainty in the problem.</p>
+                </div>
+                <div class="concept-box">
+                    <h4>⚖️ The Tradeoff</h4>
+                    <p><strong>Total Error = Bias² + Variance + Irreducible Error</strong><br>
+                    As model complexity increases, bias typically decreases but variance increases. The goal is finding the sweet spot that minimizes total error.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="controls-panel">
+                <h3>🎛️ Controls</h3>
+                
+                <div class="control-group">
+                    <label for="polyDegreeSlider">Model Complexity (Polynomial Degree)</label>
+                    <div class="slider-container">
+                        <input type="range" id="polyDegreeSlider" class="slider" min="1" max="15" value="3">
+                        <span class="slider-value" id="polyDegreeValue">3</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="noiseSlider">Noise Level</label>
+                    <div class="slider-container">
+                        <input type="range" id="noiseSlider" class="slider" min="0.1" max="3.0" step="0.1" value="0.8">
+                        <span class="slider-value" id="noiseValue">0.8</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="sampleSizeSlider">Sample Size</label>
+                    <div class="slider-container">
+                        <input type="range" id="sampleSizeSlider" class="slider" min="20" max="200" value="50">
+                        <span class="slider-value" id="sampleSizeValue">50</span>
+                    </div>
+                </div>
+
+                <button class="generate-btn" id="generateDataBtn">
+                    🔄 Generate New Dataset
+                </button>
+
+                <div class="error-info">
+                    <strong>Current Error Breakdown:</strong>
+                    <div id="currentError">Calculating...</div>
+                    <div class="error-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ff6b6b;"></div>
+                            <span>Squared Bias</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #4ecdc4;"></div>
+                            <span>Variance</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #45b7d1;"></div>
+                            <span>Total Error</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualizations">
+                <div class="viz-card">
+                    <h3>📈 Model Fitting Example</h3>
+                    <div class="plot-container" id="modelFittingPlot"></div>
+                </div>
+
+                <div class="viz-card">
+                    <h3>⚖️ Bias-Variance Decomposition</h3>
+                    <div class="plot-container" id="errorDecompositionChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

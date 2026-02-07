@@ -1,0 +1,501 @@
+:root {
+  /* Cheerful & Vibrant Color Palette */
+  --color-background: #F0F8FF;
+  --color-surface: #FFFFFF;
+  --color-text: #333333;
+  --color-text-secondary: #888888;
+  --color-primary: #4A90E2;
+  --color-primary-hover: #357ABD;
+  --color-secondary: #F5A623;
+  --color-accent: #7ED321;
+  --color-success: #2ECC71;
+  --color-warning: #F8E71C;
+  --color-info: #50E3C2;
+  --color-danger: #E74C3C;
+  --color-border: #D8D8D8;
+
+  /* Fun & Friendly Fonts */
+  --font-family-base: sans-serif;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 22px;
+  --font-size-2xl: 28px;
+  --font-size-3xl: 36px;
+  --font-size-4xl: 48px;
+
+  /* Soft & Rounded UI */
+  --radius-base: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 25px rgba(0,0,0,0.15);
+
+  /* Spacing */
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+}
+
+/* Base styles */
+html {
+  font-size: var(--font-size-base);
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+  font-weight: bold;
+}
+
+h1 {
+  font-size: var(--font-size-4xl);
+  text-align: center;
+  margin-bottom: 20px;
+  color: white;
+}
+
+h2 {
+    color: #2d3748;
+}
+
+/* Buttons */
+.btn {
+  border-radius: var(--radius-base);
+  border: none;
+  padding: 12px 24px;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--primary {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+}
+
+.btn--secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+}
+
+.btn--outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+/* Sections */
+.lab-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* Application-specific styles */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-24);
+}
+
+/* Progress Bar */
+.progress-container {
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+  background: var(--color-surface);
+  padding: var(--space-16);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-24);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #ECF0F1;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-radius: var(--radius-full);
+  width: 16.67%;
+  transition: width 0.4s ease-in-out;
+}
+
+.progress-text {
+  text-align: center;
+  font-weight: bold;
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+}
+
+/* Lab Sections */
+.lab-section {
+  display: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.lab-section.active {
+  display: block;
+}
+
+.section-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 24px; /* Reduced padding */
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.section-content h1 {
+  font-size: var(--font-size-3xl);
+  text-align: center;
+  margin-bottom: var(--space-24);
+  color: #2d3748;
+}
+
+.section-content h2 {
+  font-size: var(--font-size-2xl);
+  color: #2d3748;
+  margin-bottom: var(--space-16);
+}
+
+.section-content p {
+  font-size: var(--font-size-lg);
+  line-height: 1.7;
+  color: var(--color-text);
+  margin-bottom: var(--space-16);
+}
+
+/* Canvas & Demos */
+.canvas-container, .demo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: var(--space-24) 0;
+  background: #F9F9F9;
+  padding: var(--space-20);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+canvas {
+  border: 2px dashed #e2e8f0;
+  border-radius: var(--radius-base);
+  background: var(--color-surface);
+  cursor: crosshair;
+}
+
+/* Controls & Info */
+.preset-controls, .line-controls, .projection-controls, .final-controls {
+  display: flex;
+  gap: var(--space-16);
+  justify-content: center;
+  margin: var(--space-24) 0;
+  flex-wrap: wrap;
+}
+
+.explanation {
+  margin: var(--space-24) 0;
+  animation: slideIn 0.5s ease-out;
+}
+
+.explanation .card {
+  background: #f7fafc;
+  /* Removed border-left: 4px solid #4299e1; */
+}
+
+.explanation h3 {
+  color: #2b6cb0;
+}
+
+/* Navigation */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-32);
+  padding-top: var(--space-24);
+  border-top: 1px solid var(--color-border);
+}
+
+/* 3D Visualization Specific Styles */
+.pca-3d-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-24);
+    align-items: center;
+}
+
+#container_3d {
+    width: 100%;
+    height: 450px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+#pca-3d-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    background: rgba(255, 255, 255, 0.95);
+    padding: var(--space-16);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+#pca-3d-controls h4 {
+    margin-bottom: var(--space-4);
+    color: black; /* Changed to black for visibility */
+}
+
+#pca-3d-instructions {
+    font-style: italic;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    max-width: 200px;
+}
+
+#pca_3d_explanation_card {
+    margin-top: var(--space-24);
+    background: rgba(255, 255, 255, 0.95); /* Use the translucent white background */
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    padding: 20px; /* Add padding to the card itself */
+}
+
+#pca_3d_explanation_card .card__body {
+    padding: 0; /* Remove default card__body padding if any, as we added to parent */
+}
+
+#pca_3d_explanation_card h3 {
+    color: #2d3748; /* Darker color for title */
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+    border-left: 4px solid #667eea; /* Blue border added back */
+    padding-left: 10px;
+}
+
+#pca_3d_explanation_card p {
+    color: #4a5568; /* Slightly lighter text color */
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.nav-buttons--center {
+    justify-content: center;
+}
+
+.applications-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 700px; /* Make the grid smaller */
+    margin: 0 auto; /* Center the grid */
+}
+
+.app-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.app-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.app-card h3 {
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    border-left: 4px solid #667eea;
+    padding-left: 15px;
+}
+
+.app-card p {
+    color: #4a5568;
+    line-height: 1.5;
+    font-size: 0.9rem;
+    flex-grow: 1;
+}
+
+.app-card .card__body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.app-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f0f4f8;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #4a5568;
+    flex-shrink: 0;
+}
+
+.app-demo .arrow {
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.face-grid, .survey-responses, .subjects {
+    display: flex;
+    gap: 5px;
+}
+
+.face-feature, .response, .subject {
+    background: #e2e8f0;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+}
+
+.pca-result, .data-size, .pattern, .connection {
+    background: #667eea;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.data-size.large {
+    background: #ff9a9e;
+}
+
+.data-size.small {
+    background: #7ED321;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .app-container {
+        padding: 10px;
+        max-width: 100%;
+    }
+
+    .section-content {
+        padding: 15px;
+    }
+
+    .applications-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .app-card {
+        padding: 10px;
+    }
+
+    .app-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+
+    .app-card p {
+        font-size: 0.85rem;
+    }
+
+    .pca-3d-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    #container_3d {
+        height: 300px;
+    }
+
+    #pca-3d-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    #pca-3d-controls h4, #pca-3d-instructions {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .nav-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

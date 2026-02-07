@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Regression Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="lab-header">
+            <h1>Interactive Regression Lab</h1>
+            <p class="lab-subtitle">Explore linear and logistic regression through hands-on interaction</p>
+        </header>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button id="linear-mode-btn" class="btn btn--primary mode-btn active">Linear Regression</button>
+            <button id="logistic-mode-btn" class="btn btn--secondary mode-btn">Logistic Regression</button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="lab-content">
+            <!-- Left Panel - Interactive Plot -->
+            <div class="plot-panel">
+                <div class="plot-container">
+                    <canvas id="regression-canvas" width="600" height="400"></canvas>
+                    <div class="plot-instructions">
+                        <span id="plot-help">Click to add points • Drag to move • Right-click to remove</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Controls and Info -->
+            <div class="control-panel">
+                <!-- Equation Display -->
+                <div class="card equation-card">
+                    <div class="card__header">
+                        <h3>Equation</h3>
+                    </div>
+                    <div class="card__body">
+                        <div id="equation-display" class="equation">y = mx + b</div>
+                    </div>
+                </div>
+
+                <!-- Statistics Display -->
+                <div class="card stats-card">
+                    <div class="card__header">
+                        <h3>Statistics</h3>
+                    </div>
+                    <div class="card__body">
+                        <div id="stats-display" class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Slope (m):</span>
+                                <span id="slope-value" class="stat-value">--</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Intercept (b):</span>
+                                <span id="intercept-value" class="stat-value">--</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">R²:</span>
+                                <span id="r2-value" class="stat-value">--</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Correlation:</span>
+                                <span id="correlation-value" class="stat-value">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="card controls-card">
+                    <div class="card__header">
+                        <h3>Controls</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="control-section">
+                            <label class="form-label">Example Datasets</label>
+                            <select id="dataset-select" class="form-control">
+                                <option value="">Select an example...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-section" id="linear-controls">
+                            <div class="form-label-group">
+                                <label class="form-label">Add Noise</label>
+                                <span class="tooltip-icon" data-tooltip="Introduce random variations to your data points to see how it affects the regression line.">?</span>
+                            </div>
+                            <input type="range" id="noise-slider" class="form-control" min="0" max="50" value="0">
+                            <span id="noise-value">0%</span>
+                        </div>
+
+                        <div class="control-section" id="logistic-controls" style="display: none;">
+                            <div class="class-selector">
+                                <label class="form-label">Add Points For:</label>
+                                <div class="class-buttons">
+                                    <button id="class0-btn" class="btn btn--sm class-btn active" data-class="0">
+                                        <span class="class-indicator class-0"></span>
+                                        Class 0
+                                    </button>
+                                    <button id="class1-btn" class="btn btn--sm class-btn" data-class="1">
+                                        <span class="class-indicator class-1"></span>
+                                        Class 1
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-actions">
+                            <button id="clear-btn" class="btn btn--outline btn--sm">Clear All</button>
+                            <button id="add-random-btn" class="btn btn--secondary btn--sm">Add Random</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Content -->
+        <div class="education-container">
+            <div class="card education-card">
+                <div class="card__header">
+                    <h3>Learn</h3>
+                </div>
+                <div class="card__body">
+                    <div id="education-content">
+                        <div class="education-section">
+                            <h4>What is Linear Regression?</h4>
+                            <p>Linear regression finds the best-fit straight line through data points to predict continuous values.</p>
+                            
+                            <h4>When to Use It</h4>
+                            <p>Used for predicting numerical outcomes like prices, temperatures, or scores.</p>
+                            
+                            <h4>Key Concepts</h4>
+                            <ul>
+                                <li><strong>Slope (m):</strong> Rate of change</li>
+                                <li><strong>Intercept (b):</strong> Y-value when X=0</li>
+                                <li><strong>R²:</strong> How well the line fits (0-1)</li>
+                                <li><strong>Correlation:</strong> Strength of relationship (-1 to 1)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

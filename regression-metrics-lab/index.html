@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regression Metrics Lab - Interactive ML Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🧪 <span>Regression Metrics Lab</span></h1>
+            <p>Learn machine learning metrics by playing with data!</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Metrics Dashboard -->
+            <div class="metrics-panel">
+                <h3>📊 Live Metrics</h3>
+                
+                <div class="metric-card" id="mse-card">
+                    <div class="metric-card-inner">
+                        <div class="metric-card-front">
+                            <div class="metric-header">
+                                <span class="metric-name">MSE</span>
+                                <button class="info-btn" data-metric="mse">ℹ️</button>
+                            </div>
+                            <div class="metric-value" id="mse-value">0.00</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="mse-fill"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card-back">
+                            <div class="formula" id="mse-formula"></div>
+                            <div class="calculation" id="mse-calculation"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="rmse-card">
+                    <div class="metric-card-inner">
+                        <div class="metric-card-front">
+                            <div class="metric-header">
+                                <span class="metric-name">RMSE</span>
+                                <button class="info-btn" data-metric="rmse">ℹ️</button>
+                            </div>
+                            <div class="metric-value" id="rmse-value">0.00</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="rmse-fill"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card-back">
+                            <div class="formula" id="rmse-formula"></div>
+                            <div class="calculation" id="rmse-calculation"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="mae-card">
+                    <div class="metric-card-inner">
+                        <div class="metric-card-front">
+                            <div class="metric-header">
+                                <span class="metric-name">MAE</span>
+                                <button class="info-btn" data-metric="mae">ℹ️</button>
+                            </div>
+                            <div class="metric-value" id="mae-value">0.00</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="mae-fill"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card-back">
+                            <div class="formula" id="mae-formula"></div>
+                            <div class="calculation" id="mae-calculation"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="r2-card">
+                    <div class="metric-card-inner">
+                        <div class="metric-card-front">
+                            <div class="metric-header">
+                                <span class="metric-name">R²</span>
+                                <button class="info-btn" data-metric="r2">ℹ️</button>
+                            </div>
+                            <div class="metric-value" id="r2-value">0.00</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="r2-fill"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card-back">
+                            <div class="formula" id="r2-formula"></div>
+                            <div class="calculation" id="r2-calculation"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Plot -->
+            <div class="plot-container">
+                <div class="plot-header">
+                    <h3>🎯 Interactive Scatter Plot</h3>
+                    <div class="plot-controls">
+                        <button class="btn btn--sm btn--primary" id="edit-btn">✏️ Edit Mode</button>
+                        <button class="btn btn--sm btn--secondary" id="reset-btn">🔄 Reset</button>
+                        <button class="btn btn--sm btn--outline" id="add-noise-btn">📊 Add Noise</button>
+                    </div>
+                </div>
+                <canvas id="regression-canvas" width="800" height="500"></canvas>
+                
+                <!-- New: Dataset Selection -->
+                <div class="dataset-selection">
+                    <h4>Load a Dataset:</h4>
+                    <div class="dataset-buttons">
+                        <button class="btn btn--sm btn--dataset" data-dataset-index="0">Linear</button>
+                        <button class="btn btn--sm btn--dataset" data-dataset-index="1">Minimize Error</button>
+                        <button class="btn btn--sm btn--dataset" data-dataset-index="2">Outlier</button>
+                        <button class="btn btn--sm btn--dataset" id="clear-data-btn">Clear All Points</button>
+                    </div>
+                </div>
+
+                <div class="plot-instructions">
+                    <p>🖱️ <strong>Click</strong> to add points • <strong>Drag</strong> to move points • <strong>Right-click</strong> to delete</p>
+                </div>
+                <div class="model-quality-indicator" id="model-quality-indicator">
+                    <p>Model Quality: <span id="model-quality-text">N/A</span></p>
+                </div>
+            </div>
+
+            <!-- Challenge Panel -->
+            <div class="challenge-panel">
+                <h3>🎮 Challenges</h3>
+                
+                <div class="challenge-card">
+                    <div class="challenge-name">Perfect Linear Relationship</div>
+                    <div class="challenge-description">Try to achieve R² > 0.95</div>
+                    <div class="challenge-target">🎯 Target: R² > 0.95</div>
+                    <div class="challenge-status">Not Started</div>
+                    <button class="btn btn--sm btn--primary start-challenge-btn">Start Challenge</button>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-name">Minimize Error Challenge</div>
+                    <div class="challenge-description">Get MSE below 2.0</div>
+                    <div class="challenge-target">🎯 Target: MSE < 2.0</div>
+                    <div class="challenge-status">Not Started</div>
+                    <button class="btn btn--sm btn--primary start-challenge-btn">Start Challenge</button>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-name">Outlier Impact</div>
+                    <div class="challenge-description">See how outliers affect metrics</div>
+                    <div class="challenge-target">🔍 Explore outlier effects</div>
+                    <button class="btn btn--sm btn--primary start-challenge-btn">Start Challenge</button>
+                </div>
+
+                <div class="achievement-display">
+                    <h4>🏅 Achievements</h4>
+                    <div class="achievements">
+                        <div class="achievement locked" id="achievement-perfect">Perfect Fit Master</div>
+                        <div class="achievement locked" id="achievement-error">Error Minimizer</div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Content -->
+        <div class="education-section">
+            <h3>📚 Learn About Regression Metrics</h3>
+            <div class="education-grid">
+                <div class="education-card">
+                    <h4>What is Regression?</h4>
+                    <p>Regression finds the best line through data points to make predictions. We use metrics to measure how good our line is!</p>
+                </div>
+                <div class="education-card">
+                    <h4>Why Different Metrics?</h4>
+                    <p>Each metric tells us something different about our model's performance. Some are sensitive to outliers, others aren't!</p>
+                </div>
+                <div class="education-card">
+                    <h4>Real-World Applications</h4>
+                    <p>Used in house price prediction, stock analysis, weather forecasting, and many other fields!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tooltip Modal -->
+        <div class="tooltip-modal hidden" id="tooltip-modal">
+            <div class="tooltip-content">
+                <button class="tooltip-close" id="tooltip-close">×</button>
+                <h3 id="tooltip-title"></h3>
+                <div class="tooltip-formula" id="tooltip-formula"></div>
+                <p id="tooltip-explanation"></p>
+                <div class="tooltip-details">
+                    <div><strong>Good Range:</strong> <span id="tooltip-range"></span></div>
+                    <div><strong>When to Use:</strong> <span id="tooltip-usage"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Celebration -->
+        <div class="celebration hidden" id="celebration">
+            <div class="celebration-content">
+                <div class="celebration-emoji">🎉</div>
+                <div class="celebration-text" id="celebration-text">Great job!</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
