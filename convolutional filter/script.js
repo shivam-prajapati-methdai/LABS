@@ -547,7 +547,17 @@ function clearHighlights() {
     // Don't clear mini-grids, let them persist as "last viewed" or default?
     // Actually, maybe clear Input Window and Result, but keep Kernel?
     const calcInputGrid = document.getElementById('calc-input-grid');
-    if (calcInputGrid) calcInputGrid.innerHTML = ''; // Clear input window
+    if (calcInputGrid) {
+        calcInputGrid.innerHTML = '';
+        calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 30px)`;
+        for (let i = 0; i < KERNEL_SIZE * KERNEL_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'mini-cell';
+            cell.textContent = '0';
+            cell.style.backgroundColor = '#fff';
+            calcInputGrid.appendChild(cell);
+        }
+    }
 
     const calcResult = document.getElementById('calc-result');
     if (calcResult) {
