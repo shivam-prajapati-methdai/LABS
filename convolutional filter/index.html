@@ -45,8 +45,31 @@
                 <option value="custom">Custom</option>
             </select>
 
-            <button id="animate-btn">▶ Play Animation</button>
+            <button id="animate-btn">Calculate</button>
             <button id="stop-btn" style="display:none;">⏹ Stop</button>
+        </div>
+
+        <!-- Calculation Explainer (Moved Up) -->
+        <div class="explainer-section" id="explainer">
+            <h3>How it works</h3>
+            <p id="calc-text">Top Secret Math! Hover over the "Computer Sees" grid to reveal!</p>
+            <div class="calculation-container">
+                <div class="calc-group">
+                    <span class="calc-label">Input Window</span>
+                    <div id="calc-input-grid" class="mini-grid"></div>
+                </div>
+                <div class="calc-op">×</div>
+                <div class="calc-group">
+                    <span class="calc-label">Filter</span>
+                    <div id="calc-kernel-grid" class="mini-grid"></div>
+                </div>
+                <div class="calc-op">=</div>
+                <div class="calc-group">
+                    <span class="calc-label">Result</span>
+                    <div id="calc-result" class="result-box">?</div>
+                </div>
+            </div>
+            <div id="math-display"></div>
         </div>
 
         <div class="visualization-area">
@@ -77,12 +100,7 @@
             </div>
         </div>
 
-        <!-- Calculation Explainer -->
-        <div class="explainer-section" id="explainer">
-            <h3>How it works</h3>
-            <p id="calc-text">Top Secret Math! Hover over the "Computer Sees" grid to reveal!</p>
-            <div id="math-display"></div>
-        </div>
+
     </div>
 
     <script src="script.js"></script>

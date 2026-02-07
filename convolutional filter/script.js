@@ -213,6 +213,22 @@ function init() {
         kernelData = JSON.parse(JSON.stringify(KERNELS[filterSelect.value]));
     }
     updateKernelView();
+    updateMiniKernel();
+
+    // Initialize Input Window in explainer with zeros (placeholder)
+    const calcInputGrid = document.getElementById('calc-input-grid');
+    if (calcInputGrid) {
+        calcInputGrid.innerHTML = '';
+        calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 30px)`;
+        for (let i = 0; i < KERNEL_SIZE * KERNEL_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'mini-cell';
+            cell.textContent = '0';
+            cell.style.backgroundColor = '#fff';
+            calcInputGrid.appendChild(cell);
+        }
+    }
+
     calculateConvolution();
 
     // Event Listeners
@@ -362,11 +378,10 @@ function renderInput() {
             cell.style.backgroundColor = val > 0 ? `rgb(${intensity}, ${intensity}, ${intensity})` : 'var(--cell-empty)';
             cell.style.border = val > 0 ? '1px solid #333' : '1px solid #eee';
 
-            // Show number if 1, else empty for cleanliness? Or 0?
-            // User asked for "image block contains no number". Let's show 1. 0 can be empty.
-            cell.textContent = val === 1 ? '1' : '';
-            // Make sure text color is visible on white background
-            cell.style.color = val === 1 ? 'black' : '#ccc';
+            // Show number if 1, and now 0 as requested
+            cell.textContent = val;
+            // Make sure text color is visible 
+            cell.style.color = val === 1 ? 'black' : '#ccc'; // Light gray for 0
         }
     }
 }
@@ -376,6 +391,7 @@ function handleFilterChange(e) {
     if (KERNELS[filterName]) {
         kernelData = JSON.parse(JSON.stringify(KERNELS[filterName]));
         updateKernelView();
+        updateMiniKernel();
         calculateConvolution();
     }
 }
@@ -432,16 +448,46 @@ function renderOutput() {
     }
 }
 
+function updateMiniKernel() {
+    const calcKernelGrid = document.getElementById('calc-kernel-grid');
+    if (!calcKernelGrid) return;
+
+    calcKernelGrid.innerHTML = '';
+    calcKernelGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 30px)`;
+
+    for (let i = 0; i < KERNEL_SIZE; i++) {
+        for (let j = 0; j < KERNEL_SIZE; j++) {
+            const kVal = kernelData[i][j];
+            const kCell = document.createElement('div');
+            kCell.className = 'mini-cell';
+            kCell.textContent = kVal;
+            if (kVal > 0) kCell.style.backgroundColor = '#ffcccb';
+            else if (kVal < 0) kCell.style.backgroundColor = '#bbdefb';
+            calcKernelGrid.appendChild(kCell);
+        }
+    }
+}
+
 function highlightReceptiveField(outR, outC) {
     const outSize = outputData.length;
     const outCells = outputGrid.children;
     const outIndex = outR * outSize + outC;
-    outCells[outIndex].classList.add('highlighted-output');
+    if (outCells[outIndex]) outCells[outIndex].classList.add('highlighted-output');
 
-    const inCells = inputGrid.children;
-    let calculationStr = `Magic Calculation:\n\n`;
+    const calcInputGrid = document.getElementById('calc-input-grid');
+    const calcResult = document.getElementById('calc-result');
+
+    // 1. Render Input Window (Mini Grid)
+    calcInputGrid.innerHTML = '';
+    calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 30px)`;
+
+    // Ensure mini kernel is up to date (though should be static unless changed)
+    updateMiniKernel();
+
     let sum = 0;
     let terms = [];
+
+    const inCells = inputGrid.children;
 
     for (let ki = 0; ki < KERNEL_SIZE; ki++) {
         for (let kj = 0; kj < KERNEL_SIZE; kj++) {
@@ -449,6 +495,7 @@ function highlightReceptiveField(outR, outC) {
             const c = outC + kj;
             const idx = r * GRID_SIZE + c;
 
+            // Highlight main grids
             if (inCells[idx]) {
                 inCells[idx].classList.add('highlighted-input');
             }
@@ -458,20 +505,35 @@ function highlightReceptiveField(outR, outC) {
             const prod = pVal * kVal;
             sum += prod;
 
+            // Create Mini Input Cell
+            const inCell = document.createElement('div');
+            inCell.className = 'mini-cell';
+            inCell.textContent = pVal;
+            inCell.style.backgroundColor = pVal === 1 ? '#ddd' : '#fff';
+            calcInputGrid.appendChild(inCell);
+
+            // We don't rebuild kernel here, just calculate
             if (Math.abs(prod) > 0.01) {
                 terms.push(`${pVal}×${kVal}`);
             }
         }
     }
 
+    calcResult.textContent = Math.round(sum);
+    calcResult.className = 'result-box'; // reset
+    if (sum >= 2) calcResult.classList.add('val-pos-high');
+    else if (sum > 0) calcResult.classList.add('val-pos-mid');
+    else if (sum <= -2) calcResult.classList.add('val-neg-high');
+    else if (sum < 0) calcResult.classList.add('val-neg-mid');
+
     if (terms.length > 0) {
-        calculationStr += terms.join(' + ');
-        calculationStr += `\n= ${sum.toFixed(1)}`;
+        // formula logic
+        mathDisplay.textContent = terms.join(' + ');
+        mathDisplay.textContent += `\n= ${sum.toFixed(1)}`;
     } else {
-        calculationStr += "0 (Empty space)";
+        mathDisplay.textContent = "0";
     }
 
-    mathDisplay.textContent = calculationStr;
     calcText.textContent = `Spot Value: ${sum.toFixed(1)}`;
 }
 
@@ -481,6 +543,17 @@ function clearHighlights() {
 
     const outCells = outputGrid.querySelectorAll('.highlighted-output');
     outCells.forEach(c => c.classList.remove('highlighted-output'));
+
+    // Don't clear mini-grids, let them persist as "last viewed" or default?
+    // Actually, maybe clear Input Window and Result, but keep Kernel?
+    const calcInputGrid = document.getElementById('calc-input-grid');
+    if (calcInputGrid) calcInputGrid.innerHTML = ''; // Clear input window
+
+    const calcResult = document.getElementById('calc-result');
+    if (calcResult) {
+        calcResult.textContent = '?';
+        calcResult.className = 'result-box';
+    }
 
     mathDisplay.textContent = "";
     calcText.textContent = "Hover over the colorful grid to see the magic math!";
@@ -492,10 +565,17 @@ function startAnimation() {
     let r = 0;
     let c = 0;
 
-    clearHighlights();
+    stopAnimation(); // safe clear
 
     animationInterval = setInterval(() => {
-        clearHighlights();
+        // Manual clear to avoid flickering waiting for hover
+        // but highlightReceptiveField handles building.
+        // We need to clear previous highlights on the main grid first.
+        const inCells = inputGrid.querySelectorAll('.highlighted-input');
+        inCells.forEach(c => c.classList.remove('highlighted-input'));
+        const outCells = outputGrid.querySelectorAll('.highlighted-output');
+        outCells.forEach(c => c.classList.remove('highlighted-output'));
+
         highlightReceptiveField(r, c);
 
         c++;
@@ -503,12 +583,8 @@ function startAnimation() {
             c = 0;
             r++;
         }
-        if (r >= outSize) {
-            // Loop functionality
-            r = 0;
-            // stopAnimation(); // Optional: auto stop
-        }
-    }, 150);
+        if (r >= outSize) r = 0;
+    }, 200);
 }
 
 function stopAnimation() {
