@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Image Filter Fun!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Magic Image Explorer 🎨</h1>
+            <p>See how computers look at pictures!</p>
+        </header>
+
+        <div class="controls">
+            <label for="image-select">Choose an Image:</label>
+            <select id="image-select">
+                <option value="random">Random Noise</option>
+                <option value="digit-0">Number 0</option>
+                <option value="digit-1">Number 1</option>
+                <option value="digit-2">Number 2</option>
+                <option value="digit-3">Number 3</option>
+                <option value="digit-4">Number 4</option>
+                <option value="digit-5">Number 5</option>
+                <option value="digit-7">Number 7</option>
+                <option value="shape-rect">Square</option>
+                <option value="shape-cross">Cross</option>
+            </select>
+
+            <span style="width: 20px;"></span> <!-- Spacer -->
+
+            <label for="filter-select">Choose a Magic Lens:</label>
+            <select id="filter-select">
+                <option value="top-sobel">Top Edge Detector</option>
+                <option value="bottom-sobel">Bottom Edge Detector</option>
+                <option value="left-sobel">Left Edge Detector</option>
+                <option value="right-sobel">Right Edge Detector</option>
+                <option value="outline">Outline</option>
+                <option value="sharpen">Sharpen</option>
+                <option value="blur">Blur</option>
+                <option value="identity">Do Nothing</option>
+                <option value="custom">Custom</option>
+            </select>
+
+            <button id="animate-btn">▶ Play Animation</button>
+            <button id="stop-btn" style="display:none;">⏹ Stop</button>
+        </div>
+
+        <div class="visualization-area">
+            <!-- Input Layer -->
+            <div class="layer-section">
+                <h2>1. The Image</h2>
+                <div class="grid-container" id="input-grid"></div>
+                <!-- Input Controls -->
+                <div class="grid-controls">
+                    <button id="clear-input">Clear</button>
+                    <button id="draw-mode">✏️ Draw</button>
+                </div>
+            </div>
+
+            <!-- Kernel/Filter -->
+            <div class="operation-section">
+                <h2>2. The Lens (Filter)</h2>
+                <div class="grid-container small-grid" id="kernel-grid"></div>
+                <div class="math-operator">
+                    <span>×</span>
+                </div>
+            </div>
+
+            <!-- Output Layer -->
+            <div class="layer-section">
+                <h2>3. What the Computer Sees</h2>
+                <div class="grid-container" id="output-grid"></div>
+            </div>
+        </div>
+
+        <!-- Calculation Explainer -->
+        <div class="explainer-section" id="explainer">
+            <h3>How it works</h3>
+            <p id="calc-text">Top Secret Math! Hover over the "Computer Sees" grid to reveal!</p>
+            <div id="math-display"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,265 @@
+:root {
+    --bg-color: #f0f8ff;
+    /* AliceBlue */
+    --card-bg: #ffffff;
+    --text-color: #333;
+    --primary-color: #ff9800;
+    /* Orange */
+    --secondary-color: #4caf50;
+    /* Green */
+    --accent-color: #2196f3;
+    /* Blue */
+    --grid-border: #ddd;
+    --cell-empty: #f9f9f9;
+    --cell-active: #333;
+    /* Dark gray for active drawing */
+
+    /* Heatmap colors (Friendly versions) */
+    --pos-max: #ff6b6b;
+    /* Soft Red */
+    --pos-mid: #ffcccb;
+    --neutral: #ffffff;
+    --neg-mid: #bbdefb;
+    --neg-max: #42a5f5;
+    /* Soft Blue */
+}
+
+body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+    /* Playful fonts */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    background-color: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 5px solid #e0f7fa;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: var(--accent-color);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0px #e1f5fe;
+}
+
+h2 {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+}
+
+.controls {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 15px;
+    background-color: #fff9c4;
+    /* Light Yellow */
+    border-radius: 15px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+select,
+button {
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button#stop-btn {
+    background-color: #ff5252;
+}
+
+.visualization-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    width: 100%;
+}
+
+.layer-section,
+.operation-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.grid-container {
+    display: grid;
+    /* 14x14 grid for better visibility on small screens while allowing complexity */
+    grid-template-columns: repeat(14, 25px);
+    grid-template-rows: repeat(14, 25px);
+    gap: 1px;
+    background-color: var(--grid-border);
+    border: 4px solid var(--accent-color);
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.cell {
+    width: 25px;
+    height: 25px;
+    background-color: var(--cell-empty);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    /* Increased from 0.6rem */
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 2px;
+}
+
+/* Specific styling for Kernel (3x3) */
+.small-grid {
+    grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(3, 50px);
+    border-color: var(--primary-color);
+}
+
+.small-grid .cell {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    background-color: #fff3e0;
+    /* Light Orange */
+}
+
+.cell input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: #333;
+    text-align: center;
+    font-size: inherit;
+    font-weight: bold;
+    font-family: inherit;
+}
+
+.math-operator {
+    font-size: 3rem;
+    margin-top: 20px;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.explainer-section {
+    width: 90%;
+    margin-top: 30px;
+    padding: 20px;
+    background: #e8f5e9;
+    /* Light Green */
+    border-radius: 15px;
+    border: 2px solid #a5d6a7;
+    color: #2e7d32;
+    text-align: center;
+}
+
+#math-display {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    white-space: pre-wrap;
+    color: #1b5e20;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.highlighted-input {
+    outline: 3px solid var(--primary-color);
+    z-index: 10;
+    transform: scale(1.1);
+}
+
+.highlighted-output {
+    outline: 3px solid var(--accent-color);
+    z-index: 10;
+    transform: scale(1.1);
+}
+
+/* Coloring classes */
+.val-pos-high {
+    background-color: var(--pos-max) !important;
+    color: white;
+}
+
+.val-pos-mid {
+    background-color: var(--pos-mid) !important;
+    color: #000;
+    /* Black for better contrast */
+}
+
+.val-neg-mid {
+    background-color: var(--neg-mid) !important;
+    color: #000;
+    /* Black for better contrast */
+}
+
+.val-neg-high {
+    background-color: var(--neg-max) !important;
+    color: white;
+}
+
+.grid-controls {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+footer {
+    display: none;
+    /* Hide footer as requested */
+}
