@@ -1,52 +1,117 @@
 :root {
-    --bg-color: #f0f8ff;
-    /* AliceBlue */
+    /* Main Theme Colors */
+    --bg-color: #e3f2fd;
+    /* Light Blue Background */
     --card-bg: #ffffff;
-    --text-color: #333;
-    --primary-color: #ff9800;
-    /* Orange */
-    --secondary-color: #4caf50;
-    /* Green */
-    --accent-color: #2196f3;
-    /* Blue */
-    --grid-border: #ddd;
-    --cell-empty: #f9f9f9;
-    --cell-active: #333;
-    /* Dark gray for active drawing */
+    --text-color: #0d47a1;
+    /* Dark Blue Text */
 
-    /* Heatmap colors (Friendly versions) */
-    --pos-max: #ff6b6b;
-    /* Soft Red */
-    --pos-mid: #ffcccb;
-    --neutral: #ffffff;
-    --neg-mid: #bbdefb;
-    --neg-max: #42a5f5;
-    /* Soft Blue */
+    --primary-color: #2196f3;
+    /* Material Blue */
+    --secondary-color: #1976d2;
+    /* Darker Blue */
+    --accent-color: #ff9800;
+    /* Orange for contrast/highlights */
+
+    /* Matrix/Grid Colors - Solid & Impactful */
+    --grid-border: #bbdefb;
+    --cell-empty: #f5f5f5;
+    --cell-border: #e0e0e0;
+
+    /* Values - High Contrast, less "rainbow" */
+    --val-pos: #2196f3;
+    /* Solid Blue for Positive */
+    --val-neg: #ff7043;
+    /* Solid Orange-Red for Negative */
+    --val-zero: #eceff1;
 }
 
 body {
-    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
-    /* Playful fonts */
-    background-color: var(--bg-color);
+    font-family: 'Segoe UI', 'Roboto', 'Comic Sans MS', sans-serif;
+    /* Clean but friendly */
     color: var(--text-color);
     margin: 0;
     padding: 20px;
     display: flex;
     justify-content: center;
     min-height: 100vh;
+    overflow-x: hidden;
+
+    /* Animated Background */
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    position: relative;
+}
+
+/* Floating Shapes Background */
+body::before,
+body::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    z-index: -1;
+    animation: float 10s infinite ease-in-out;
+}
+
+body::before {
+    top: -50px;
+    left: -50px;
+}
+
+body::after {
+    bottom: -50px;
+    right: -50px;
+    animation-delay: 5s;
+    width: 200px;
+    height: 200px;
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px) translateX(0px);
+    }
+
+    50% {
+        transform: translateY(20px) translateX(20px);
+    }
+
+    100% {
+        transform: translateY(0px) translateX(0px);
+    }
 }
 
 .container {
     width: 95%;
     max-width: 1200px;
-    background-color: var(--card-bg);
-    border-radius: 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.95);
+    /* Slight transparency */
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(13, 71, 161, 0.15);
+    /* Blue shadow */
     padding: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 5px solid #e0f7fa;
+    border: 4px solid #fff;
+    backdrop-filter: blur(10px);
 }
 
 header {
@@ -55,62 +120,67 @@ header {
 }
 
 h1 {
-    color: var(--accent-color);
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 0px #e1f5fe;
+    color: var(--secondary-color);
+    font-size: 2.8rem;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
 }
 
 h2 {
-    color: var(--secondary-color);
-    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .controls {
-    margin-bottom: 30px;
+    margin-bottom: 35px;
     display: flex;
     gap: 15px;
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
-    padding: 15px;
-    background-color: #fff9c4;
-    /* Light Yellow */
-    border-radius: 15px;
+    padding: 20px;
+    background-color: #e3f2fd;
+    border-radius: 20px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 label {
-    font-weight: bold;
-    color: #555;
+    font-weight: 700;
+    color: var(--secondary-color);
 }
 
 select,
 button {
-    padding: 10px 15px;
+    padding: 12px 20px;
     border-radius: 12px;
     border: 2px solid var(--primary-color);
     background: white;
-    color: var(--text-color);
+    color: var(--secondary-color);
     cursor: pointer;
     font-size: 1rem;
-    font-family: inherit;
-    transition: transform 0.1s, box-shadow 0.1s;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(33, 150, 243, 0.1);
+}
+
+select:hover,
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(33, 150, 243, 0.2);
 }
 
 button {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    font-weight: bold;
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 button#stop-btn {
-    background-color: #ff5252;
+    background-color: #ff7043;
+    /* Orange Red */
 }
 
 /* Visualization formatting */
@@ -119,7 +189,7 @@ button#stop-btn {
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
-    gap: 30px;
+    gap: 40px;
     width: 100%;
 }
 
@@ -129,51 +199,65 @@ button#stop-btn {
     flex-direction: column;
     align-items: center;
     background: white;
-    padding: 15px;
-    border-radius: 15px;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e3f2fd;
 }
 
 .grid-container {
     display: grid;
-    /* 14x14 grid for better visibility on small screens while allowing complexity */
-    grid-template-columns: repeat(14, 25px);
-    grid-template-rows: repeat(14, 25px);
-    gap: 1px;
-    background-color: var(--grid-border);
-    border: 4px solid var(--accent-color);
+    grid-template-columns: repeat(14, 28px);
+    /* Slightly larger */
+    grid-template-rows: repeat(14, 28px);
+    gap: 2px;
+    background-color: var(--text-color);
+    /* Dark lines between cells */
+    border: 4px solid var(--secondary-color);
     border-radius: 8px;
-    padding: 4px;
-    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+    padding: 2px;
 }
 
 .cell {
-    width: 25px;
-    height: 25px;
+    width: 28px;
+    height: 28px;
     background-color: var(--cell-empty);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
-    /* Increased from 0.6rem */
-    font-weight: bold;
-    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: default;
     user-select: none;
-    border-radius: 2px;
+    position: relative;
+    /* Create stacking context */
+    /* Hardware acceleration to prevent glitching */
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    box-sizing: border-box;
+    /* Solid look */
+}
+
+/* Input Grid Specifics */
+#input-grid .cell.active {
+    background-color: #333;
+    color: white;
 }
 
 /* Specific styling for Kernel (3x3) */
 .small-grid {
-    grid-template-columns: repeat(3, 50px);
-    grid-template-rows: repeat(3, 50px);
-    border-color: var(--primary-color);
+    grid-template-columns: repeat(3, 60px);
+    /* Increased size for decimals */
+    grid-template-rows: repeat(3, 60px);
+    border-color: var(--accent-color);
 }
 
 .small-grid .cell {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    /* Matching grid */
+    height: 60px;
     font-size: 1.2rem;
-    background-color: #fff3e0;
-    /* Light Orange */
 }
 
 .cell input {
@@ -181,33 +265,30 @@ button#stop-btn {
     height: 100%;
     background: transparent;
     border: none;
-    color: #333;
+    color: inherit;
     text-align: center;
     font-size: inherit;
     font-weight: bold;
-    font-family: inherit;
 }
 
 .math-operator {
     font-size: 3rem;
     margin-top: 20px;
-    color: var(--primary-color);
-    font-weight: bold;
+    color: var(--secondary-color);
+    font-weight: 900;
 }
 
 /* Explainer Section Styling */
 .explainer-section {
     width: 90%;
     margin-bottom: 40px;
-    /* Moved up, so margin bottom */
-    padding: 20px;
-    background: #e8f5e9;
-    /* Light Green */
-    border-radius: 15px;
-    border: 3px solid #a5d6a7;
-    color: #2e7d32;
+    padding: 25px;
+    background: linear-gradient(to right, #e3f2fd, #ffffff);
+    border-radius: 20px;
+    border-left: 10px solid var(--primary-color);
+    color: var(--text-color);
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .calculation-container {
@@ -215,8 +296,8 @@ button#stop-btn {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 20px;
-    margin-top: 20px;
+    gap: 25px;
+    margin-top: 25px;
 }
 
 .calc-group {
@@ -226,104 +307,134 @@ button#stop-btn {
 }
 
 .calc-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #555;
-    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    color: var(--secondary-color);
 }
 
 .mini-grid {
     display: grid;
-    /* 3x3 layout set in JS usually, but defaults here */
-    grid-template-columns: repeat(3, 30px);
-    gap: 2px;
-    border: 2px solid #333;
-    padding: 2px;
-    background: white;
+    gap: 6px;
+    /* Distinct gap */
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border: 1px solid rgba(25, 118, 210, 0.2);
 }
 
 .mini-cell {
-    width: 30px;
-    height: 30px;
+    width: 45px;
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ccc;
-    font-size: 0.9rem;
+    background: white;
+    font-size: 0.75rem;
+    /* Smaller font for decimals */
     font-weight: bold;
+    color: var(--text-color);
+    border-radius: 6px;
+    /* Rounded blocks */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Pop out effect */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    /* safety */
+}
+
+.small-grid .cell input {
+    font-size: 0.85rem;
+    /* Fit longer decimals comfortably */
+    padding: 0;
+    width: 100%;
+    text-align: center;
 }
 
 .calc-op {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #333;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--accent-color);
 }
 
 .result-box {
-    width: 50px;
-    height: 50px;
-    border: 3px solid #333;
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.8rem;
+    font-weight: 900;
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
+    color: var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #math-display {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
+    font-family: 'Consolas', monospace;
+    font-weight: 600;
     white-space: pre-wrap;
-    color: #1b5e20;
+    color: var(--secondary-color);
     margin-top: 15px;
     font-size: 1.1rem;
-    background: rgba(255, 255, 255, 0.6);
-    padding: 10px;
+    background: #fff;
+    padding: 15px;
     border-radius: 8px;
-    display: none;
-    /* Hide for now if we have the visual matrix, or keep as detail? User asked for matrix. I'll hide the text for cleaner look unless they ask. */
+    border: 1px dashed var(--primary-color);
+    display: block;
+    /* Show the math steps! */
 }
 
-/* Reusing highlight classes */
+/* Highlight Animation */
 .highlighted-input {
-    outline: 3px solid var(--primary-color);
+    box-shadow: 0 0 0 3px var(--accent-color);
     z-index: 10;
-    transform: scale(1.1);
+    transform: scale(1.05);
+    border-color: var(--accent-color) !important;
+    transition: none !important;
 }
 
 .highlighted-output {
-    outline: 3px solid var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-color);
     z-index: 10;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    transition: none !important;
 }
 
-/* Coloring classes for result box */
+/* Impactful Output Colors */
+/* Positive: Blue Scale */
 .val-pos-high {
-    background-color: var(--pos-max) !important;
-    color: white;
+    background-color: var(--val-pos) !important;
+    color: white !important;
 }
 
 .val-pos-mid {
-    background-color: var(--pos-mid) !important;
-    color: #000;
-    /* Black for better contrast */
+    background-color: #90caf9 !important;
+    /* Lighter Blue */
+    color: #000 !important;
+}
+
+/* Negative: Orange Scale */
+.val-neg-high {
+    background-color: var(--val-neg) !important;
+    color: white !important;
 }
 
 .val-neg-mid {
-    background-color: var(--neg-mid) !important;
-    color: #000;
-    /* Black for better contrast */
+    background-color: #ffccbc !important;
+    /* Lighter Orange */
+    color: #000 !important;
 }
 
-.val-neg-high {
-    background-color: var(--neg-max) !important;
-    color: white;
-}
+/* Active Input Cell (Draw Mode) */
+/* Handled via inline styles in JS, but overriding for consistency if used classes */
 
 .grid-controls {
-    margin-top: 10px;
+    margin-top: 15px;
     display: flex;
     gap: 10px;
 }
