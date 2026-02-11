@@ -220,7 +220,7 @@ function init() {
     const calcInputGrid = document.getElementById('calc-input-grid');
     if (calcInputGrid) {
         calcInputGrid.innerHTML = '';
-        calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 50px)`;
+        calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
         for (let i = 0; i < KERNEL_SIZE * KERNEL_SIZE; i++) {
             const cell = document.createElement('div');
             cell.className = 'mini-cell';
@@ -292,13 +292,49 @@ function init() {
         stopAnimation();
     });
 
-    // Clear highlights when leaving the entire output grid (prevents flickering)
-    outputGrid.addEventListener('mouseleave', clearHighlights);
+    // ── Output grid hover: event delegation on the container ──
+    // Using 'mouseover' on the grid so moving between cells
+    // (even across borders) keeps the highlight stable.
+    let lastHoveredCell = null;
+
+    outputGrid.addEventListener('mouseover', (e) => {
+        const cell = e.target.closest('.cell');
+        if (!cell || cell.dataset.type !== 'output') return;
+        if (cell === lastHoveredCell) return;   // same cell — skip
+        lastHoveredCell = cell;
+
+        const r = parseInt(cell.dataset.row);
+        const c = parseInt(cell.dataset.col);
+
+        // Pause animation without destroying highlights
+        clearInterval(animationInterval);
+        const animateBtn = document.getElementById('animate-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        if (stopBtn && stopBtn.style.display !== 'none') {
+            stopBtn.style.display = 'none';
+            animateBtn.style.display = 'inline-block';
+        }
+
+        highlightReceptiveField(r, c);
+    });
+
+    let gridLeaveTimeout = null;
+    outputGrid.addEventListener('mouseleave', () => {
+        lastHoveredCell = null;
+        gridLeaveTimeout = setTimeout(clearHighlights, 120);
+    });
+    outputGrid.addEventListener('mouseenter', () => {
+        if (gridLeaveTimeout) {
+            clearTimeout(gridLeaveTimeout);
+            gridLeaveTimeout = null;
+        }
+    });
 }
 
 function createGrid(container, size, type) {
-    container.style.gridTemplateColumns = `repeat(${size}, 25px)`;
-    container.style.gridTemplateRows = `repeat(${size}, 25px)`;
+    const cellSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell-size')) || 32;
+    container.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
+    container.style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
     container.innerHTML = '';
 
     for (let i = 0; i < size; i++) {
@@ -319,41 +355,19 @@ function createGrid(container, size, type) {
                     }
                 });
             } else if (type === 'output') {
-                cell.addEventListener('mouseenter', () => {
-                    // Debounce/Delay to prevent flickering on fast movement
-                    if (window.hoverTimeout) clearTimeout(window.hoverTimeout);
-
-                    window.hoverTimeout = setTimeout(() => {
-                        stopAnimation();
-                        highlightReceptiveField(i, j);
-                    }, 20); // 20ms delay is enough to skip accidental diagonal crossings
-                });
-
-                // Clear on leave start, but maybe better to just let the new enter handle it?
-                // The container leave handles the final clear.
-                // Adding a cell leave to cancel the timeout if we leave before it fires.
-                cell.addEventListener('mouseleave', () => {
-                    if (window.hoverTimeout) clearTimeout(window.hoverTimeout);
-                });
+                // Hover handled by grid-level event delegation (see init)
             }
 
             container.appendChild(cell);
         }
     }
-
-    // Add container-level leave event for output to clear when actually leaving the grid
-    if (type === 'output') {
-        // Remove old if any (anonymous func hard to remove, but this function runs rarely)
-        // Better to put this in init, but user might resize? 
-        // Let's rely on init for the container event to avoid duplicates, 
-        // OR just do it here with a check? No, init is safer.
-        // Wait, I can't easily edit init and this function in one go if they are far apart.
-        // I will just remove the cell listener here.
-    }
 }
 
 function createKernelGrid() {
     kernelGrid.innerHTML = '';
+    const kCellSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--kernel-cell-size')) || 70;
+    kernelGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, ${kCellSize}px)`;
+    kernelGrid.style.gridTemplateRows = `repeat(${KERNEL_SIZE}, ${kCellSize}px)`;
     for (let i = 0; i < KERNEL_SIZE; i++) {
         for (let j = 0; j < KERNEL_SIZE; j++) {
             const cell = document.createElement('div');
@@ -397,14 +411,52 @@ function updateKernelView() {
 }
 
 function togglePixel(r, c, forceOn = false) {
+    const currentVal = inputData[r][c];
+    let newVal;
+
     if (forceOn) {
-        inputData[r][c] = 1;
+        newVal = 1;
     } else {
-        inputData[r][c] = inputData[r][c] === 0 ? 1 : 0;
+        newVal = currentVal === 0 ? 1 : 0;
     }
-    imageSelect.value = 'custom'; // Switch to custom if edited
-    renderInput();
-    calculateConvolution();
+
+    // Performance Update 1: Break loop if value hasn't effectively changed
+    // This prevents re-writes when dragging over the same pixel repeatedly
+    if (newVal === currentVal) return;
+
+    // Update Data
+    inputData[r][c] = newVal;
+
+    // Performance Update 2: Conditional DOM update (Don't trigger paint layout on dropdown if not needed)
+    if (imageSelect.value !== 'custom') {
+        imageSelect.value = 'custom';
+    }
+
+    // Performance Update 3: Update ONLY the specific cell, do not re-render entire grid (renderInput())
+    // O(1) DOM update instead of O(N)
+    const cells = inputGrid.children;
+    const cellIndex = r * GRID_SIZE + c;
+    const cell = cells[cellIndex];
+    if (cell) {
+        if (newVal === 1) {
+            cell.style.backgroundColor = '#0d47a1';
+            cell.style.color = 'white';
+            cell.style.border = '1px solid #0d47a1';
+        } else {
+            cell.style.backgroundColor = 'white'; // default
+            cell.style.color = '#ccc';
+            cell.style.border = '1px solid #e0e0e0';
+        }
+        cell.textContent = newVal;
+    }
+
+    // Performance Update 4: Debounce/Throttle Convolution
+    // Drawing can fire mouseover every ~8-16ms. Calculation is expensive.
+    // We batch the calculation to the next frame or small delay.
+    if (window.calcTimeout) clearTimeout(window.calcTimeout);
+    window.calcTimeout = setTimeout(() => {
+        calculateConvolution();
+    }, 10);
 }
 
 function randomizeInput() {
@@ -493,24 +545,48 @@ function renderOutput() {
     }
 
     const cells = outputGrid.children;
+    const classesToCheck = ['val-pos-high', 'val-pos-mid', 'val-neg-high', 'val-neg-mid'];
+
     for (let i = 0; i < outSize; i++) {
         for (let j = 0; j < outSize; j++) {
             const val = outputData[i][j];
             const cell = cells[i * outSize + j];
             if (!cell) continue;
 
-            // Simplify display for kids: just show colors, or minimal spread
-            // Use classes
-            cell.className = 'cell';
+            const roundedVal = Math.round(val);
 
-            if (val >= 2) cell.classList.add('val-pos-high');
-            else if (val > 0) cell.classList.add('val-pos-mid');
-            else if (val <= -2) cell.classList.add('val-neg-high');
-            else if (val < 0) cell.classList.add('val-neg-mid');
+            // 1. Text Content — strict comparison to avoid JS coercion
+            //    ("" == 0 is true in JS, so loose != skips setting "0")
+            const valStr = String(roundedVal);
+            if (cell.textContent !== valStr) {
+                cell.textContent = valStr;
+            }
 
-            // Show numbers. user wanted them visible.
-            cell.textContent = Math.round(val);
-            if (val === 0) cell.style.color = '#aaa'; // Dim zeros
+            // 2. Class Diffing (Crucial for flicker)
+            let targetClass = '';
+            if (roundedVal >= 2) targetClass = 'val-pos-high';
+            else if (roundedVal > 0) targetClass = 'val-pos-mid';
+            else if (roundedVal <= -2) targetClass = 'val-neg-high';
+            else if (roundedVal < 0) targetClass = 'val-neg-mid';
+            else targetClass = 'val-zero'; // roundedVal === 0
+
+            // Remove unwanted classes (including val-zero)
+            const allValClasses = ['val-pos-high', 'val-pos-mid', 'val-neg-high', 'val-neg-mid', 'val-zero'];
+
+            allValClasses.forEach(cls => {
+                if (cls !== targetClass && cell.classList.contains(cls)) {
+                    cell.classList.remove(cls);
+                }
+            });
+
+            // Add target class only if missing
+            if (targetClass && !cell.classList.contains(targetClass)) {
+                cell.classList.add(targetClass);
+            }
+
+            // 3. Color Diffing - REMOVED! Handled by CSS classes now.
+            // Ensure no inline color overrides the class
+            if (cell.style.color) cell.style.color = '';
         }
     }
 }
@@ -520,7 +596,7 @@ function updateMiniKernel() {
     if (!calcKernelGrid) return;
 
     calcKernelGrid.innerHTML = '';
-    calcKernelGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 50px)`;
+    calcKernelGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
 
     for (let i = 0; i < KERNEL_SIZE; i++) {
         for (let j = 0; j < KERNEL_SIZE; j++) {
@@ -546,67 +622,108 @@ function updateMiniKernel() {
 
 function highlightReceptiveField(outR, outC) {
     try {
-        // Clear previous highlights first to prevent "trailing" selections
-        const prevIn = inputGrid.querySelectorAll('.highlighted-input');
-        if (prevIn) prevIn.forEach(c => c.classList.remove('highlighted-input'));
-
-        const prevOut = outputGrid.querySelectorAll('.highlighted-output');
-        if (prevOut) prevOut.forEach(c => c.classList.remove('highlighted-output'));
-
         const outSize = outputData.length;
-        const outCells = outputGrid.children;
         const outIndex = outR * outSize + outC;
-        if (outCells[outIndex]) outCells[outIndex].classList.add('highlighted-output');
+        const outCells = outputGrid.children;
+
+        // 1. Smart Output Highlight (Only change if different)
+        // Check if allow "multiple" output (unlikely in this logic, usually 1 active)
+        // We'll just ensure the correct one is on, others off.
+        const currentOut = outputGrid.querySelector('.highlighted-output');
+        if (currentOut && currentOut !== outCells[outIndex]) {
+            currentOut.classList.remove('highlighted-output');
+        }
+        if (outCells[outIndex] && !outCells[outIndex].classList.contains('highlighted-output')) {
+            outCells[outIndex].classList.add('highlighted-output');
+        }
 
         const calcInputGrid = document.getElementById('calc-input-grid');
         const calcResult = document.getElementById('calc-result');
 
-        // 1. Render Input Window (Mini Grid)
+        // 2. Render Input Window (Mini Grid) - OPTIMIZED: Reuse DOM
         if (calcInputGrid) {
-            calcInputGrid.innerHTML = '';
-            calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 50px)`;
-        }
+            const totalCells = KERNEL_SIZE * KERNEL_SIZE;
 
-        // Ensure mini kernel is up to date (though should be static unless changed)
-        // updateMiniKernel(); // optimization: remove redundant call on hover
+            // One-time setup if empty or wrong size
+            if (calcInputGrid.children.length !== totalCells) {
+                calcInputGrid.innerHTML = '';
+                calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
+                for (let i = 0; i < totalCells; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'mini-cell';
+                    calcInputGrid.appendChild(cell);
+                }
+            }
+        }
 
         let sum = 0;
         let terms = [];
+        let miniGridIdx = 0; // Linear index for mini-grid updates
 
-        const inCells = inputGrid.children;
-
+        // Collect Target Input Indices for this Receptive Field
+        const newInIndices = new Set();
         for (let ki = 0; ki < KERNEL_SIZE; ki++) {
             for (let kj = 0; kj < KERNEL_SIZE; kj++) {
                 const r = outR + ki;
                 const c = outC + kj;
                 const idx = r * GRID_SIZE + c;
+                newInIndices.add(idx);
+            }
+        }
 
-                // Highlight main grids
-                if (inCells[idx]) {
-                    inCells[idx].classList.add('highlighted-input');
+        // 3. Smart Input Highlight (Diffing)
+        const inCells = inputGrid.children;
+        const currentIn = inputGrid.querySelectorAll('.highlighted-input');
+
+        currentIn.forEach(cell => {
+            const r = parseInt(cell.dataset.row);
+            const c = parseInt(cell.dataset.col);
+            const idx = r * GRID_SIZE + c;
+            if (!newInIndices.has(idx)) {
+                cell.classList.remove('highlighted-input');
+            }
+        });
+
+        newInIndices.forEach(idx => {
+            if (inCells[idx] && !inCells[idx].classList.contains('highlighted-input')) {
+                inCells[idx].classList.add('highlighted-input');
+            }
+        });
+
+        // 4. Calculate & Populate Mini Grid (Update existing DOM)
+        // 4. Calculate & Populate Mini Grid (Update existing DOM)
+        for (let ki = 0; ki < KERNEL_SIZE; ki++) {
+            for (let kj = 0; kj < KERNEL_SIZE; kj++) {
+                const r = outR + ki;
+                const c = outC + kj;
+
+                // Handle Boundaries (Zero Padding)
+                // Fixes "stale data" flicker where miniGridIdx desyncs
+                let pVal = 0;
+                if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
+                    pVal = inputData[r][c];
                 }
 
-                // Safety check for data
-                if (!inputData[r] || inputData[r][c] === undefined) continue;
-
-                const pVal = inputData[r][c];
                 const kVal = kernelData[ki][kj];
                 const prod = pVal * kVal;
                 sum += prod;
 
-                // Create Mini Input Cell
-                const inCell = document.createElement('div');
-                inCell.className = 'mini-cell';
-                inCell.textContent = pVal;
-                // Solid styling
-                if (pVal === 1) {
-                    inCell.style.backgroundColor = '#0d47a1';
-                    inCell.style.color = 'white';
-                } else {
-                    inCell.style.backgroundColor = 'white';
-                    inCell.style.color = '#ccc';
+                // UPDATE Mini Input Cell (DOM Reuse)
+                if (calcInputGrid && calcInputGrid.children[miniGridIdx]) {
+                    const inCell = calcInputGrid.children[miniGridIdx];
+                    inCell.textContent = pVal;
+
+                    // Solid styling update
+                    // Reset style to base first if needed, but we overwrite properties
+                    if (pVal === 1) {
+                        inCell.style.backgroundColor = '#0d47a1';
+                        inCell.style.color = 'white';
+                    } else {
+                        inCell.style.backgroundColor = 'white';
+                        inCell.style.color = '#ccc';
+                    }
                 }
-                if (calcInputGrid) calcInputGrid.appendChild(inCell);
+                miniGridIdx++; // ALWAYS increment to keep sync!
 
                 // We don't rebuild kernel here, just calculate
                 if (Math.abs(prod) > 0.01) {
@@ -622,15 +739,14 @@ function highlightReceptiveField(outR, outC) {
             else if (sum > 0) calcResult.classList.add('val-pos-mid');
             else if (sum <= -2) calcResult.classList.add('val-neg-high');
             else if (sum < 0) calcResult.classList.add('val-neg-mid');
+            else if (sum === 0) calcResult.classList.add('val-zero'); // Consistent styling
         }
 
         if (terms.length > 0) {
-            // formula logic
-            // Use Math.round for display to match result box, or keep fixed(1)? User didn't specify. 
-            // Fixed(1) is good for detail.
-            mathDisplay.innerHTML = `<div style="font-size: 0.9rem; color: #555;">(Pixel × Filter) Sum:</div>`;
-            mathDisplay.innerHTML += terms.map(t => `<span style="background:#e3f2fd; padding: 2px 5px; border-radius: 4px; margin: 0 2px;">${t}</span>`).join(' + ');
-            mathDisplay.innerHTML += `<div style="margin-top: 10px; font-size: 1.2rem; color: var(--text-color);"> = <strong>${sum.toFixed(1)}</strong></div>`;
+            let html = `<div style="font-size: 0.9rem; color: #555;">(Pixel × Filter) Sum:</div>`;
+            html += terms.map(t => `<span style="background:#e3f2fd; padding: 2px 5px; border-radius: 4px; margin: 0 2px;">${t}</span>`).join(' + ');
+            html += `<div style="margin-top: 10px; font-size: 1.2rem; color: var(--text-color);"> = <strong>${sum.toFixed(1)}</strong></div>`;
+            mathDisplay.innerHTML = html;
         } else {
             mathDisplay.innerHTML = "0 <span style='font-size:0.8rem; color:#888'>(All zero interactions)</span>";
         }
@@ -643,6 +759,7 @@ function highlightReceptiveField(outR, outC) {
     }
 }
 
+
 function clearHighlights() {
     const inCells = inputGrid.querySelectorAll('.highlighted-input');
     inCells.forEach(c => c.classList.remove('highlighted-input'));
@@ -650,18 +767,30 @@ function clearHighlights() {
     const outCells = outputGrid.querySelectorAll('.highlighted-output');
     outCells.forEach(c => c.classList.remove('highlighted-output'));
 
-    // Don't clear mini-grids, let them persist as "last viewed" or default?
-    // Actually, maybe clear Input Window and Result, but keep Kernel?
+    // Reset mini-grid cells IN-PLACE (no innerHTML destroy/rebuild)
     const calcInputGrid = document.getElementById('calc-input-grid');
     if (calcInputGrid) {
-        calcInputGrid.innerHTML = '';
-        calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, 50px)`;
-        for (let i = 0; i < KERNEL_SIZE * KERNEL_SIZE; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'mini-cell';
-            cell.textContent = '0';
-            cell.style.backgroundColor = '#fff';
-            calcInputGrid.appendChild(cell);
+        const totalCells = KERNEL_SIZE * KERNEL_SIZE;
+        if (calcInputGrid.children.length !== totalCells) {
+            // First time or wrong size: build from scratch
+            calcInputGrid.innerHTML = '';
+            calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
+            for (let i = 0; i < totalCells; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'mini-cell';
+                cell.textContent = '0';
+                cell.style.backgroundColor = '#fff';
+                cell.style.color = '#ccc';
+                calcInputGrid.appendChild(cell);
+            }
+        } else {
+            // Reuse existing nodes — just reset content/styles
+            for (let i = 0; i < calcInputGrid.children.length; i++) {
+                const cell = calcInputGrid.children[i];
+                cell.textContent = '0';
+                cell.style.backgroundColor = '#fff';
+                cell.style.color = '#ccc';
+            }
         }
     }
 

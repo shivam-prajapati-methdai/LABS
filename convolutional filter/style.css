@@ -1,444 +1,297 @@
 :root {
-    /* Main Theme Colors */
+    /* Theme */
     --bg-color: #e3f2fd;
-    /* Light Blue Background */
     --card-bg: #ffffff;
     --text-color: #0d47a1;
-    /* Dark Blue Text */
-
     --primary-color: #2196f3;
-    /* Material Blue */
     --secondary-color: #1976d2;
-    /* Darker Blue */
     --accent-color: #ff9800;
-    /* Orange for contrast/highlights */
 
-    /* Matrix/Grid Colors - Solid & Impactful */
-    --grid-border: #bbdefb;
+    /* Grid Colors */
     --cell-empty: #f5f5f5;
-    --cell-border: #e0e0e0;
-
-    /* Values - High Contrast, less "rainbow" */
     --val-pos: #2196f3;
-    /* Solid Blue for Positive */
     --val-neg: #ff7043;
-    /* Solid Orange-Red for Negative */
     --val-zero: #eceff1;
+
+    /* ── Sizing tokens (single source of truth) ── */
+    --cell-size: 32px;
+    --cell-font: 0.8rem;
+    --cell-gap: 1px;
+    --kernel-cell-size: 70px;
+    --kernel-font: 1.1rem;
+    --mini-cell-size: 60px;      /* Explainer matrices — bigger for readability */
 }
 
+/* ═══════════════════ Base ═══════════════════ */
 body {
-    font-family: 'Segoe UI', 'Roboto', 'Comic Sans MS', sans-serif;
-    /* Clean but friendly */
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
     color: var(--text-color);
     margin: 0;
-    padding: 20px;
+    padding: 16px;
     display: flex;
     justify-content: center;
     min-height: 100vh;
     overflow-x: hidden;
-
-    /* Animated Background */
     background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
     position: relative;
 }
 
-/* Floating Shapes Background */
-body::before,
-body::after {
+body::before, body::after {
     content: '';
     position: absolute;
-    width: 300px;
-    height: 300px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.4);
     z-index: -1;
     animation: float 10s infinite ease-in-out;
 }
-
-body::before {
-    top: -50px;
-    left: -50px;
-}
-
-body::after {
-    bottom: -50px;
-    right: -50px;
-    animation-delay: 5s;
-    width: 200px;
-    height: 200px;
-}
+body::before { width: 300px; height: 300px; top: -50px; left: -50px; }
+body::after  { width: 200px; height: 200px; bottom: -50px; right: -50px; animation-delay: 5s; }
 
 @keyframes gradientBG {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
-
 @keyframes float {
-    0% {
-        transform: translateY(0px) translateX(0px);
-    }
-
-    50% {
-        transform: translateY(20px) translateX(20px);
-    }
-
-    100% {
-        transform: translateY(0px) translateX(0px);
-    }
+    0%   { transform: translate(0, 0); }
+    50%  { transform: translate(20px, 20px); }
+    100% { transform: translate(0, 0); }
 }
 
+/* ═══════════════════ Container ═══════════════════ */
 .container {
-    width: 95%;
-    max-width: 1200px;
+    width: 100%;
+    max-width: 1600px;
     background-color: rgba(255, 255, 255, 0.95);
-    /* Slight transparency */
-    border-radius: 25px;
+    border-radius: 24px;
     box-shadow: 0 10px 30px rgba(13, 71, 161, 0.15);
-    /* Blue shadow */
-    padding: 30px;
+    padding: 24px 28px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 4px solid #fff;
+    border: 3px solid #fff;
     backdrop-filter: blur(10px);
 }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
+/* ═══════════════════ Header ═══════════════════ */
+header { text-align: center; margin-bottom: 16px; }
+h1 { color: var(--secondary-color); font-size: 2.2rem; margin: 0 0 2px; letter-spacing: .5px; }
+header p { margin: 0; font-size: 1rem; color: #64b5f6; }
+h2 { color: var(--primary-color); font-size: 1rem; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
 
-h1 {
-    color: var(--secondary-color);
-    font-size: 2.8rem;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
-}
-
-h2 {
-    color: var(--primary-color);
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
+/* ═══════════════════ Controls ═══════════════════ */
 .controls {
-    margin-bottom: 35px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
-    background-color: #e3f2fd;
-    border-radius: 20px;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-label {
-    font-weight: 700;
-    color: var(--secondary-color);
-}
-
-select,
-button {
+    margin-bottom: 16px;
+    display: flex; gap: 12px; align-items: center;
+    flex-wrap: wrap; justify-content: center;
     padding: 12px 20px;
-    border-radius: 12px;
+    background-color: #e3f2fd;
+    border-radius: 16px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.05);
+}
+label { font-weight: 700; font-size: .85rem; color: var(--secondary-color); }
+select, button {
+    padding: 8px 16px; border-radius: 10px;
     border: 2px solid var(--primary-color);
-    background: white;
-    color: var(--secondary-color);
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: all 0.2s;
-    box-shadow: 0 4px 6px rgba(33, 150, 243, 0.1);
+    background: white; color: var(--secondary-color);
+    cursor: pointer; font-size: .9rem; font-weight: 600;
+    transition: all .2s;
+    box-shadow: 0 3px 6px rgba(33,150,243,.1);
 }
+select:hover, button:hover { transform: translateY(-1px); box-shadow: 0 5px 10px rgba(33,150,243,.2); }
+button { background-color: var(--primary-color); color: white; border: none; }
+button#stop-btn { background-color: #ff7043; }
 
-select:hover,
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(33, 150, 243, 0.2);
-}
-
-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-}
-
-button#stop-btn {
-    background-color: #ff7043;
-    /* Orange Red */
-}
-
-/* Visualization formatting */
-.visualization-area {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 40px;
-    width: 100%;
-}
-
-.layer-section,
-.operation-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e3f2fd;
-}
-
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(14, 28px);
-    /* Slightly larger */
-    grid-template-rows: repeat(14, 28px);
-    gap: 2px;
-    background-color: var(--text-color);
-    /* Dark lines between cells */
-    border: 4px solid var(--secondary-color);
-    border-radius: 8px;
-    padding: 2px;
-}
-
-.cell {
-    width: 28px;
-    height: 28px;
-    background-color: var(--cell-empty);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: default;
-    user-select: none;
-    position: relative;
-    /* Create stacking context */
-    /* Hardware acceleration to prevent glitching */
-    will-change: transform;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    box-sizing: border-box;
-    /* Solid look */
-}
-
-/* Input Grid Specifics */
-#input-grid .cell.active {
-    background-color: #333;
-    color: white;
-}
-
-/* Specific styling for Kernel (3x3) */
-.small-grid {
-    grid-template-columns: repeat(3, 60px);
-    /* Increased size for decimals */
-    grid-template-rows: repeat(3, 60px);
-    border-color: var(--accent-color);
-}
-
-.small-grid .cell {
-    width: 60px;
-    /* Matching grid */
-    height: 60px;
-    font-size: 1.2rem;
-}
-
-.cell input {
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border: none;
-    color: inherit;
-    text-align: center;
-    font-size: inherit;
-    font-weight: bold;
-}
-
-.math-operator {
-    font-size: 3rem;
-    margin-top: 20px;
-    color: var(--secondary-color);
-    font-weight: 900;
-}
-
-/* Explainer Section Styling */
+/* ═══════════════════ Explainer ("How it works") ═══════════════════ */
 .explainer-section {
-    width: 90%;
-    margin-bottom: 40px;
-    padding: 25px;
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 16px 24px;
     background: linear-gradient(to right, #e3f2fd, #ffffff);
-    border-radius: 20px;
-    border-left: 10px solid var(--primary-color);
-    color: var(--text-color);
+    border-radius: 16px;
+    border-left: 8px solid var(--primary-color);
     text-align: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,.04);
+    /* ── FIXED HEIGHT: prevents layout-thrashing feedback loop ── */
+    /* When hover changes math content, height stays constant so   */
+    /* the grid below doesn't shift and re-trigger hover on a      */
+    /* different cell.                                              */
+    min-height: 260px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
+.explainer-section h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.explainer-section p  { margin: 0 0 8px; font-size: .85rem; }
 
+/* Layout row: Input × Filter = Result */
 .calculation-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
-    gap: 25px;
-    margin-top: 25px;
+    gap: 30px;
+    margin-top: 12px;
 }
-
-.calc-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
+.calc-group { display: flex; flex-direction: column; align-items: center; }
 .calc-label {
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    color: var(--secondary-color);
+    font-weight: 800; text-transform: uppercase;
+    font-size: .75rem; letter-spacing: 1px;
+    margin-bottom: 6px; color: var(--secondary-color);
 }
 
+/* Mini matrices — use the CSS token so they fill the space */
 .mini-grid {
     display: grid;
-    gap: 6px;
-    /* Distinct gap */
+    gap: 5px;
     padding: 8px;
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255,255,255,.6);
     border-radius: 12px;
-    border: 1px solid rgba(25, 118, 210, 0.2);
+    border: 1px solid rgba(25,118,210,.2);
 }
-
 .mini-cell {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: var(--mini-cell-size);
+    height: var(--mini-cell-size);
+    display: flex; align-items: center; justify-content: center;
     background: white;
-    font-size: 0.75rem;
-    /* Smaller font for decimals */
+    font-size: .85rem;
     font-weight: bold;
     color: var(--text-color);
-    border-radius: 6px;
-    /* Rounded blocks */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    /* Pop out effect */
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,.08);
+    border: 1px solid rgba(0,0,0,.05);
     overflow: hidden;
-    /* safety */
 }
-
-.small-grid .cell input {
-    font-size: 0.85rem;
-    /* Fit longer decimals comfortably */
-    padding: 0;
-    width: 100%;
-    text-align: center;
-}
-
-.calc-op {
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: var(--accent-color);
-}
-
+.calc-op { font-size: 2.2rem; font-weight: 900; color: var(--accent-color); }
 .result-box {
-    width: 60px;
-    height: 60px;
+    width: 70px; height: 70px;
     border: 4px solid var(--primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    font-weight: 900;
-    background: white;
-    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; font-weight: 900;
+    background: white; border-radius: 14px;
     color: var(--primary-color);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,.08);
 }
-
 #math-display {
     font-family: 'Consolas', monospace;
-    font-weight: 600;
-    white-space: pre-wrap;
+    font-weight: 600; white-space: pre-wrap;
     color: var(--secondary-color);
-    margin-top: 15px;
-    font-size: 1.1rem;
-    background: #fff;
-    padding: 15px;
+    margin-top: 12px; font-size: 1rem;
+    background: #fff; padding: 12px 16px;
     border-radius: 8px;
     border: 1px dashed var(--primary-color);
-    display: block;
-    /* Show the math steps! */
+    min-height: 60px;          /* prevent height changes from shifting layout */
+    box-sizing: border-box;
 }
 
-/* Highlight Animation */
-.highlighted-input {
-    box-shadow: 0 0 0 3px var(--accent-color);
-    z-index: 10;
-    transform: scale(1.05);
-    border-color: var(--accent-color) !important;
-    transition: none !important;
-}
-
-.highlighted-output {
-    box-shadow: 0 0 0 3px var(--accent-color);
-    z-index: 10;
-    transform: scale(1.15);
-    transition: none !important;
-}
-
-/* Impactful Output Colors */
-/* Positive: Blue Scale */
-.val-pos-high {
-    background-color: var(--val-pos) !important;
-    color: white !important;
-}
-
-.val-pos-mid {
-    background-color: #90caf9 !important;
-    /* Lighter Blue */
-    color: #000 !important;
-}
-
-/* Negative: Orange Scale */
-.val-neg-high {
-    background-color: var(--val-neg) !important;
-    color: white !important;
-}
-
-.val-neg-mid {
-    background-color: #ffccbc !important;
-    /* Lighter Orange */
-    color: #000 !important;
-}
-
-/* Active Input Cell (Draw Mode) */
-/* Handled via inline styles in JS, but overriding for consistency if used classes */
-
-.grid-controls {
-    margin-top: 15px;
+/* ═══════════════════ Visualization — single row ═══════════════════ */
+.visualization-area {
     display: flex;
-    gap: 10px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+}
+.layer-section, .operation-section {
+    display: flex; flex-direction: column; align-items: center;
+    background: white; padding: 14px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    border: 1px solid #e3f2fd;
+    flex-shrink: 0;
 }
 
-footer {
-    display: none;
+/* ═══════════════════ Grids ═══════════════════ */
+.grid-container {
+    display: grid;
+    /* columns & rows set by JS inline style */
+    gap: var(--cell-gap);
+    background-color: var(--text-color);
+    border: 3px solid var(--secondary-color);
+    border-radius: 6px;
+    padding: 1px;
+    overflow: visible;          /* let outlines paint outside */
+}
+.cell {
+    /* NO fixed width/height — sized by grid track */
+    background-color: var(--cell-empty);
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--cell-font);
+    font-weight: 700;
+    cursor: default; user-select: none;
+    position: relative;
+    transition: none;           /* prevent animated un-highlight */
+    box-sizing: border-box;
+}
+
+/* Input active (drawing mode) */
+#input-grid .cell.active { background-color: #333; color: white; }
+
+/* Kernel 3×3 */
+.small-grid { border-color: var(--accent-color); }
+.small-grid .cell { font-size: var(--kernel-font); }
+.cell input {
+    width: 100%; height: 100%;
+    background: transparent; border: none;
+    color: inherit; text-align: center;
+    font-size: inherit; font-weight: bold;
+}
+.small-grid .cell input { font-size: .85rem; padding: 0; }
+.math-operator { font-size: 2.5rem; margin-top: 16px; color: var(--secondary-color); font-weight: 900; }
+
+/* ═══════════════════ Highlights — NO transform ═══════════════════ */
+/*  Using outline + box-shadow only → zero layout shift, zero flicker  */
+.highlighted-input {
+    box-shadow: 0 0 0 2.5px var(--accent-color);
+    z-index: 10;
+    transition: none !important;
+}
+.highlighted-output {
+    box-shadow: 0 0 0 2.5px var(--accent-color);
+    outline: 2px solid var(--accent-color);
+    outline-offset: -1px;
+    z-index: 10;
+    transition: none !important;
+}
+
+/* ═══════════════════ Output value colours ═══════════════════ */
+.val-pos-high { background-color: var(--val-pos) !important; color: white !important; }
+.val-pos-mid  { background-color: #90caf9 !important; color: #000 !important; }
+.val-neg-high { background-color: var(--val-neg) !important; color: white !important; }
+.val-neg-mid  { background-color: #ffccbc !important; color: #000 !important; }
+.val-zero     { color: #78909c; background-color: var(--val-zero) !important; }
+
+/* Output grid: crosshair cursor + no gap dead-zone */
+#output-grid { gap: 0; padding: 0; }
+#output-grid .cell {
+    cursor: crosshair;
+    border: 1px solid rgba(13, 71, 161, 0.12);
+}
+
+/* ═══════════════════ Misc ═══════════════════ */
+.grid-controls { margin-top: 10px; display: flex; gap: 8px; }
+footer { display: none; }
+
+/* ═══════════════════ Responsive ═══════════════════ */
+@media (max-width: 1400px) {
+    :root {
+        --cell-size: 28px; --cell-font: .72rem;
+        --kernel-cell-size: 60px; --kernel-font: 1rem;
+        --mini-cell-size: 52px;
+    }
+    .container { padding: 16px; }
+    .visualization-area { gap: 12px; }
+    .layer-section, .operation-section { padding: 10px; }
+}
+@media (max-width: 1100px) {
+    :root {
+        --cell-size: 23px; --cell-font: .62rem;
+        --kernel-cell-size: 52px; --kernel-font: .9rem;
+        --mini-cell-size: 44px;
+    }
+    .visualization-area { gap: 8px; }
+    .layer-section, .operation-section { padding: 8px; }
+    h2 { font-size: .85rem; }
 }
