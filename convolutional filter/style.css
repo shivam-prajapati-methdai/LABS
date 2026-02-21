@@ -1,297 +1,619 @@
+/* ═══════════════════ Tokens ═══════════════════ */
 :root {
-    /* Theme */
-    --bg-color: #e3f2fd;
+    --bg-color: #e8f0fe;
     --card-bg: #ffffff;
-    --text-color: #0d47a1;
-    --primary-color: #2196f3;
-    --secondary-color: #1976d2;
-    --accent-color: #ff9800;
+    --text-color: #1a3a5c;
+    --text-muted: #6b8299;
+    --primary: #2979ff;
+    --primary-dark: #1565c0;
+    --primary-light: #e3f2fd;
+    --accent: #ff9800;
+    --accent-light: #fff3e0;
 
-    /* Grid Colors */
-    --cell-empty: #f5f5f5;
-    --val-pos: #2196f3;
-    --val-neg: #ff7043;
-    --val-zero: #eceff1;
+    --positive: #e53935;
+    --positive-light: #ffcdd2;
+    --negative: #1e88e5;
+    --negative-light: #bbdefb;
+    --zero-bg: #f0f2f5;
 
-    /* ── Sizing tokens (single source of truth) ── */
-    --cell-size: 32px;
-    --cell-font: 0.8rem;
+    --cell-size: 36px;
+    --cell-font: 0.78rem;
     --cell-gap: 1px;
-    --kernel-cell-size: 70px;
+    --kernel-cell-size: 72px;
     --kernel-font: 1.1rem;
-    --mini-cell-size: 60px;      /* Explainer matrices — bigger for readability */
+    --mini-cell-size: 56px;
+
+    --radius: 14px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
 }
 
 /* ═══════════════════ Base ═══════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
     color: var(--text-color);
     margin: 0;
-    padding: 16px;
+    padding: 20px;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    min-height: 100vh;
-    overflow-x: hidden;
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    /* Subtle animated gradient background */
+    background: linear-gradient(135deg, #dce8fd 0%, #c9daf8 25%, #e1ecfe 50%, #d0dffa 75%, #e8f0fe 100%);
     background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
+    animation: bgShift 20s ease infinite;
     position: relative;
+    overflow-x: hidden;
 }
 
-body::before, body::after {
+/* Floating soft blobs — GPU-composited, zero layout impact */
+body::before,
+body::after {
     content: '';
-    position: absolute;
+    position: fixed;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
-    z-index: -1;
-    animation: float 10s infinite ease-in-out;
+    z-index: 0;
+    pointer-events: none;
+    will-change: transform;
+    opacity: 0.35;
 }
-body::before { width: 300px; height: 300px; top: -50px; left: -50px; }
-body::after  { width: 200px; height: 200px; bottom: -50px; right: -50px; animation-delay: 5s; }
 
-@keyframes gradientBG {
+body::before {
+    width: 420px;
+    height: 420px;
+    top: -80px;
+    left: -60px;
+    background: radial-gradient(circle, rgba(41,121,255,0.18) 0%, transparent 70%);
+    animation: blobFloat1 18s ease-in-out infinite;
+}
+
+body::after {
+    width: 340px;
+    height: 340px;
+    bottom: -60px;
+    right: -40px;
+    background: radial-gradient(circle, rgba(255,152,0,0.14) 0%, transparent 70%);
+    animation: blobFloat2 22s ease-in-out infinite;
+}
+
+@keyframes bgShift {
     0%   { background-position: 0% 50%; }
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
-@keyframes float {
-    0%   { transform: translate(0, 0); }
-    50%  { transform: translate(20px, 20px); }
-    100% { transform: translate(0, 0); }
+
+@keyframes blobFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(40px, 30px) scale(1.05); }
+    66%      { transform: translate(-20px, 50px) scale(0.97); }
+}
+
+@keyframes blobFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(-30px, -40px) scale(1.04); }
+    66%      { transform: translate(25px, -20px) scale(0.96); }
 }
 
 /* ═══════════════════ Container ═══════════════════ */
 .container {
     width: 100%;
-    max-width: 1600px;
-    background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(13, 71, 161, 0.15);
-    padding: 24px 28px;
+    max-width: 1800px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 3px solid #fff;
-    backdrop-filter: blur(10px);
+    gap: 18px;
+    position: relative;
+    z-index: 1;
 }
 
 /* ═══════════════════ Header ═══════════════════ */
-header { text-align: center; margin-bottom: 16px; }
-h1 { color: var(--secondary-color); font-size: 2.2rem; margin: 0 0 2px; letter-spacing: .5px; }
-header p { margin: 0; font-size: 1rem; color: #64b5f6; }
-h2 { color: var(--primary-color); font-size: 1rem; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+header {
+    text-align: center;
+    padding: 8px 0;
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    margin: 2px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+h2 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0 0 10px;
+    text-align: center;
+}
 
 /* ═══════════════════ Controls ═══════════════════ */
 .controls {
-    margin-bottom: 16px;
-    display: flex; gap: 12px; align-items: center;
-    flex-wrap: wrap; justify-content: center;
-    padding: 12px 20px;
-    background-color: #e3f2fd;
-    border-radius: 16px;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,.05);
-}
-label { font-weight: 700; font-size: .85rem; color: var(--secondary-color); }
-select, button {
-    padding: 8px 16px; border-radius: 10px;
-    border: 2px solid var(--primary-color);
-    background: white; color: var(--secondary-color);
-    cursor: pointer; font-size: .9rem; font-weight: 600;
-    transition: all .2s;
-    box-shadow: 0 3px 6px rgba(33,150,243,.1);
-}
-select:hover, button:hover { transform: translateY(-1px); box-shadow: 0 5px 10px rgba(33,150,243,.2); }
-button { background-color: var(--primary-color); color: white; border: none; }
-button#stop-btn { background-color: #ff7043; }
-
-/* ═══════════════════ Explainer ("How it works") ═══════════════════ */
-.explainer-section {
-    width: 100%;
-    margin-bottom: 16px;
-    padding: 16px 24px;
-    background: linear-gradient(to right, #e3f2fd, #ffffff);
-    border-radius: 16px;
-    border-left: 8px solid var(--primary-color);
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,.04);
-    /* ── FIXED HEIGHT: prevents layout-thrashing feedback loop ── */
-    /* When hover changes math content, height stays constant so   */
-    /* the grid below doesn't shift and re-trigger hover on a      */
-    /* different cell.                                              */
-    min-height: 260px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-.explainer-section h3 { margin: 0 0 4px; font-size: 1.05rem; }
-.explainer-section p  { margin: 0 0 8px; font-size: .85rem; }
-
-/* Layout row: Input × Filter = Result */
-.calculation-container {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: flex-end;
     justify-content: center;
-    align-items: center;
-    gap: 30px;
-    margin-top: 12px;
-}
-.calc-group { display: flex; flex-direction: column; align-items: center; }
-.calc-label {
-    font-weight: 800; text-transform: uppercase;
-    font-size: .75rem; letter-spacing: 1px;
-    margin-bottom: 6px; color: var(--secondary-color);
+    padding: 16px 28px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
 }
 
-/* Mini matrices — use the CSS token so they fill the space */
-.mini-grid {
-    display: grid;
-    gap: 5px;
-    padding: 8px;
-    background: rgba(255,255,255,.6);
-    border-radius: 12px;
-    border: 1px solid rgba(25,118,210,.2);
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
-.mini-cell {
-    width: var(--mini-cell-size);
-    height: var(--mini-cell-size);
-    display: flex; align-items: center; justify-content: center;
-    background: white;
-    font-size: .85rem;
-    font-weight: bold;
+
+.control-group label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.control-buttons {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+select {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 2px solid #dde4ed;
+    background: #fff;
     color: var(--text-color);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,.08);
-    border: 1px solid rgba(0,0,0,.05);
-    overflow: hidden;
-}
-.calc-op { font-size: 2.2rem; font-weight: 900; color: var(--accent-color); }
-.result-box {
-    width: 70px; height: 70px;
-    border: 4px solid var(--primary-color);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem; font-weight: 900;
-    background: white; border-radius: 14px;
-    color: var(--primary-color);
-    box-shadow: 0 4px 8px rgba(0,0,0,.08);
-}
-#math-display {
-    font-family: 'Consolas', monospace;
-    font-weight: 600; white-space: pre-wrap;
-    color: var(--secondary-color);
-    margin-top: 12px; font-size: 1rem;
-    background: #fff; padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px dashed var(--primary-color);
-    min-height: 60px;          /* prevent height changes from shifting layout */
-    box-sizing: border-box;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    outline: none;
 }
 
-/* ═══════════════════ Visualization — single row ═══════════════════ */
-.visualization-area {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    width: 100%;
+select:hover, select:focus {
+    border-color: var(--primary);
 }
-.layer-section, .operation-section {
-    display: flex; flex-direction: column; align-items: center;
-    background: white; padding: 14px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.05);
-    border: 1px solid #e3f2fd;
-    flex-shrink: 0;
+
+button {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#step-btn {
+    background: var(--primary);
+    color: #fff;
+}
+
+#step-btn:hover {
+    background: var(--primary-dark);
+}
+
+#play-btn {
+    background: #43a047;
+    color: #fff;
+}
+
+#play-btn:hover {
+    background: #2e7d32;
+}
+
+#stop-btn {
+    background: var(--positive);
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #f0f2f5;
+    color: var(--text-color);
+    border: 2px solid #dde4ed;
+}
+
+.btn-secondary:hover {
+    background: #e3e8ef;
+}
+
+.btn-secondary.active-mode {
+    background: #43a047 !important;
+    color: #fff !important;
+    border-color: #43a047 !important;
+}
+
+/* ═══════════════════ Main Row (Input + Kernel Editor + Output) ═══════════════════ */
+.main-row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.grid-section {
+    background: rgba(255,255,255,0.93);
+    backdrop-filter: blur(6px);
+    padding: 22px 28px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.kernel-editor {
+    justify-content: flex-start;
+    align-self: center;
+}
+
+.grid-wrapper {
+    position: relative;
 }
 
 /* ═══════════════════ Grids ═══════════════════ */
 .grid-container {
     display: grid;
-    /* columns & rows set by JS inline style */
     gap: var(--cell-gap);
-    background-color: var(--text-color);
-    border: 3px solid var(--secondary-color);
-    border-radius: 6px;
+    background-color: #c8d6e5;
+    border: 2px solid #b0bec5;
+    border-radius: 4px;
     padding: 1px;
-    overflow: visible;          /* let outlines paint outside */
+    overflow: visible;
 }
+
 .cell {
-    /* NO fixed width/height — sized by grid track */
-    background-color: var(--cell-empty);
-    display: flex; align-items: center; justify-content: center;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: var(--cell-font);
     font-weight: 700;
-    cursor: default; user-select: none;
+    cursor: default;
+    user-select: none;
     position: relative;
-    transition: none;           /* prevent animated un-highlight */
-    box-sizing: border-box;
+    transition: none;
 }
 
-/* Input active (drawing mode) */
-#input-grid .cell.active { background-color: #333; color: white; }
+/* Input cells */
+#input-grid .cell.active {
+    background-color: #1a2744;
+    color: #fff;
+}
 
-/* Kernel 3×3 */
-.small-grid { border-color: var(--accent-color); }
-.small-grid .cell { font-size: var(--kernel-font); }
+/* Kernel grid */
+
+.small-grid {
+    border-color: var(--accent);
+}
+
+.small-grid .cell {
+    font-size: var(--kernel-font);
+}
+
 .cell input {
-    width: 100%; height: 100%;
-    background: transparent; border: none;
-    color: inherit; text-align: center;
-    font-size: inherit; font-weight: bold;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: inherit;
+    text-align: center;
+    font-size: inherit;
+    font-weight: bold;
+    outline: none;
 }
-.small-grid .cell input { font-size: .85rem; padding: 0; }
-.math-operator { font-size: 2.5rem; margin-top: 16px; color: var(--secondary-color); font-weight: 900; }
 
-/* ═══════════════════ Highlights — NO transform ═══════════════════ */
-/*  Using outline + box-shadow only → zero layout shift, zero flicker  */
+.small-grid .cell input {
+    font-size: 0.85rem;
+    padding: 0;
+}
+
+/* ═══════════════════ Highlights ═══════════════════ */
 .highlighted-input {
-    box-shadow: 0 0 0 2.5px var(--accent-color);
+    box-shadow: 0 0 0 2.5px var(--accent) !important;
     z-index: 10;
     transition: none !important;
 }
+
 .highlighted-output {
-    box-shadow: 0 0 0 2.5px var(--accent-color);
-    outline: 2px solid var(--accent-color);
+    box-shadow: 0 0 0 2.5px var(--accent) !important;
+    outline: 2px solid var(--accent);
     outline-offset: -1px;
     z-index: 10;
     transition: none !important;
 }
 
-/* ═══════════════════ Output value colours ═══════════════════ */
-.val-pos-high { background-color: var(--val-pos) !important; color: white !important; }
-.val-pos-mid  { background-color: #90caf9 !important; color: #000 !important; }
-.val-neg-high { background-color: var(--val-neg) !important; color: white !important; }
-.val-neg-mid  { background-color: #ffccbc !important; color: #000 !important; }
-.val-zero     { color: #78909c; background-color: var(--val-zero) !important; }
+/* ═══════════════════ Output Colors ═══════════════════ */
+/* Positive = Red family, Negative = Blue family */
+.val-pos-high {
+    background-color: var(--positive) !important;
+    color: #fff !important;
+}
 
-/* Output grid: crosshair cursor + no gap dead-zone */
-#output-grid { gap: 0; padding: 0; }
+.val-pos-mid {
+    background-color: var(--positive-light) !important;
+    color: #333 !important;
+}
+
+.val-neg-high {
+    background-color: var(--negative) !important;
+    color: #fff !important;
+}
+
+.val-neg-mid {
+    background-color: var(--negative-light) !important;
+    color: #333 !important;
+}
+
+.val-zero {
+    background-color: var(--zero-bg) !important;
+    color: #999 !important;
+}
+
+/* Output grid */
+#output-grid {
+    gap: 0;
+    padding: 0;
+}
+
 #output-grid .cell {
     cursor: crosshair;
-    border: 1px solid rgba(13, 71, 161, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* ═══════════════════ Misc ═══════════════════ */
-.grid-controls { margin-top: 10px; display: flex; gap: 8px; }
-footer { display: none; }
+/* ═══════════════════ Calculation Section ═══════════════════ */
+.calc-section {
+    width: 100%;
+    background: rgba(255,255,255,0.93);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 32px;
+    /* FIXED height prevents layout-shift → hover-flicker feedback loop       */
+    /* Budget: 20+20 pad + 34 header + ~210 calc-row + 14 gap + 80 math = ~378 */
+    height: 390px;
+    min-height: 390px;
+    max-height: 390px;
+    overflow: hidden;
+    box-sizing: border-box;
+    contain: layout style;
+}
+
+.calc-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.calc-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary-dark);
+}
+
+.calc-position {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Calc row: Window * Filter = Result */
+.calc-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+}
+
+.calc-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.calc-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+/* Mini Grids (in calculation area) */
+.mini-grid {
+    display: grid;
+    gap: 4px;
+    padding: 6px;
+    background: #f8f9fb;
+    border-radius: 10px;
+    border: 1px solid #e0e5ec;
+}
+
+.mini-cell {
+    width: var(--mini-cell-size);
+    height: var(--mini-cell-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-color);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #edf0f4;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.12s;
+}
+
+.mini-cell:hover {
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+.mini-cell.mini-highlight {
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent-light);
+}
+
+.calc-op {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.result-box {
+    width: 64px;
+    height: 64px;
+    border: 3px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: 900;
+    background: #fff;
+    border-radius: 10px;
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+#math-display {
+    font-family: 'Consolas', 'SF Mono', 'Fira Code', monospace;
+    font-weight: 600;
+    white-space: pre-wrap;
+    color: var(--text-color);
+    margin-top: 14px;
+    font-size: 0.9rem;
+    background: #f8f9fb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px dashed #d0d8e2;
+    /* Fixed height to prevent layout shift */
+    height: 82px;
+    min-height: 82px;
+    max-height: 82px;
+    overflow: hidden;
+    box-sizing: border-box;
+    line-height: 1.8;
+}
+
+/* ═══════════════════ Info Bar ═══════════════════ */
+.info-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 12px 24px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+}
+
+.info-bar code {
+    background: var(--primary-light);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+/* ═══════════════════ Step Counter Indicator ═══════════════════ */
+.step-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: var(--primary-light);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
 
 /* ═══════════════════ Responsive ═══════════════════ */
-@media (max-width: 1400px) {
+@media (max-width: 1500px) {
     :root {
-        --cell-size: 28px; --cell-font: .72rem;
-        --kernel-cell-size: 60px; --kernel-font: 1rem;
-        --mini-cell-size: 52px;
+        --cell-size: 32px;
+        --cell-font: 0.72rem;
+        --kernel-cell-size: 64px;
+        --mini-cell-size: 50px;
     }
-    .container { padding: 16px; }
-    .visualization-area { gap: 12px; }
-    .layer-section, .operation-section { padding: 10px; }
+    .main-row { gap: 18px; }
+    .grid-section { padding: 18px 22px; }
+    .calc-section { height: 370px; min-height: 370px; max-height: 370px; }
 }
-@media (max-width: 1100px) {
+
+@media (max-width: 1200px) {
     :root {
-        --cell-size: 23px; --cell-font: .62rem;
-        --kernel-cell-size: 52px; --kernel-font: .9rem;
+        --cell-size: 26px;
+        --cell-font: 0.65rem;
+        --kernel-cell-size: 56px;
         --mini-cell-size: 44px;
     }
-    .visualization-area { gap: 8px; }
-    .layer-section, .operation-section { padding: 8px; }
-    h2 { font-size: .85rem; }
+    .main-row { gap: 14px; }
+    .grid-section { padding: 14px 16px; }
+    .calc-section { height: 340px; min-height: 340px; max-height: 340px; }
+}
+
+@media (max-width: 900px) {
+    :root {
+        --cell-size: 22px;
+        --cell-font: 0.58rem;
+        --kernel-cell-size: 48px;
+        --kernel-font: 0.85rem;
+        --mini-cell-size: 38px;
+    }
+    .main-row { gap: 10px; }
+    .calc-row { gap: 14px; }
+    .grid-section { padding: 12px; }
+    .calc-section { height: 310px; min-height: 310px; max-height: 310px; }
+    h1 { font-size: 1.4rem; }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --cell-size: 18px;
+        --cell-font: 0.5rem;
+        --mini-cell-size: 32px;
+    }
+    .controls { gap: 8px; padding: 10px; }
+    .calc-row { gap: 8px; flex-wrap: wrap; }
+    .calc-section { height: 420px; min-height: 420px; max-height: 420px; }
 }

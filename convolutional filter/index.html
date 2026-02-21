@@ -4,70 +4,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';">
-    <title>Magic Image Filter Fun!</title>
+    <title>Convolution Demo — Interactive Tutorial</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
+        <!-- Header -->
         <header>
-            <h1>Magic Image Explorer 🎨</h1>
-            <p>See how computers look at pictures!</p>
+            <h1>Convolution Operation</h1>
+            <p class="subtitle">Interactive Tutorial</p>
         </header>
 
+        <!-- Top Controls -->
         <div class="controls">
-            <label for="image-select">Choose an Image:</label>
-            <select id="image-select">
-                <option value="random">Random Noise</option>
-                <option value="digit-0">Number 0</option>
-                <option value="digit-1">Number 1</option>
-                <option value="digit-2">Number 2</option>
-                <option value="digit-3">Number 3</option>
-                <option value="digit-4">Number 4</option>
-                <option value="digit-5">Number 5</option>
-                <option value="digit-7">Number 7</option>
-                <option value="shape-rect">Square</option>
-                <option value="shape-cross">Cross</option>
-                <option value="custom" hidden>Custom (Drawing)</option>
-            </select>
+            <div class="control-group">
+                <label for="image-select">Image</label>
+                <select id="image-select">
+                    <option value="digit-7">Number 7</option>
+                    <option value="digit-0">Number 0</option>
+                    <option value="digit-1">Number 1</option>
+                    <option value="digit-2">Number 2</option>
+                    <option value="digit-3">Number 3</option>
+                    <option value="digit-4">Number 4</option>
+                    <option value="digit-5">Number 5</option>
+                    <option value="shape-rect">Square</option>
+                    <option value="shape-cross">Cross</option>
+                    <option value="random">Random Noise</option>
+                    <option value="custom" hidden>Custom (Drawing)</option>
+                </select>
+            </div>
 
-            <span style="width: 20px;"></span> <!-- Spacer -->
+            <div class="control-group">
+                <label for="filter-select">Filter</label>
+                <select id="filter-select">
+                    <option value="top-sobel">Top Edge</option>
+                    <option value="bottom-sobel">Bottom Edge</option>
+                    <option value="left-sobel">Left Edge</option>
+                    <option value="right-sobel">Right Edge</option>
+                    <option value="outline">Outline</option>
+                    <option value="sharpen">Sharpen</option>
+                    <option value="blur">Blur</option>
+                    <option value="identity">Identity</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
 
-            <label for="filter-select">Choose a Magic Lens:</label>
-            <select id="filter-select">
-                <option value="top-sobel">Top Edge Detector</option>
-                <option value="bottom-sobel">Bottom Edge Detector</option>
-                <option value="left-sobel">Left Edge Detector</option>
-                <option value="right-sobel">Right Edge Detector</option>
-                <option value="outline">Outline</option>
-                <option value="sharpen">Sharpen</option>
-                <option value="blur">Blur</option>
-                <option value="identity">Do Nothing</option>
-                <option value="custom">Custom</option>
-            </select>
+            <div class="control-group control-buttons">
+                <button id="step-btn">Step</button>
+                <button id="play-btn">Play</button>
+                <button id="stop-btn" style="display:none;">Stop</button>
+                <button id="reset-btn" class="btn-secondary">Reset</button>
+            </div>
 
-            <button id="animate-btn">Calculate</button>
-            <button id="stop-btn" style="display:none;">⏹ Stop</button>
+            <div class="control-group control-buttons">
+                <button id="draw-mode" class="btn-secondary">✏️ Draw</button>
+                <button id="clear-input" class="btn-secondary">Clear</button>
+            </div>
         </div>
 
-        <!-- Calculation Explainer (Moved Up) -->
-        <div class="explainer-section" id="explainer">
-            <h3>How it works</h3>
-            <p id="calc-text">Top Secret Math! Hover over the "Computer Sees" grid to reveal!</p>
-            <div class="calculation-container">
-                <div class="calc-group">
-                    <span class="calc-label">Input Window</span>
+        <!-- Info Bar -->
+        <div class="info-bar">
+            <span>🔍 Hover output pixels to inspect</span>
+            <span>🧮 <code>*</code> = sum of element-wise products (Frobenius inner product)</span>
+            <span>🔴 Red = positive &nbsp; 🔵 Blue = negative</span>
+        </div>
+
+        <!-- Calculation Explainer -->
+        <div class="calc-section" id="explainer">
+            <div class="calc-header">
+                <span class="calc-title">Calculation</span>
+                <span class="calc-position" id="calc-text">Hover over output or press Step</span>
+            </div>
+            <div class="calc-row">
+                <div class="calc-block">
+                    <span class="calc-label">Window</span>
                     <div id="calc-input-grid" class="mini-grid"></div>
                 </div>
-                <div class="calc-op">×</div>
-                <div class="calc-group">
+                <div class="calc-op">*</div>
+                <div class="calc-block">
                     <span class="calc-label">Filter</span>
                     <div id="calc-kernel-grid" class="mini-grid"></div>
                 </div>
                 <div class="calc-op">=</div>
-                <div class="calc-group">
+                <div class="calc-block">
                     <span class="calc-label">Result</span>
                     <div id="calc-result" class="result-box">?</div>
                 </div>
@@ -75,35 +95,30 @@
             <div id="math-display"></div>
         </div>
 
-        <div class="visualization-area">
-            <!-- Input Layer -->
-            <div class="layer-section">
-                <h2>1. The Image</h2>
-                <div class="grid-container" id="input-grid"></div>
-                <!-- Input Controls -->
-                <div class="grid-controls">
-                    <button id="clear-input">Clear</button>
-                    <button id="draw-mode">✏️ Draw</button>
+        <!-- Main Visualization + Kernel Editor in one row -->
+        <div class="main-row">
+            <!-- Input Section -->
+            <div class="grid-section">
+                <h2>Input</h2>
+                <div class="grid-wrapper">
+                    <div class="grid-container" id="input-grid"></div>
                 </div>
             </div>
 
-            <!-- Kernel/Filter -->
-            <div class="operation-section">
-                <h2>2. The Lens (Filter)</h2>
+            <!-- Editable Kernel (between Input & Output) -->
+            <div class="grid-section kernel-editor">
+                <h2>Filter Editor</h2>
                 <div class="grid-container small-grid" id="kernel-grid"></div>
-                <div class="math-operator">
-                    <span>×</span>
-                </div>
             </div>
 
-            <!-- Output Layer -->
-            <div class="layer-section">
-                <h2>3. What the Computer Sees</h2>
-                <div class="grid-container" id="output-grid"></div>
+            <!-- Output Section -->
+            <div class="grid-section">
+                <h2>Output</h2>
+                <div class="grid-wrapper">
+                    <div class="grid-container" id="output-grid"></div>
+                </div>
             </div>
         </div>
-
-
     </div>
 
     <script src="script.js"></script>

@@ -1,18 +1,17 @@
-// Configuration
-const GRID_SIZE = 14; // Increased to 14x14 for better digit representation
+// ═══════════════════ Configuration ═══════════════════
+const GRID_SIZE = 14;
 const KERNEL_SIZE = 3;
 
-// State
+// ═══════════════════ State ═══════════════════
 let inputData = [];
-let kernelData = [
-    [1, 2, 1],
-    [0, 0, 0],
-    [-1, -2, -1] // Default Top Sobel
-];
+let kernelData = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]];
 let outputData = [];
-let isDrawingMode = false; // Toggle state
+let isDrawingMode = false;
+let animRow = 0;
+let animCol = 0;
+let animationInterval = null;
 
-// DOM Elements
+// ═══════════════════ DOM ═══════════════════
 const inputGrid = document.getElementById('input-grid');
 const kernelGrid = document.getElementById('kernel-grid');
 const outputGrid = document.getElementById('output-grid');
@@ -21,13 +20,12 @@ const imageSelect = document.getElementById('image-select');
 const mathDisplay = document.getElementById('math-display');
 const calcText = document.getElementById('calc-text');
 
-// Kernels (Filters) - Renamed for friendlier UI if needed, but keeping keys assumes matching value
-// Kernels (Filters)
+// ═══════════════════ Kernels ═══════════════════
 const KERNELS = {
     'identity': [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-    'top-sobel': [[-1, -2, -1], [0, 0, 0], [1, 2, 1]], // Flipped for positive activation on 0->1
+    'top-sobel': [[-1, -2, -1], [0, 0, 0], [1, 2, 1]],
     'bottom-sobel': [[1, 2, 1], [0, 0, 0], [-1, -2, -1]],
-    'left-sobel': [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], // Flipped
+    'left-sobel': [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]],
     'right-sobel': [[1, 0, -1], [2, 0, -2], [1, 0, -1]],
     'outline': [[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]],
     'sharpen': [[0, -1, 0], [-1, 5, -1], [0, -1, 0]],
@@ -35,209 +33,203 @@ const KERNELS = {
     'custom': [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 };
 
-// ... (PRESETS remain the same, huge block omitted for brevity in tool call if not changing) ...
-
-// Skipping to renderInput modifications
-// Note: In a real tool call I must include enough context or replace the specific functions. 
-// I will replace separate blocks to be safe and precise.
-
-// Block 1: Kernels
-
-
-// Preset Images (14x14 Digits and Shapes)
+// ═══════════════════ Presets ═══════════════════
 const PRESETS = {
     'digit-0': [
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+        [0,0,0,1,1,1,1,1,1,1,0,0,0,0],
+        [0,0,1,1,1,0,0,0,1,1,1,0,0,0],
+        [0,0,1,1,0,0,0,0,0,1,1,0,0,0],
+        [0,0,1,1,0,0,0,0,0,1,1,0,0,0],
+        [0,0,1,1,0,0,0,0,0,1,1,0,0,0],
+        [0,0,1,1,0,0,0,0,0,1,1,0,0,0],
+        [0,0,1,1,0,0,0,0,0,1,1,0,0,0],
+        [0,0,1,1,0,0,0,0,0,1,1,0,0,0],
+        [0,0,1,1,0,0,0,0,0,1,1,0,0,0],
+        [0,0,1,1,1,0,0,0,1,1,1,0,0,0],
+        [0,0,0,1,1,1,1,1,1,1,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ],
     'digit-1': [
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ],
-    'digit-7': [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ],
-    'shape-rect': [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,1,1,1,0,0,0,0,0,0],
+        [0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ],
     'digit-2': [
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0,0,0,0,0,0,1,1,1,1,0,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,1,1,1,0,0,1,1,0,0,0],
+        [0,0,0,0,1,1,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,1,1,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,1,1,0,0,0,0,0,0,0],
+        [0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,1,1,0,0],
+        [0,0,0,0,1,1,1,1,1,1,1,1,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ],
     'digit-3': [
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0,0,0,0,0,0,1,1,1,1,0,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,1,1,1,0,0,1,1,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,0,1,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ],
     'digit-4': [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,1,1,1,1,0,0,0,0],
+        [0,0,0,0,0,1,1,0,1,1,0,0,0,0],
+        [0,0,0,0,1,1,0,0,1,1,0,0,0,0],
+        [0,0,0,1,1,0,0,0,1,1,0,0,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,0,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ],
     'digit-5': [
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0,0,0,0,1,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,0,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,1,1,0,0,0,1,1,0,0,0],
+        [0,0,0,0,1,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ],
+    'digit-7': [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,0,0,0,0,0,0,0,1,1,0,0,0],
+        [0,0,0,0,0,0,0,0,1,1,0,0,0,0],
+        [0,0,0,0,0,0,0,1,1,1,0,0,0,0],
+        [0,0,0,0,0,0,1,1,1,0,0,0,0,0],
+        [0,0,0,0,0,1,1,1,0,0,0,0,0,0],
+        [0,0,0,0,1,1,1,0,0,0,0,0,0,0],
+        [0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+        [0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ],
+    'shape-rect': [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,1,1,0,0,0,0,0,0,1,1,0,0],
+        [0,0,1,1,0,0,0,0,0,0,1,1,0,0],
+        [0,0,1,1,0,0,0,0,0,0,1,1,0,0],
+        [0,0,1,1,0,0,0,0,0,0,1,1,0,0],
+        [0,0,1,1,0,0,0,0,0,0,1,1,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ],
     'shape-cross': [
-        [0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,1,1,0,0,0,0,0,0]
     ]
-    // Add more presets similarly...
 };
 
 
-
+// ═══════════════════ Init ═══════════════════
 function init() {
-    // Initialize Input Data
     inputData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
 
-    // Create Grids
     createGrid(inputGrid, GRID_SIZE, 'input');
     createKernelGrid();
     const outSize = GRID_SIZE - KERNEL_SIZE + 1;
     createGrid(outputGrid, outSize, 'output');
 
-    // Initial Load
-    imageSelect.value = 'digit-7'; // Start with a 7
+    // Load default
+    imageSelect.value = 'digit-7';
     loadPreset('digit-7');
 
-    // Kernel check
     if (filterSelect.value && KERNELS[filterSelect.value]) {
         kernelData = JSON.parse(JSON.stringify(KERNELS[filterSelect.value]));
     }
     updateKernelView();
     updateMiniKernel();
-
-    // Initialize Input Window in explainer with zeros (placeholder)
-    const calcInputGrid = document.getElementById('calc-input-grid');
-    if (calcInputGrid) {
-        calcInputGrid.innerHTML = '';
-        calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
-        for (let i = 0; i < KERNEL_SIZE * KERNEL_SIZE; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'mini-cell';
-            cell.textContent = '0';
-            cell.style.backgroundColor = '#fff';
-            calcInputGrid.appendChild(cell);
-        }
-    }
+    initMiniInputGrid();
 
     calculateConvolution();
+    setupEventListeners();
+}
 
-    // Event Listeners
+function initMiniInputGrid() {
+    const calcInputGrid = document.getElementById('calc-input-grid');
+    if (!calcInputGrid) return;
+    calcInputGrid.innerHTML = '';
+    calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
+    for (let i = 0; i < KERNEL_SIZE * KERNEL_SIZE; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'mini-cell';
+        cell.textContent = '0';
+        cell.style.backgroundColor = '#fff';
+        cell.style.color = '#ccc';
+        calcInputGrid.appendChild(cell);
+    }
+}
+
+// ═══════════════════ Event Listeners ═══════════════════
+function setupEventListeners() {
+    // Filter change
     filterSelect.addEventListener('change', (e) => {
         stopAnimation();
         handleFilterChange(e);
     });
 
+    // Image change
     imageSelect.addEventListener('change', (e) => {
         stopAnimation();
         if (e.target.value === 'random') {
@@ -248,80 +240,102 @@ function init() {
         calculateConvolution();
     });
 
-    // Draw Mode Toggle
+    // Draw mode
     const drawBtn = document.getElementById('draw-mode');
     drawBtn.addEventListener('click', () => {
         isDrawingMode = !isDrawingMode;
-
         if (isDrawingMode) {
-            drawBtn.classList.add('active-mode'); // UX: Visual indicator
-            drawBtn.style.backgroundColor = '#4caf50'; // Green for active
+            drawBtn.classList.add('active-mode');
             drawBtn.textContent = '✏️ Drawing ON';
-            imageSelect.value = 'custom'; // Logic: Set image to custom
-            // We DO NOT clear input here, allowing user to edit existing. 
-            // Or should we? "Draw a custom shape" implies fresh start?
-            // Let's keep existing, user can clear if needed.
+            imageSelect.value = 'custom';
         } else {
             drawBtn.classList.remove('active-mode');
-            drawBtn.style.backgroundColor = ''; // Revert
             drawBtn.textContent = '✏️ Draw';
-            // Logic: Filter remains unchanged (fixes user bug)
         }
     });
 
+    // Clear
     document.getElementById('clear-input').addEventListener('click', () => {
         stopAnimation();
         clearInput();
         calculateConvolution();
-        // Update to custom if we clear?
         imageSelect.value = 'custom';
     });
 
-    const animateBtn = document.getElementById('animate-btn');
+    // Step button
+    document.getElementById('step-btn').addEventListener('click', () => {
+        stopAnimation();
+        highlightReceptiveField(animRow, animCol);
+        advancePosition();
+    });
+
+    // Play button
+    const playBtn = document.getElementById('play-btn');
     const stopBtn = document.getElementById('stop-btn');
 
-    animateBtn.addEventListener('click', () => {
-        animateBtn.style.display = 'none';
+    playBtn.addEventListener('click', () => {
+        playBtn.style.display = 'none';
         stopBtn.style.display = 'inline-block';
         startAnimation();
     });
 
     stopBtn.addEventListener('click', () => {
         stopBtn.style.display = 'none';
-        animateBtn.style.display = 'inline-block';
+        playBtn.style.display = 'inline-block';
         stopAnimation();
     });
 
-    // ── Output grid hover: event delegation on the container ──
-    // Using 'mouseover' on the grid so moving between cells
-    // (even across borders) keeps the highlight stable.
+    // Reset button
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        stopAnimation();
+        animRow = 0;
+        animCol = 0;
+        clearHighlights();
+        const stopBtn = document.getElementById('stop-btn');
+        const playBtn = document.getElementById('play-btn');
+        stopBtn.style.display = 'none';
+        playBtn.style.display = 'inline-block';
+    });
+
+    // Output grid hover (event delegation) — rAF batched to prevent flicker
     let lastHoveredCell = null;
+    let hoverRafId = null;
 
     outputGrid.addEventListener('mouseover', (e) => {
         const cell = e.target.closest('.cell');
         if (!cell || cell.dataset.type !== 'output') return;
-        if (cell === lastHoveredCell) return;   // same cell — skip
+        if (cell === lastHoveredCell) return;
         lastHoveredCell = cell;
 
         const r = parseInt(cell.dataset.row);
         const c = parseInt(cell.dataset.col);
 
-        // Pause animation without destroying highlights
+        // Pause animation without destroying state
         clearInterval(animationInterval);
-        const animateBtn = document.getElementById('animate-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        if (stopBtn && stopBtn.style.display !== 'none') {
-            stopBtn.style.display = 'none';
-            animateBtn.style.display = 'inline-block';
+        const sb = document.getElementById('stop-btn');
+        const pb = document.getElementById('play-btn');
+        if (sb && sb.style.display !== 'none') {
+            sb.style.display = 'none';
+            pb.style.display = 'inline-block';
         }
 
-        highlightReceptiveField(r, c);
+        // Update step position to match hover
+        animRow = r;
+        animCol = c;
+
+        // Batch DOM updates into a single frame
+        if (hoverRafId) cancelAnimationFrame(hoverRafId);
+        hoverRafId = requestAnimationFrame(() => {
+            highlightReceptiveField(r, c);
+            hoverRafId = null;
+        });
     });
 
     let gridLeaveTimeout = null;
     outputGrid.addEventListener('mouseleave', () => {
         lastHoveredCell = null;
-        gridLeaveTimeout = setTimeout(clearHighlights, 120);
+        if (hoverRafId) { cancelAnimationFrame(hoverRafId); hoverRafId = null; }
+        gridLeaveTimeout = setTimeout(clearHighlights, 150);
     });
     outputGrid.addEventListener('mouseenter', () => {
         if (gridLeaveTimeout) {
@@ -329,10 +343,52 @@ function init() {
             gridLeaveTimeout = null;
         }
     });
+
+    // Mini-grid cell hover → highlight corresponding input & kernel cells
+    setupMiniGridHover();
 }
 
+function setupMiniGridHover() {
+    const calcInputGrid = document.getElementById('calc-input-grid');
+    const calcKernelGrid = document.getElementById('calc-kernel-grid');
+
+    [calcInputGrid, calcKernelGrid].forEach(grid => {
+        if (!grid) return;
+        grid.addEventListener('mouseover', (e) => {
+            const cell = e.target.closest('.mini-cell');
+            if (!cell) return;
+            const idx = Array.from(grid.children).indexOf(cell);
+            if (idx < 0) return;
+
+            // Highlight corresponding cell in both mini grids
+            highlightMiniPair(idx);
+        });
+        grid.addEventListener('mouseleave', () => {
+            clearMiniHighlights();
+        });
+    });
+}
+
+function highlightMiniPair(idx) {
+    const calcInputGrid = document.getElementById('calc-input-grid');
+    const calcKernelGrid = document.getElementById('calc-kernel-grid');
+    clearMiniHighlights();
+
+    if (calcInputGrid && calcInputGrid.children[idx]) {
+        calcInputGrid.children[idx].classList.add('mini-highlight');
+    }
+    if (calcKernelGrid && calcKernelGrid.children[idx]) {
+        calcKernelGrid.children[idx].classList.add('mini-highlight');
+    }
+}
+
+function clearMiniHighlights() {
+    document.querySelectorAll('.mini-highlight').forEach(el => el.classList.remove('mini-highlight'));
+}
+
+// ═══════════════════ Grid Creation ═══════════════════
 function createGrid(container, size, type) {
-    const cellSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell-size')) || 32;
+    const cellSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell-size')) || 30;
     container.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
     container.style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
     container.innerHTML = '';
@@ -354,8 +410,6 @@ function createGrid(container, size, type) {
                         togglePixel(i, j, true);
                     }
                 });
-            } else if (type === 'output') {
-                // Hover handled by grid-level event delegation (see init)
             }
 
             container.appendChild(cell);
@@ -365,9 +419,10 @@ function createGrid(container, size, type) {
 
 function createKernelGrid() {
     kernelGrid.innerHTML = '';
-    const kCellSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--kernel-cell-size')) || 70;
+    const kCellSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--kernel-cell-size')) || 64;
     kernelGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, ${kCellSize}px)`;
     kernelGrid.style.gridTemplateRows = `repeat(${KERNEL_SIZE}, ${kCellSize}px)`;
+
     for (let i = 0; i < KERNEL_SIZE; i++) {
         for (let j = 0; j < KERNEL_SIZE; j++) {
             const cell = document.createElement('div');
@@ -379,17 +434,9 @@ function createKernelGrid() {
             input.value = kernelData[i][j];
             input.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
-                // Allow user to type "-" or empty without forcing 0 immediately in the data, 
-                // but for calculation we need a number.
-                // If it's NaN, we might keep the old value in data? Or treat as 0?
-                // Treating as 0 is safer for calculation. 
-                // However, we want the mini-kernel to update?
-                // Let's us 0 for calc, but maybe don't "fix" the input value.
-
                 kernelData[i][j] = isNaN(val) ? 0 : val;
                 filterSelect.value = 'custom';
-
-                updateMiniKernel(); // Update the visual explainer
+                updateMiniKernel();
                 calculateConvolution();
             });
 
@@ -399,6 +446,7 @@ function createKernelGrid() {
     }
 }
 
+// ═══════════════════ Rendering ═══════════════════
 function updateKernelView() {
     const inputs = kernelGrid.querySelectorAll('input');
     let idx = 0;
@@ -410,59 +458,129 @@ function updateKernelView() {
     }
 }
 
+function renderInput() {
+    const cells = inputGrid.children;
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            const val = inputData[i][j];
+            const cell = cells[i * GRID_SIZE + j];
+            if (val === 1) {
+                cell.style.backgroundColor = '#1a2744';
+                cell.style.color = '#fff';
+                cell.style.border = '1px solid #1a2744';
+            } else {
+                cell.style.backgroundColor = '#fff';
+                cell.style.color = '#ccc';
+                cell.style.border = '1px solid #e8ecf2';
+            }
+            cell.textContent = val;
+        }
+    }
+}
+
+function renderOutput() {
+    const outSize = outputData.length;
+    if (outputGrid.children.length !== outSize * outSize) {
+        createGrid(outputGrid, outSize, 'output');
+    }
+
+    const cells = outputGrid.children;
+    const allValClasses = ['val-pos-high', 'val-pos-mid', 'val-neg-high', 'val-neg-mid', 'val-zero'];
+
+    for (let i = 0; i < outSize; i++) {
+        for (let j = 0; j < outSize; j++) {
+            const val = outputData[i][j];
+            const cell = cells[i * outSize + j];
+            if (!cell) continue;
+
+            const rounded = Math.round(val);
+            const valStr = String(rounded);
+            if (cell.textContent !== valStr) cell.textContent = valStr;
+
+            let targetClass = '';
+            if (rounded >= 2) targetClass = 'val-pos-high';
+            else if (rounded > 0) targetClass = 'val-pos-mid';
+            else if (rounded <= -2) targetClass = 'val-neg-high';
+            else if (rounded < 0) targetClass = 'val-neg-mid';
+            else targetClass = 'val-zero';
+
+            allValClasses.forEach(cls => {
+                if (cls !== targetClass && cell.classList.contains(cls)) cell.classList.remove(cls);
+            });
+            if (targetClass && !cell.classList.contains(targetClass)) cell.classList.add(targetClass);
+            if (cell.style.color) cell.style.color = '';
+        }
+    }
+}
+
+function updateMiniKernel() {
+    const calcKernelGrid = document.getElementById('calc-kernel-grid');
+    if (!calcKernelGrid) return;
+
+    calcKernelGrid.innerHTML = '';
+    calcKernelGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
+
+    for (let i = 0; i < KERNEL_SIZE; i++) {
+        for (let j = 0; j < KERNEL_SIZE; j++) {
+            const kVal = kernelData[i][j];
+            const kCell = document.createElement('div');
+            kCell.className = 'mini-cell';
+            kCell.textContent = kVal;
+            if (kVal > 0) {
+                kCell.style.backgroundColor = '#ffcdd2';
+                kCell.style.color = '#b71c1c';
+            } else if (kVal < 0) {
+                kCell.style.backgroundColor = '#bbdefb';
+                kCell.style.color = '#0d47a1';
+            } else {
+                kCell.style.backgroundColor = '#f5f5f5';
+                kCell.style.color = '#bbb';
+            }
+            calcKernelGrid.appendChild(kCell);
+        }
+    }
+
+    // Re-attach hover listener
+    setupMiniGridHover();
+}
+
+// ═══════════════════ Data Operations ═══════════════════
 function togglePixel(r, c, forceOn = false) {
     const currentVal = inputData[r][c];
     let newVal;
-
     if (forceOn) {
         newVal = 1;
     } else {
         newVal = currentVal === 0 ? 1 : 0;
     }
-
-    // Performance Update 1: Break loop if value hasn't effectively changed
-    // This prevents re-writes when dragging over the same pixel repeatedly
     if (newVal === currentVal) return;
-
-    // Update Data
     inputData[r][c] = newVal;
 
-    // Performance Update 2: Conditional DOM update (Don't trigger paint layout on dropdown if not needed)
-    if (imageSelect.value !== 'custom') {
-        imageSelect.value = 'custom';
-    }
+    if (imageSelect.value !== 'custom') imageSelect.value = 'custom';
 
-    // Performance Update 3: Update ONLY the specific cell, do not re-render entire grid (renderInput())
-    // O(1) DOM update instead of O(N)
     const cells = inputGrid.children;
-    const cellIndex = r * GRID_SIZE + c;
-    const cell = cells[cellIndex];
+    const cell = cells[r * GRID_SIZE + c];
     if (cell) {
         if (newVal === 1) {
-            cell.style.backgroundColor = '#0d47a1';
-            cell.style.color = 'white';
-            cell.style.border = '1px solid #0d47a1';
+            cell.style.backgroundColor = '#1a2744';
+            cell.style.color = '#fff';
+            cell.style.border = '1px solid #1a2744';
         } else {
-            cell.style.backgroundColor = 'white'; // default
+            cell.style.backgroundColor = '#fff';
             cell.style.color = '#ccc';
-            cell.style.border = '1px solid #e0e0e0';
+            cell.style.border = '1px solid #e8ecf2';
         }
         cell.textContent = newVal;
     }
 
-    // Performance Update 4: Debounce/Throttle Convolution
-    // Drawing can fire mouseover every ~8-16ms. Calculation is expensive.
-    // We batch the calculation to the next frame or small delay.
     if (window.calcTimeout) clearTimeout(window.calcTimeout);
-    window.calcTimeout = setTimeout(() => {
-        calculateConvolution();
-    }, 10);
+    window.calcTimeout = setTimeout(() => calculateConvolution(), 10);
 }
 
 function randomizeInput() {
     for (let i = 0; i < GRID_SIZE; i++) {
         for (let j = 0; j < GRID_SIZE; j++) {
-            inputData[i][j] = Math.random() > 0.8 ? 1 : 0; // Less noise for cleaner look
+            inputData[i][j] = Math.random() > 0.8 ? 1 : 0;
         }
     }
     renderInput();
@@ -470,7 +588,6 @@ function randomizeInput() {
 
 function loadPreset(name) {
     if (PRESETS[name]) {
-        // Deep copy
         inputData = JSON.parse(JSON.stringify(PRESETS[name]));
         renderInput();
     }
@@ -479,30 +596,6 @@ function loadPreset(name) {
 function clearInput() {
     inputData = inputData.map(row => row.map(() => 0));
     renderInput();
-}
-
-function renderInput() {
-    const cells = inputGrid.children;
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-            const val = inputData[i][j];
-            const cell = cells[i * GRID_SIZE + j];
-
-            // Solid impact style
-            // If it's a 1, it's dark blue/black. If 0, white.
-            if (val === 1) {
-                cell.style.backgroundColor = '#0d47a1'; // Dark Blue
-                cell.style.color = 'white';
-                cell.style.border = '1px solid #0d47a1';
-            } else {
-                cell.style.backgroundColor = 'white';
-                cell.style.color = '#ccc';
-                cell.style.border = '1px solid #e0e0e0';
-            }
-
-            cell.textContent = val;
-        }
-    }
 }
 
 function handleFilterChange(e) {
@@ -536,99 +629,14 @@ function calculateConvolution() {
     renderOutput();
 }
 
-function renderOutput() {
-    const outSize = outputData.length;
-
-    // Ensure grid matches size
-    if (outputGrid.children.length !== outSize * outSize) {
-        createGrid(outputGrid, outSize, 'output');
-    }
-
-    const cells = outputGrid.children;
-    const classesToCheck = ['val-pos-high', 'val-pos-mid', 'val-neg-high', 'val-neg-mid'];
-
-    for (let i = 0; i < outSize; i++) {
-        for (let j = 0; j < outSize; j++) {
-            const val = outputData[i][j];
-            const cell = cells[i * outSize + j];
-            if (!cell) continue;
-
-            const roundedVal = Math.round(val);
-
-            // 1. Text Content — strict comparison to avoid JS coercion
-            //    ("" == 0 is true in JS, so loose != skips setting "0")
-            const valStr = String(roundedVal);
-            if (cell.textContent !== valStr) {
-                cell.textContent = valStr;
-            }
-
-            // 2. Class Diffing (Crucial for flicker)
-            let targetClass = '';
-            if (roundedVal >= 2) targetClass = 'val-pos-high';
-            else if (roundedVal > 0) targetClass = 'val-pos-mid';
-            else if (roundedVal <= -2) targetClass = 'val-neg-high';
-            else if (roundedVal < 0) targetClass = 'val-neg-mid';
-            else targetClass = 'val-zero'; // roundedVal === 0
-
-            // Remove unwanted classes (including val-zero)
-            const allValClasses = ['val-pos-high', 'val-pos-mid', 'val-neg-high', 'val-neg-mid', 'val-zero'];
-
-            allValClasses.forEach(cls => {
-                if (cls !== targetClass && cell.classList.contains(cls)) {
-                    cell.classList.remove(cls);
-                }
-            });
-
-            // Add target class only if missing
-            if (targetClass && !cell.classList.contains(targetClass)) {
-                cell.classList.add(targetClass);
-            }
-
-            // 3. Color Diffing - REMOVED! Handled by CSS classes now.
-            // Ensure no inline color overrides the class
-            if (cell.style.color) cell.style.color = '';
-        }
-    }
-}
-
-function updateMiniKernel() {
-    const calcKernelGrid = document.getElementById('calc-kernel-grid');
-    if (!calcKernelGrid) return;
-
-    calcKernelGrid.innerHTML = '';
-    calcKernelGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
-
-    for (let i = 0; i < KERNEL_SIZE; i++) {
-        for (let j = 0; j < KERNEL_SIZE; j++) {
-            const kVal = kernelData[i][j];
-            const kCell = document.createElement('div');
-            kCell.className = 'mini-cell';
-            kCell.textContent = kVal;
-            // Solid colors for impact
-            if (kVal > 0) {
-                kCell.style.backgroundColor = '#90caf9'; // Light Blue
-                kCell.style.color = '#000';
-            } else if (kVal < 0) {
-                kCell.style.backgroundColor = '#ffccbc'; // Light Orange
-                kCell.style.color = '#000';
-            } else {
-                kCell.style.backgroundColor = '#fff';
-                kCell.style.color = '#ccc';
-            }
-            calcKernelGrid.appendChild(kCell);
-        }
-    }
-}
-
+// ═══════════════════ Highlighting ═══════════════════
 function highlightReceptiveField(outR, outC) {
     try {
         const outSize = outputData.length;
         const outIndex = outR * outSize + outC;
         const outCells = outputGrid.children;
 
-        // 1. Smart Output Highlight (Only change if different)
-        // Check if allow "multiple" output (unlikely in this logic, usually 1 active)
-        // We'll just ensure the correct one is on, others off.
+        // 1. Output highlight
         const currentOut = outputGrid.querySelector('.highlighted-output');
         if (currentOut && currentOut !== outCells[outIndex]) {
             currentOut.classList.remove('highlighted-output');
@@ -640,11 +648,9 @@ function highlightReceptiveField(outR, outC) {
         const calcInputGrid = document.getElementById('calc-input-grid');
         const calcResult = document.getElementById('calc-result');
 
-        // 2. Render Input Window (Mini Grid) - OPTIMIZED: Reuse DOM
+        // 2. Ensure mini input grid has correct number of cells
         if (calcInputGrid) {
             const totalCells = KERNEL_SIZE * KERNEL_SIZE;
-
-            // One-time setup if empty or wrong size
             if (calcInputGrid.children.length !== totalCells) {
                 calcInputGrid.innerHTML = '';
                 calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
@@ -656,135 +662,115 @@ function highlightReceptiveField(outR, outC) {
             }
         }
 
-        let sum = 0;
-        let terms = [];
-        let miniGridIdx = 0; // Linear index for mini-grid updates
-
-        // Collect Target Input Indices for this Receptive Field
+        // 3. Input highlight (diff-based)
         const newInIndices = new Set();
         for (let ki = 0; ki < KERNEL_SIZE; ki++) {
             for (let kj = 0; kj < KERNEL_SIZE; kj++) {
                 const r = outR + ki;
                 const c = outC + kj;
-                const idx = r * GRID_SIZE + c;
-                newInIndices.add(idx);
+                newInIndices.add(r * GRID_SIZE + c);
             }
         }
 
-        // 3. Smart Input Highlight (Diffing)
         const inCells = inputGrid.children;
         const currentIn = inputGrid.querySelectorAll('.highlighted-input');
-
         currentIn.forEach(cell => {
             const r = parseInt(cell.dataset.row);
             const c = parseInt(cell.dataset.col);
-            const idx = r * GRID_SIZE + c;
-            if (!newInIndices.has(idx)) {
-                cell.classList.remove('highlighted-input');
-            }
+            if (!newInIndices.has(r * GRID_SIZE + c)) cell.classList.remove('highlighted-input');
         });
-
         newInIndices.forEach(idx => {
             if (inCells[idx] && !inCells[idx].classList.contains('highlighted-input')) {
                 inCells[idx].classList.add('highlighted-input');
             }
         });
 
-        // 4. Calculate & Populate Mini Grid (Update existing DOM)
-        // 4. Calculate & Populate Mini Grid (Update existing DOM)
+        // 4. Compute & populate mini grid + math
+        let sum = 0;
+        let terms = [];
+        let miniGridIdx = 0;
+
         for (let ki = 0; ki < KERNEL_SIZE; ki++) {
             for (let kj = 0; kj < KERNEL_SIZE; kj++) {
                 const r = outR + ki;
                 const c = outC + kj;
-
-                // Handle Boundaries (Zero Padding)
-                // Fixes "stale data" flicker where miniGridIdx desyncs
                 let pVal = 0;
                 if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
                     pVal = inputData[r][c];
                 }
-
                 const kVal = kernelData[ki][kj];
                 const prod = pVal * kVal;
                 sum += prod;
 
-                // UPDATE Mini Input Cell (DOM Reuse)
+                // Update mini input cell
                 if (calcInputGrid && calcInputGrid.children[miniGridIdx]) {
                     const inCell = calcInputGrid.children[miniGridIdx];
                     inCell.textContent = pVal;
-
-                    // Solid styling update
-                    // Reset style to base first if needed, but we overwrite properties
                     if (pVal === 1) {
-                        inCell.style.backgroundColor = '#0d47a1';
-                        inCell.style.color = 'white';
+                        inCell.style.backgroundColor = '#1a2744';
+                        inCell.style.color = '#fff';
                     } else {
-                        inCell.style.backgroundColor = 'white';
+                        inCell.style.backgroundColor = '#fff';
                         inCell.style.color = '#ccc';
                     }
                 }
-                miniGridIdx++; // ALWAYS increment to keep sync!
+                miniGridIdx++;
 
-                // We don't rebuild kernel here, just calculate
-                if (Math.abs(prod) > 0.01) {
-                    terms.push(`(${pVal}×${kVal})`);
-                }
+                terms.push({ pVal, kVal, prod });
             }
         }
 
+        // Result box
         if (calcResult) {
-            calcResult.textContent = Math.round(sum);
-            calcResult.className = 'result-box'; // reset
-            if (sum >= 2) calcResult.classList.add('val-pos-high');
-            else if (sum > 0) calcResult.classList.add('val-pos-mid');
-            else if (sum <= -2) calcResult.classList.add('val-neg-high');
-            else if (sum < 0) calcResult.classList.add('val-neg-mid');
-            else if (sum === 0) calcResult.classList.add('val-zero'); // Consistent styling
+            const rounded = Math.round(sum);
+            calcResult.textContent = rounded;
+            calcResult.className = 'result-box';
+            if (rounded >= 2) calcResult.classList.add('val-pos-high');
+            else if (rounded > 0) calcResult.classList.add('val-pos-mid');
+            else if (rounded <= -2) calcResult.classList.add('val-neg-high');
+            else if (rounded < 0) calcResult.classList.add('val-neg-mid');
+            else calcResult.classList.add('val-zero');
         }
 
-        if (terms.length > 0) {
-            let html = `<div style="font-size: 0.9rem; color: #555;">(Pixel × Filter) Sum:</div>`;
-            html += terms.map(t => `<span style="background:#e3f2fd; padding: 2px 5px; border-radius: 4px; margin: 0 2px;">${t}</span>`).join(' + ');
-            html += `<div style="margin-top: 10px; font-size: 1.2rem; color: var(--text-color);"> = <strong>${sum.toFixed(1)}</strong></div>`;
+        // Math display
+        const nonZeroTerms = terms.filter(t => Math.abs(t.prod) > 0.001);
+        if (nonZeroTerms.length > 0) {
+            let html = '<div style="margin-bottom:4px; font-size:0.8rem; color:#6b8299;">(pixel × filter) sum:</div>';
+            html += terms.map(t => {
+                const highlight = Math.abs(t.prod) > 0.001;
+                const bg = highlight ? (t.prod > 0 ? '#ffebee' : '#e3f2fd') : '#f5f5f5';
+                const color = highlight ? (t.prod > 0 ? '#c62828' : '#1565c0') : '#bbb';
+                return `<span style="display:inline-block;background:${bg};padding:2px 6px;border-radius:4px;margin:1px 2px;color:${color};font-size:0.82rem;">(${t.pVal}×${t.kVal})</span>`;
+            }).join(' + ');
+            html += `<div style="display:inline-block;margin-top:8px;font-size:1.1rem;color:var(--text-color);"> = <strong>${sum % 1 === 0 ? sum : sum.toFixed(2)}</strong></div>`;
             mathDisplay.innerHTML = html;
         } else {
-            mathDisplay.innerHTML = "0 <span style='font-size:0.8rem; color:#888'>(All zero interactions)</span>";
+            mathDisplay.innerHTML = `<span style="color:#999;">0 — all zero interactions</span>`;
         }
 
-        calcText.textContent = `Spot Value: ${sum.toFixed(1)}`;
+        // Position text
+        const outW = GRID_SIZE - KERNEL_SIZE + 1;
+        const step = outR * outW + outC + 1;
+        const totalSteps = outW * outW;
+        calcText.innerHTML = `Position (${outR}, ${outC}) &nbsp;·&nbsp; <span class="step-indicator">Step ${step} / ${totalSteps}</span>`;
 
     } catch (err) {
         console.error("Highlight error:", err);
-        clearHighlights(); // Restore state so it doesn't look broken
+        clearHighlights();
     }
 }
 
-
 function clearHighlights() {
-    const inCells = inputGrid.querySelectorAll('.highlighted-input');
-    inCells.forEach(c => c.classList.remove('highlighted-input'));
+    inputGrid.querySelectorAll('.highlighted-input').forEach(c => c.classList.remove('highlighted-input'));
+    outputGrid.querySelectorAll('.highlighted-output').forEach(c => c.classList.remove('highlighted-output'));
 
-    const outCells = outputGrid.querySelectorAll('.highlighted-output');
-    outCells.forEach(c => c.classList.remove('highlighted-output'));
-
-    // Reset mini-grid cells IN-PLACE (no innerHTML destroy/rebuild)
+    // Reset mini input grid in-place
     const calcInputGrid = document.getElementById('calc-input-grid');
     if (calcInputGrid) {
         const totalCells = KERNEL_SIZE * KERNEL_SIZE;
         if (calcInputGrid.children.length !== totalCells) {
-            // First time or wrong size: build from scratch
-            calcInputGrid.innerHTML = '';
-            calcInputGrid.style.gridTemplateColumns = `repeat(${KERNEL_SIZE}, var(--mini-cell-size))`;
-            for (let i = 0; i < totalCells; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'mini-cell';
-                cell.textContent = '0';
-                cell.style.backgroundColor = '#fff';
-                cell.style.color = '#ccc';
-                calcInputGrid.appendChild(cell);
-            }
+            initMiniInputGrid();
         } else {
-            // Reuse existing nodes — just reset content/styles
             for (let i = 0; i < calcInputGrid.children.length; i++) {
                 const cell = calcInputGrid.children[i];
                 cell.textContent = '0';
@@ -800,35 +786,33 @@ function clearHighlights() {
         calcResult.className = 'result-box';
     }
 
-    mathDisplay.innerHTML = "<em>Hover over the colorful grid or click Calculate to see the magic math!</em>";
-    calcText.textContent = "Hover over the colorful grid to see the magic math!";
+    mathDisplay.innerHTML = "<em style='color:#999;'>Hover over output pixels or press Step to see the math</em>";
+    calcText.textContent = "Hover over output or press Step";
 }
 
-let animationInterval;
+// ═══════════════════ Animation ═══════════════════
+function advancePosition() {
+    const outSize = GRID_SIZE - KERNEL_SIZE + 1;
+    animCol++;
+    if (animCol >= outSize) {
+        animCol = 0;
+        animRow++;
+    }
+    if (animRow >= outSize) {
+        animRow = 0;
+    }
+}
+
 function startAnimation() {
-    const outSize = outputData.length;
-    let r = 0;
-    let c = 0;
-
-    stopAnimation(); // safe clear
-
+    stopAnimation();
     animationInterval = setInterval(() => {
         try {
-            // Manual clear to avoid flickering
-            const inCells = inputGrid.querySelectorAll('.highlighted-input');
-            if (inCells) inCells.forEach(c => c.classList.remove('highlighted-input'));
+            // Clear previous highlights efficiently
+            inputGrid.querySelectorAll('.highlighted-input').forEach(c => c.classList.remove('highlighted-input'));
+            outputGrid.querySelectorAll('.highlighted-output').forEach(c => c.classList.remove('highlighted-output'));
 
-            const outCells = outputGrid.querySelectorAll('.highlighted-output');
-            if (outCells) outCells.forEach(c => c.classList.remove('highlighted-output'));
-
-            highlightReceptiveField(r, c);
-
-            c++;
-            if (c >= outSize) {
-                c = 0;
-                r++;
-            }
-            if (r >= outSize) r = 0;
+            highlightReceptiveField(animRow, animCol);
+            advancePosition();
         } catch (err) {
             console.error("Animation error:", err);
             stopAnimation();
@@ -838,8 +822,8 @@ function startAnimation() {
 
 function stopAnimation() {
     clearInterval(animationInterval);
-    clearHighlights();
+    animationInterval = null;
 }
 
-// Start
+// ═══════════════════ Start ═══════════════════
 init();
