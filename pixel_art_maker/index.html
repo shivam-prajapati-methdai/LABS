@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Pixel Art Maker — Create Amazing Pixel Art!</title>
+    <meta name="description"
+        content="A fun, interactive pixel art creator for kids and students. Draw, color, and export your pixel art masterpieces!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header id="app-header">
+        <h1 id="app-title">
+            <span class="title-icon">🎨</span>
+            <span class="title-text">Pixel Art Maker</span>
+            <span class="title-icon">✨</span>
+        </h1>
+        <p class="subtitle">Create your own pixel masterpiece!</p>
+    </header>
+
+    <!-- ===== MAIN LAYOUT ===== -->
+    <main id="app-main">
+
+        <!-- ===== LEFT PANEL: TOOLS + COLORS ===== -->
+        <aside id="left-panel">
+
+            <!-- TOOLS -->
+            <div class="panel-section" id="tools-section">
+                <h2 class="panel-title">🖌️ Tools</h2>
+                <div class="tools-grid">
+                    <button class="tool-btn active" data-tool="pencil" title="Pencil (P)">
+                        <span class="tool-icon">✏️</span>
+                        <span class="tool-label">Pencil</span>
+                    </button>
+                    <button class="tool-btn" data-tool="eraser" title="Eraser (E)">
+                        <span class="tool-icon">🧹</span>
+                        <span class="tool-label">Eraser</span>
+                    </button>
+                    <button class="tool-btn" data-tool="fill" title="Fill Bucket (F)">
+                        <span class="tool-icon">🪣</span>
+                        <span class="tool-label">Fill</span>
+                    </button>
+                    <button class="tool-btn" data-tool="eyedropper" title="Eyedropper (I)">
+                        <span class="tool-icon">💧</span>
+                        <span class="tool-label">Pick Color</span>
+                    </button>
+                    <button class="tool-btn" data-tool="line" title="Line (L)">
+                        <span class="tool-icon">📏</span>
+                        <span class="tool-label">Line</span>
+                    </button>
+                    <button class="tool-btn" data-tool="rectangle" title="Rectangle (R)">
+                        <span class="tool-icon">⬜</span>
+                        <span class="tool-label">Rectangle</span>
+                    </button>
+                    <button class="tool-btn" data-tool="circle" title="Circle (C)">
+                        <span class="tool-icon">⭕</span>
+                        <span class="tool-label">Circle</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- COLORS -->
+            <div class="panel-section" id="colors-section">
+                <h2 class="panel-title">🌈 Colors</h2>
+
+                <div id="active-colors">
+                    <div id="primary-color-display" title="Current Color">
+                        <div id="primary-swatch"></div>
+                    </div>
+                    <input type="color" id="color-picker" value="#ff6b6b" title="Pick a custom color">
+                </div>
+
+                <div id="palette-grid">
+                    <!-- Palette swatches injected by JS -->
+                </div>
+
+                <h3 class="sub-title">Recent</h3>
+                <div id="recent-colors">
+                    <!-- Recent color swatches injected by JS -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== CENTER: CANVAS ===== -->
+        <section id="canvas-area">
+            <div id="canvas-container">
+                <canvas id="pixel-canvas"></canvas>
+            </div>
+
+            <!-- ZOOM BAR -->
+            <div id="zoom-bar">
+                <button id="zoom-out-btn" class="icon-btn" title="Zoom Out (-)">➖</button>
+                <input type="range" id="zoom-slider" min="4" max="80" value="16">
+                <button id="zoom-in-btn" class="icon-btn" title="Zoom In (+)">➕</button>
+                <span id="zoom-label">16px</span>
+            </div>
+        </section>
+
+        <!-- ===== RIGHT PANEL: CONTROLS ===== -->
+        <aside id="right-panel">
+
+            <!-- GRID SIZE -->
+            <div class="panel-section" id="grid-section">
+                <h2 class="panel-title">📐 Grid Size</h2>
+                <div class="grid-size-btns">
+                    <button class="size-btn" data-size="8">8×8</button>
+                    <button class="size-btn active" data-size="16">16×16</button>
+                    <button class="size-btn" data-size="32">32×32</button>
+                    <button class="size-btn" data-size="64">64×64</button>
+                </div>
+            </div>
+
+            <!-- OPTIONS -->
+            <div class="panel-section" id="options-section">
+                <h2 class="panel-title">⚙️ Options</h2>
+                <div class="options-list">
+                    <label class="toggle-label" for="grid-toggle">
+                        <input type="checkbox" id="grid-toggle" checked>
+                        <span class="toggle-switch"></span>
+                        Show Grid
+                    </label>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="panel-section" id="actions-section">
+                <h2 class="panel-title">🚀 Actions</h2>
+                <div class="action-btns">
+                    <button id="undo-btn" class="action-btn" title="Undo (Ctrl+Z)">
+                        <span>↩️</span> Undo
+                    </button>
+                    <button id="redo-btn" class="action-btn" title="Redo (Ctrl+Y)">
+                        <span>↪️</span> Redo
+                    </button>
+                    <button id="clear-btn" class="action-btn danger" title="Hold to Clear">
+                        <div class="clear-progress"></div>
+                        <span>🗑️</span> Hold to Clear
+                    </button>
+                    <button id="export-btn" class="action-btn primary" title="Export as PNG">
+                        <span>💾</span> Export PNG
+                    </button>
+                </div>
+            </div>
+
+            <!-- KEYBOARD SHORTCUTS -->
+            <div class="panel-section" id="shortcuts-section">
+                <h2 class="panel-title">⌨️ Shortcuts</h2>
+                <div class="shortcuts-list">
+                    <div class="shortcut"><kbd>P</kbd> Pencil</div>
+                    <div class="shortcut"><kbd>E</kbd> Eraser</div>
+                    <div class="shortcut"><kbd>F</kbd> Fill</div>
+                    <div class="shortcut"><kbd>I</kbd> Eyedropper</div>
+                    <div class="shortcut"><kbd>L</kbd> Line</div>
+                    <div class="shortcut"><kbd>R</kbd> Rectangle</div>
+                    <div class="shortcut"><kbd>C</kbd> Circle</div>
+                    <div class="shortcut"><kbd>G</kbd> Toggle Grid</div>
+                    <div class="shortcut"><kbd>Ctrl+Z</kbd> Undo</div>
+                    <div class="shortcut"><kbd>Ctrl+Y</kbd> Redo</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
